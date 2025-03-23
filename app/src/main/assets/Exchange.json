@@ -73,6 +73,44 @@
     },
     {
       "type": "function",
+      "name": "getContractEurcBalance",
+      "inputs": [
+        {
+          "name": "eurcToken",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getContractUsdtBalance",
+      "inputs": [
+        {
+          "name": "usdtToken",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "getDecimals",
       "inputs": [],
       "outputs": [
