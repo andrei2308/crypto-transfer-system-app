@@ -36,14 +36,6 @@
                 app:layout_constraintTop_toBottomOf="@id/titleTextView"
                 android:layout_marginTop="24dp"/>
 
-            <Button
-                android:id="@+id/callViewMethodButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Get Token Addresses"
-                app:layout_constraintTop_toBottomOf="@id/connectButton"
-                android:layout_marginTop="16dp"/>
-
             <TextView
                 android:id="@+id/balancesSectionLabel"
                 android:layout_width="match_parent"
@@ -53,7 +45,7 @@
                 android:textSize="16sp"
                 android:gravity="center"
                 android:layout_marginTop="24dp"
-                app:layout_constraintTop_toBottomOf="@id/callViewMethodButton"/>
+                app:layout_constraintTop_toBottomOf="@id/connectButton"/>
 
             <Button
                 android:id="@+id/checkAllBalancesButton"
@@ -65,74 +57,6 @@
                 android:layout_marginTop="8dp"/>
 
             <TextView
-                android:id="@+id/contractBalancesLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Contract Balances:"
-                android:textStyle="italic"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@id/checkAllBalancesButton"/>
-
-            <LinearLayout
-                android:id="@+id/contractBalanceButtonsLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/contractBalancesLabel"
-                android:layout_marginTop="4dp">
-
-                <Button
-                    android:id="@+id/checkEurcBalanceButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Contract EURC"
-                    android:layout_marginEnd="4dp"/>
-
-                <Button
-                    android:id="@+id/checkUsdtBalanceButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Contract USDT"
-                    android:layout_marginStart="4dp"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/walletBalancesLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Your Wallet Balances:"
-                android:textStyle="italic"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@id/contractBalanceButtonsLayout"/>
-
-            <LinearLayout
-                android:id="@+id/walletBalanceButtonsLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/walletBalancesLabel"
-                android:layout_marginTop="4dp">
-
-                <Button
-                    android:id="@+id/checkWalletEurcButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Wallet EURC"
-                    android:layout_marginEnd="4dp"/>
-
-                <Button
-                    android:id="@+id/checkWalletUsdtButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Wallet USDT"
-                    android:layout_marginStart="4dp"/>
-            </LinearLayout>
-
-            <TextView
                 android:id="@+id/transactionsSectionLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -141,15 +65,31 @@
                 android:textSize="16sp"
                 android:gravity="center"
                 android:layout_marginTop="24dp"
-                app:layout_constraintTop_toBottomOf="@id/walletBalanceButtonsLayout"/>
+                app:layout_constraintTop_toBottomOf="@id/checkAllBalancesButton"/>
+
+            <TextView
+                android:id="@+id/currencySelectionLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Currency:"
+                android:textStyle="italic"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/transactionsSectionLabel"/>
+
+            <Spinner
+                android:id="@+id/currencySpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/currencySelectionLabel"/>
 
             <Button
                 android:id="@+id/mintTokenButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Mint EURC Tokens"
-                app:layout_constraintTop_toBottomOf="@id/transactionsSectionLabel"
-                android:layout_marginTop="8dp"/>
+                android:text="Mint Tokens"
+                app:layout_constraintTop_toBottomOf="@id/currencySpinner"
+                android:layout_marginTop="16dp"/>
 
             <Button
                 android:id="@+id/approveTokenButton"

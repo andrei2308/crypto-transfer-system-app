@@ -3,7 +3,9 @@ package com.example.crypto_payment_system;
 
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +27,6 @@ import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
-import org.web3j.protocol.core.methods.response.EthSign;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.abi.datatypes.Function;
@@ -56,40 +57,46 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        Spinner currencySpinner = findViewById(R.id.currencySpinner);
 
         result = findViewById(R.id.resultTextView);
 
-        // Connection and info buttons
         Button connectButton = findViewById(R.id.connectButton);
-        Button callViewMethodButton = findViewById(R.id.callViewMethodButton);
 
-        // Balance check buttons
         Button checkAllBalancesButton = findViewById(R.id.checkAllBalancesButton);
-        Button checkEurcBalanceButton = findViewById(R.id.checkEurcBalanceButton);
-        Button checkUsdtBalanceButton = findViewById(R.id.checkUsdtBalanceButton);
-        Button checkWalletEurcButton = findViewById(R.id.checkWalletEurcButton);
-        Button checkWalletUsdtButton = findViewById(R.id.checkWalletUsdtButton);
 
-        // Transaction buttons
         Button mintTokenButton = findViewById(R.id.mintTokenButton);
         Button approveTokenButton = findViewById(R.id.approveTokenButton);
         Button callTransactionMethodButton = findViewById(R.id.callTransactionMethodButton);
         Button exchangeButton = findViewById(R.id.exchangeButton);
 
-        // Set click listeners for connection and info
         connectButton.setOnClickListener(v -> connectToEthereum());
-        callViewMethodButton.setOnClickListener(v -> callContractViewMethod());
 
-        // Set click listeners for balance checks
         checkAllBalancesButton.setOnClickListener(v -> checkAllBalances());
-        checkEurcBalanceButton.setOnClickListener(v -> checkEurcBalance());
-        checkUsdtBalanceButton.setOnClickListener(v -> checkUsdtBalance());
 
-        // Set click listeners for transactions
-        mintTokenButton.setOnClickListener(v -> mintEurcTokens());
-        approveTokenButton.setOnClickListener(v -> approveTokenSpending());
-        callTransactionMethodButton.setOnClickListener(v -> callContractTransactionMethod());
+        mintTokenButton.setOnClickListener(v ->
+                {
+                   String selectedCurrency = currencySpinner.getSelectedItem().toString();
+                   mintEurcTokens(selectedCurrency);
+                });
+        approveTokenButton.setOnClickListener(v -> {
+            String selectedCurrency = currencySpinner.getSelectedItem().toString();
+            approveTokenSpending(selectedCurrency);
+        });
+        callTransactionMethodButton.setOnClickListener(v -> {
+            String selectedCurrency = currencySpinner.getSelectedItem().toString();
+            callContractTransactionMethod(selectedCurrency);
+        });
         exchangeButton.setOnClickListener(v -> exchangeEurToUsd());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"EUR","USD"}
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        currencySpinner.setAdapter(adapter);
+
     }
 
     private String getTokenAddress(String methodName) throws Exception {
@@ -126,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
         return decodedResponse.get(0).getValue().toString();
     }
 
-    private void callContractTransactionMethod() {
+    private void callContractTransactionMethod(String stableCoin) {
+        String addressOfAddedLiquidity = stableCoin == "USD" ? usdtAddress : eurcAddress;
         if(web3j == null || contractAddress == null){
             Toast.makeText(this,"Connect to Ethereum first",Toast.LENGTH_LONG).show();
             return;
@@ -137,11 +145,7 @@ public class MainActivity extends AppCompatActivity {
             try{
                 Credentials credentials = Credentials.create(PRIVATE_KEY);
 
-                if(eurcAddress.isEmpty()) {
-                    eurcAddress = getTokenAddress("getEurcAddress");
-                }
-
-                Function function = new Function("addLiquidity",Arrays.asList(new org.web3j.abi.datatypes.Address(usdtAddress),new org.web3j.abi.datatypes.generated.Uint256(BigInteger.valueOf(100000000))),Collections.emptyList());
+                Function function = new Function("addLiquidity",Arrays.asList(new org.web3j.abi.datatypes.Address(addressOfAddedLiquidity),new org.web3j.abi.datatypes.generated.Uint256(BigInteger.valueOf(100000000))),Collections.emptyList());
                 String encodedFunction = FunctionEncoder.encode(function);
 
                 BigInteger nonce = web3j.ethGetTransactionCount(credentials.getAddress(),DefaultBlockParameterName.LATEST).sendAsync().get().getTransactionCount();
@@ -186,7 +190,8 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void approveTokenSpending() {
+    private void approveTokenSpending(String stableCoin) {
+        String addressOfStableCoinToApprove = stableCoin == "USD" ? usdtAddress : eurcAddress;
         if(web3j == null || contractAddress == null){
             Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
             return;
@@ -196,10 +201,6 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 Credentials credentials = Credentials.create(PRIVATE_KEY);
-
-                if(eurcAddress.isEmpty()) {
-                    eurcAddress = getTokenAddress("getEurcAddress");
-                }
 
                 BigInteger approvalAmount = new BigInteger("1000000000000");
 
@@ -226,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
                         nonce,
                         gasPrice,
                         gasLimit,
-                        usdtAddress,
+                        addressOfStableCoinToApprove,
                         encodedApproveFunction
                 );
 
@@ -292,7 +293,8 @@ public class MainActivity extends AppCompatActivity {
         return receipt;
     }
 
-    private void mintEurcTokens() {
+    private void mintEurcTokens(String stablecoin) {
+        final String addressOfStableCoinToMint = stablecoin == "USD" ? usdtAddress : eurcAddress;
         if(web3j == null || contractAddress == null){
             Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
             return;
@@ -303,9 +305,6 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 Credentials credentials = Credentials.create(PRIVATE_KEY);
-                if(eurcAddress.isEmpty()) {
-                    eurcAddress = getTokenAddress("getEurcAddress");
-                }
 
                 BigInteger mintAmount = new BigInteger("1000000000");
 
@@ -332,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
                         nonce,
                         gasPrice,
                         gasLimit,
-                        usdtAddress,
+                        addressOfStableCoinToMint,
                         encodedMintFunction
                 );
 
@@ -372,37 +371,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
-
-    private void callContractViewMethod() {
-        if(web3j == null || contractAddress == null){
-            Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
-            return;
-        }
-        new Thread(()->{
-            try{
-                eurcAddress = getTokenAddress("getEurcAddress");
-                try {
-                    usdtAddress = getTokenAddress("getUsdtAddress");
-                } catch (Exception e) {
-                    usdtAddress = "Not available";
-                }
-
-                final String eurc = eurcAddress;
-                final String usdt = usdtAddress;
-
-                runOnUiThread(()->{
-                    this.result.setText("Euro Token Address: " + eurc + "\nUSD Token Address: " + usdt);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                final String errorMessage = e.getMessage();
-                runOnUiThread(()->{
-                    result.setText("Error: " + errorMessage);
-                });
-            }
-        }).start();
-    }
-
     private void connectToEthereum() {
         new Thread(()->{
             try{
@@ -413,6 +381,19 @@ public class MainActivity extends AppCompatActivity {
 
                 loadContractFromJson();
 
+                    eurcAddress = getTokenAddress("getEurcAddress");
+                    try {
+                        usdtAddress = getTokenAddress("getUsdtAddress");
+                    } catch (Exception e) {
+                        usdtAddress = "Not available";
+                    }
+
+                    final String eurc = eurcAddress;
+                    final String usdt = usdtAddress;
+
+                    runOnUiThread(()->{
+                        this.result.setText("Euro Token Address: " + eurc + "\nUSD Token Address: " + usdt);
+                    });
                 runOnUiThread(()->{
                     result.setText("Connected to: " + connectedVersion + "\nContract at: " + contractAddress);
                 });
@@ -446,119 +427,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return json;
     }
-    private void checkEurcBalance() {
-        if(web3j == null || contractAddress == null){
-            Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        result.setText("Checking EURC balance...");
-
-        new Thread(() -> {
-            try {
-                // Get EURC address if not already stored
-                if(eurcAddress.isEmpty()) {
-                    eurcAddress = getTokenAddress("getEurcAddress");
-                }
-
-                // Create function call to getContractEurcBalance
-                Function function = new Function(
-                        "getContractEurcBalance",
-                        Arrays.asList(new org.web3j.abi.datatypes.Address(eurcAddress)),
-                        Arrays.asList(new TypeReference<org.web3j.abi.datatypes.generated.Uint256>() {})
-                );
-
-                String encodedFunction = FunctionEncoder.encode(function);
-
-                EthCall response = web3j.ethCall(
-                        Transaction.createEthCallTransaction(
-                                WALLET_ADDRESS,
-                                contractAddress,
-                                encodedFunction
-                        ),
-                        DefaultBlockParameterName.LATEST
-                ).sendAsync().get();
-
-                List<Type> decodedResponse = FunctionReturnDecoder.decode(
-                        response.getValue(),
-                        function.getOutputParameters()
-                );
-
-                BigInteger balance = BigInteger.ZERO;
-                if(!decodedResponse.isEmpty()) {
-                    balance = (BigInteger) decodedResponse.get(0).getValue();
-                }
-
-                final BigInteger finalBalance = balance;
-                runOnUiThread(() -> {
-                    result.setText("Contract EURC Balance: " + finalBalance);
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                final String errorMessage = e.getMessage();
-                runOnUiThread(() -> {
-                    result.setText("Error checking EURC balance: " + errorMessage);
-                });
-            }
-        }).start();
-    }
-
-    private void checkUsdtBalance() {
-        if(web3j == null || contractAddress == null){
-            Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        result.setText("Checking USDT balance...");
-
-        new Thread(() -> {
-            try {
-                if(usdtAddress.isEmpty()) {
-                    usdtAddress = getTokenAddress("getUsdtAddress");
-                }
-
-                Function function = new Function(
-                        "getContractUsdtBalance",
-                        Arrays.asList(new org.web3j.abi.datatypes.Address(usdtAddress)),
-                        Arrays.asList(new TypeReference<org.web3j.abi.datatypes.generated.Uint256>() {})
-                );
-
-                String encodedFunction = FunctionEncoder.encode(function);
-
-                EthCall response = web3j.ethCall(
-                        Transaction.createEthCallTransaction(
-                                WALLET_ADDRESS,
-                                contractAddress,
-                                encodedFunction
-                        ),
-                        DefaultBlockParameterName.LATEST
-                ).sendAsync().get();
-
-                List<Type> decodedResponse = FunctionReturnDecoder.decode(
-                        response.getValue(),
-                        function.getOutputParameters()
-                );
-
-                BigInteger balance = BigInteger.ZERO;
-                if(!decodedResponse.isEmpty()) {
-                    balance = (BigInteger) decodedResponse.get(0).getValue();
-                }
-
-                final BigInteger finalBalance = balance;
-                runOnUiThread(() -> {
-                    result.setText("Contract USDT Balance: " + finalBalance);
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                final String errorMessage = e.getMessage();
-                runOnUiThread(() -> {
-                    result.setText("Error checking USDT balance: " + errorMessage);
-                });
-            }
-        }).start();
-    }
     private void exchangeEurToUsd() {
         if(web3j == null || contractAddress == null){
             Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
@@ -570,10 +438,6 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 Credentials credentials = Credentials.create(PRIVATE_KEY);
-
-                if(eurcAddress.isEmpty()) {
-                    eurcAddress = getTokenAddress("getEurcAddress");
-                }
 
                 BigInteger exchangeAmount = new BigInteger("10000000");
 
@@ -754,27 +618,14 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Credentials credentials = Credentials.create(PRIVATE_KEY);
 
-                // Get addresses if not already stored
-                if(eurcAddress.isEmpty()) {
-                    eurcAddress = getTokenAddress("getEurcAddress");
-                }
-                if(usdtAddress.isEmpty()) {
-                    usdtAddress = getTokenAddress("getUsdtAddress");
-                }
-
-                // Check wallet EURC balance
                 BigInteger walletEurcBalance = getTokenBalance(credentials.getAddress(), eurcAddress);
 
-                // Check wallet USDT balance
                 BigInteger walletUsdtBalance = getTokenBalance(credentials.getAddress(), usdtAddress);
 
-                // Check contract EURC balance
                 BigInteger contractEurcBalance = getContractTokenBalance("getContractEurcBalance", eurcAddress);
 
-                // Check contract USDT balance
                 BigInteger contractUsdtBalance = getContractTokenBalance("getContractUsdtBalance", usdtAddress);
 
-                // Format and display all balances
                 final StringBuilder balanceInfo = new StringBuilder();
                 balanceInfo.append("YOUR WALLET BALANCES:\n");
                 balanceInfo.append("EURC: ").append(walletEurcBalance).append("\n");
