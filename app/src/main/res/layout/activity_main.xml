@@ -92,19 +92,11 @@
                 android:layout_marginTop="16dp"/>
 
             <Button
-                android:id="@+id/approveTokenButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Approve Token Spending"
-                app:layout_constraintTop_toBottomOf="@id/mintTokenButton"
-                android:layout_marginTop="16dp"/>
-
-            <Button
                 android:id="@+id/callTransactionMethodButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Add Liquidity"
-                app:layout_constraintTop_toBottomOf="@id/approveTokenButton"
+                app:layout_constraintTop_toBottomOf="@id/mintTokenButton"
                 android:layout_marginTop="16dp"/>
 
             <Button

@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         Button checkAllBalancesButton = findViewById(R.id.checkAllBalancesButton);
 
         Button mintTokenButton = findViewById(R.id.mintTokenButton);
-        Button approveTokenButton = findViewById(R.id.approveTokenButton);
         Button callTransactionMethodButton = findViewById(R.id.callTransactionMethodButton);
         Button exchangeButton = findViewById(R.id.exchangeButton);
 
@@ -79,10 +78,7 @@ public class MainActivity extends AppCompatActivity {
                    String selectedCurrency = currencySpinner.getSelectedItem().toString();
                    mintEurcTokens(selectedCurrency);
                 });
-        approveTokenButton.setOnClickListener(v -> {
-            String selectedCurrency = currencySpinner.getSelectedItem().toString();
-            approveTokenSpending(selectedCurrency);
-        });
+
         callTransactionMethodButton.setOnClickListener(v -> {
             String selectedCurrency = currencySpinner.getSelectedItem().toString();
             callContractTransactionMethod(selectedCurrency);
@@ -134,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void callContractTransactionMethod(String stableCoin) {
-        String addressOfAddedLiquidity = stableCoin == "USD" ? usdtAddress : eurcAddress;
+        String addressOfAddedLiquidity = stableCoin.equals("USD") ? usdtAddress : eurcAddress;
         if(web3j == null || contractAddress == null){
             Toast.makeText(this,"Connect to Ethereum first",Toast.LENGTH_LONG).show();
             return;
@@ -145,7 +141,16 @@ public class MainActivity extends AppCompatActivity {
             try{
                 Credentials credentials = Credentials.create(PRIVATE_KEY);
 
-                Function function = new Function("addLiquidity",Arrays.asList(new org.web3j.abi.datatypes.Address(addressOfAddedLiquidity),new org.web3j.abi.datatypes.generated.Uint256(BigInteger.valueOf(100000000))),Collections.emptyList());
+                BigInteger exchangeAmount = new BigInteger("1000000");
+
+                checkAndApproveIfNeeded(credentials, exchangeAmount,addressOfAddedLiquidity);
+
+                Function function = new Function("addLiquidity",
+                                Arrays.asList(
+                                        new org.web3j.abi.datatypes.Address(addressOfAddedLiquidity),
+                                        new org.web3j.abi.datatypes.generated.Uint256(exchangeAmount)
+                                ),
+                                Collections.emptyList());
                 String encodedFunction = FunctionEncoder.encode(function);
 
                 BigInteger nonce = web3j.ethGetTransactionCount(credentials.getAddress(),DefaultBlockParameterName.LATEST).sendAsync().get().getTransactionCount();
@@ -189,85 +194,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
-
-    private void approveTokenSpending(String stableCoin) {
-        String addressOfStableCoinToApprove = stableCoin == "USD" ? usdtAddress : eurcAddress;
-        if(web3j == null || contractAddress == null){
-            Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
-            return;
-        }
-        result.setText("Approving token spending...");
-
-        new Thread(() -> {
-            try {
-                Credentials credentials = Credentials.create(PRIVATE_KEY);
-
-                BigInteger approvalAmount = new BigInteger("1000000000000");
-
-                Function approveFunction = new Function(
-                        "approve",
-                        Arrays.asList(
-                                new org.web3j.abi.datatypes.Address(contractAddress),
-                                new org.web3j.abi.datatypes.generated.Uint256(approvalAmount)
-                        ),
-                        Collections.emptyList()
-                );
-
-                String encodedApproveFunction = FunctionEncoder.encode(approveFunction);
-
-                BigInteger nonce = web3j.ethGetTransactionCount(
-                        credentials.getAddress(),
-                        DefaultBlockParameterName.LATEST
-                ).sendAsync().get().getTransactionCount();
-
-                BigInteger gasPrice = web3j.ethGasPrice().sendAsync().get().getGasPrice();
-                BigInteger gasLimit = BigInteger.valueOf(100000);
-
-                RawTransaction rawTransaction = RawTransaction.createTransaction(
-                        nonce,
-                        gasPrice,
-                        gasLimit,
-                        addressOfStableCoinToApprove,
-                        encodedApproveFunction
-                );
-
-                byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
-                String hexValue = Numeric.toHexString(signedMessage);
-
-                EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
-
-                if(ethSendTransaction.hasError()){
-                    throw new Exception("Error sending approval transaction: " + ethSendTransaction.getError().getMessage());
-                }
-
-                String transactionHash = ethSendTransaction.getTransactionHash();
-
-                runOnUiThread(() -> {
-                    result.setText("Approval transaction submitted!\nHash: " + transactionHash + "\nWaiting for confirmation...");
-                });
-
-                org.web3j.protocol.core.methods.response.TransactionReceipt receipt = waitForTransactionReceipt(transactionHash);
-
-                if (receipt.isStatusOK()) {
-                    runOnUiThread(() -> {
-                        result.setText("Token approval successful!\nYou can now add liquidity.");
-                    });
-                } else {
-                    runOnUiThread(() -> {
-                        result.setText("Token approval failed (reverted on chain)!\nHash: " + transactionHash);
-                    });
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                final String errorMessage = e.getMessage();
-                runOnUiThread(() -> {
-                    result.setText("Error: " + errorMessage);
-                });
-            }
-        }).start();
-    }
-
     private org.web3j.protocol.core.methods.response.TransactionReceipt waitForTransactionReceipt(String transactionHash) throws Exception {
         int attempts = 0;
         int maxAttempts = 40;
@@ -294,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void mintEurcTokens(String stablecoin) {
-        final String addressOfStableCoinToMint = stablecoin == "USD" ? usdtAddress : eurcAddress;
+        final String addressOfStableCoinToMint = stablecoin.equals("USD") ? usdtAddress : eurcAddress;
         if(web3j == null || contractAddress == null){
             Toast.makeText(this,"Connect to Ethereum first", Toast.LENGTH_LONG).show();
             return;
@@ -439,9 +365,9 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Credentials credentials = Credentials.create(PRIVATE_KEY);
 
-                BigInteger exchangeAmount = new BigInteger("10000000");
+                BigInteger exchangeAmount = new BigInteger("1000000");
 
-                checkAndApproveIfNeeded(credentials, exchangeAmount);
+                checkAndApproveIfNeeded(credentials, exchangeAmount,eurcAddress);
 
                 Function exchangeFunction = new Function(
                         "exchangeEurToUsd",
@@ -515,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void checkAndApproveIfNeeded(Credentials credentials, BigInteger amount) throws Exception {
+    private void checkAndApproveIfNeeded(Credentials credentials, BigInteger amount,String address) throws Exception {
         Function allowanceFunction = new Function(
                 "allowance",
                 Arrays.asList(
@@ -530,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
         EthCall allowanceResponse = web3j.ethCall(
                 Transaction.createEthCallTransaction(
                         credentials.getAddress(),
-                        eurcAddress,
+                        address,
                         encodedAllowanceFunction
                 ),
                 DefaultBlockParameterName.LATEST
@@ -576,7 +502,7 @@ public class MainActivity extends AppCompatActivity {
                     nonce,
                     gasPrice,
                     gasLimit,
-                    eurcAddress,
+                    address,
                     encodedApproveFunction
             );
 
