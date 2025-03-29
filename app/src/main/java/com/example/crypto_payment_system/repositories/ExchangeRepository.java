@@ -5,7 +5,6 @@ import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.repositories.TokenRepository.TransactionResult;
 
-import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.math.BigInteger;

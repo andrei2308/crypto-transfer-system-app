@@ -4,7 +4,6 @@ import com.example.crypto_payment_system.api.TokenContractService;
 import com.example.crypto_payment_system.api.Web3Service;
 import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.models.TokenBalance;
-import com.example.crypto_payment_system.utils.Web3Utils;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
