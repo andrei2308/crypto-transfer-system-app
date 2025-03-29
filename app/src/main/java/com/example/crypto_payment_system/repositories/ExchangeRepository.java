@@ -5,6 +5,7 @@ import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.repositories.TokenRepository.TransactionResult;
 
+import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.math.BigInteger;
@@ -70,6 +71,25 @@ public class ExchangeRepository {
                 e.printStackTrace();
                 return new TransactionResult(false, null, "Error: " + e.getMessage());
             }
+        });
+    }
+
+    public CompletableFuture<TransactionResult> sendTransaction(String address) {
+        return CompletableFuture.supplyAsync(() -> {
+          try{
+            BigInteger amount = new BigInteger(Constants.DEFAULT_SEND_AMOUNT);
+
+            String txHash = exchangeContract.sendMoney(address,amount);
+
+            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
+
+            boolean success = receipt.isStatusOK();
+            return new TransactionResult(success,txHash,success ?
+                    "Money sent succesfully" : "Exchange failed");
+          }catch(Exception e){
+              e.printStackTrace();
+              return new TransactionResult(false,null,"Error: "+e.getMessage());
+          }
         });
     }
 }

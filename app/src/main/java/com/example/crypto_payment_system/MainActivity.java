@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.crypto_payment_system.models.TokenBalance;
 import com.example.crypto_payment_system.repositories.TokenRepository.TransactionResult;
 import com.example.crypto_payment_system.viewmodels.MainViewModel;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Map;
 
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
         Button mintTokenButton = findViewById(R.id.mintTokenButton);
         Button callTransactionMethodButton = findViewById(R.id.callTransactionMethodButton);
         Button exchangeButton = findViewById(R.id.exchangeButton);
+        Button sendMoneyButton = findViewById(R.id.send_money_btn);
+        TextInputEditText addressTeit = findViewById(R.id.address_teit);
 
         // Set up currency spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -66,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         exchangeButton.setOnClickListener(v -> viewModel.exchangeEurToUsd());
+
+        sendMoneyButton.setOnClickListener(v->viewModel.sendMoney(addressTeit.getText().toString()));
 
         observeViewModel();
     }

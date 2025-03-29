@@ -174,4 +174,20 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
     }
+
+    public void sendMoney(String address) {
+        if(!web3Service.isConnected()){
+            transactionResult.setValue(new TransactionResult(false,null,"Connect to Ethereum first!"));
+            return;
+        }
+
+        isLoading.setValue(true);
+
+        exchangeRepository.sendTransaction(address)
+                .thenAccept(result -> {
+                    transactionResult.postValue(result);
+                    isLoading.postValue(false);
+                });
+
+    }
 }

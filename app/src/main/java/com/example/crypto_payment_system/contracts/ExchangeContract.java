@@ -98,6 +98,30 @@ public class ExchangeContract {
         return sendTransaction(credentials, function);
     }
 
+
+    public String sendMoney(String address, BigInteger amount) throws Exception {
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(address,amount);
+        if(approvalTxHash != null){
+            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if(!receipt.isStatusOK()){
+                throw new Exception("Token approval failed");
+            }
+        }
+
+        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
+
+        Function function = new Function(
+                "sendMoney",
+                Arrays.asList(
+                        new Uint256(amount),
+                        new Address(address)
+                ),
+                Collections.emptyList()
+        );
+
+        return sendTransaction(credentials,function);
+    }
+
     /**
      * Helper method to send a transaction to the exchange contract
      */
