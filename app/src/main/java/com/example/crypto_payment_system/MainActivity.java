@@ -24,6 +24,10 @@ import com.example.crypto_payment_system.viewmodels.MainViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private MainViewModel viewModel;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Button exchangeButton;
     private Button sendMoneyButton;
     private TextInputEditText addressTeit;
+    private ArrayAdapter<String> currencyAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,26 +81,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View headerView = navigationView.getHeaderView(0);
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        // Initialize the adapter with an empty list
+        currencyAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
-                new String[]{"EUR", "USD"}
+                new ArrayList<>()
         );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        currencySpinner.setAdapter(adapter);
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        currencySpinner.setAdapter(currencyAdapter);
 
         connectButton.setOnClickListener(v -> viewModel.connectToEthereum());
 
         checkAllBalancesButton.setOnClickListener(v -> viewModel.checkAllBalances());
 
         mintTokenButton.setOnClickListener(v -> {
-            String selectedCurrency = currencySpinner.getSelectedItem().toString();
-            viewModel.mintTokens(selectedCurrency);
+            if (currencySpinner.getSelectedItem() != null) {
+                String selectedCurrency = currencySpinner.getSelectedItem().toString();
+                viewModel.mintTokens(selectedCurrency);
+            } else {
+                Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
+            }
         });
 
         callTransactionMethodButton.setOnClickListener(v -> {
-            String selectedCurrency = currencySpinner.getSelectedItem().toString();
-            viewModel.addLiquidity(selectedCurrency);
+            if (currencySpinner.getSelectedItem() != null) {
+                String selectedCurrency = currencySpinner.getSelectedItem().toString();
+                viewModel.addLiquidity(selectedCurrency);
+            } else {
+                Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
+            }
         });
 
         exchangeButton.setOnClickListener(v -> viewModel.exchangeBasedOnPreference());
@@ -122,15 +136,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 String preferredCurrencies = user.getPreferredCurrency();
                 if (preferredCurrencies != null && !preferredCurrencies.isEmpty()) {
-                    String primaryCurrency = preferredCurrencies.split(",")[0];
-                    int spinnerPosition = ((ArrayAdapter) currencySpinner.getAdapter())
-                            .getPosition(primaryCurrency);
-                    currencySpinner.setSelection(spinnerPosition);
+                    // Update the spinner with only the user's preferred currencies
+                    updateCurrencySpinner(preferredCurrencies);
 
+                    // Get primary currency (first in the list)
+                    String primaryCurrency = preferredCurrencies.split(",")[0];
                     updateExchangeButtonText(primaryCurrency);
                 }
             } else {
                 walletAddressText.setText("Connect to view wallet address");
+                // Reset the spinner with default options
+                resetCurrencySpinner();
             }
         });
 
@@ -174,6 +190,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    /**
+     * Updates the currency spinner to only show the user's preferred currencies
+     * @param preferredCurrencies Comma-separated list of currencies
+     */
+    private void updateCurrencySpinner(String preferredCurrencies) {
+        // Parse comma-separated list into an array
+        List<String> currencies = Arrays.asList(preferredCurrencies.split(","));
+
+        // Clear existing items
+        currencyAdapter.clear();
+
+        // Add only the preferred currencies to the adapter
+        for (String currency : currencies) {
+            String trimmedCurrency = currency.trim().toUpperCase();
+            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
+                currencyAdapter.add(trimmedCurrency);
+            }
+        }
+
+        // Notify the adapter that data has changed
+        currencyAdapter.notifyDataSetChanged();
+
+        // Select the first currency if available
+        if (currencyAdapter.getCount() > 0) {
+            currencySpinner.setSelection(0);
+        }
+    }
+
+    /**
+     * Resets the spinner to default options
+     */
+    private void resetCurrencySpinner() {
+        currencyAdapter.clear();
+        currencyAdapter.add("EUR");
+        currencyAdapter.add("USD");
+        currencyAdapter.notifyDataSetChanged();
+        currencySpinner.setSelection(0);
+    }
+
     private void updateExchangeButtonText(String primaryCurrency) {
         if ("EUR".equals(primaryCurrency)) {
             exchangeButton.setText("Exchange EUR → USD");
@@ -183,7 +238,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void sendMoney() {
-        viewModel.sendMoney(addressTeit.getText().toString());
+        if (currencySpinner.getSelectedItem() == null) {
+            Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String selectedCurrency = currencySpinner.getSelectedItem().toString();
+        if (selectedCurrency.equals("EUR")) {
+            viewModel.sendMoney(addressTeit.getText().toString(), 1);
+        } else if (selectedCurrency.equals("USD")) {
+            viewModel.sendMoney(addressTeit.getText().toString(), 2);
+        }
     }
 
     @Override
@@ -217,12 +282,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
         }
     }
+
     private void clearFragmentBackStack() {
         getSupportFragmentManager().popBackStack(null,
                 androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         recreate();
     }
+
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {

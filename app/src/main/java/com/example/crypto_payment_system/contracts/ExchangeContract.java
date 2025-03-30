@@ -8,7 +8,9 @@ import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
@@ -96,8 +98,29 @@ public class ExchangeContract {
         return sendTransaction(credentials, function);
     }
 
+    /**
+     * Exchange USD to EUR
+     */
+    public String exchangeUsdToEur(String usdtAddress, BigInteger amount) throws Exception{
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(usdtAddress,amount);
+        if(approvalTxHash != null){
+            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if(!receipt.isStatusOK()){
+                throw new Exception("Token approval failed");
+            }
+        }
 
-    public String sendMoney(String address, BigInteger amount) throws Exception {
+        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
+
+        Function function = new Function(
+                "exchangeUsdToEur",
+                Arrays.asList(new Uint256(amount)),
+                Arrays.asList(new TypeReference<Uint256>() {})
+        );
+
+        return sendTransaction(credentials,function);
+    }
+    public String sendMoney(BigInteger amount,String address, int sendCurrency, int receiveCurrency) throws Exception {
         String approvalTxHash = tokenService.checkAndApproveIfNeeded(address,amount);
         if(approvalTxHash != null){
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
@@ -112,7 +135,9 @@ public class ExchangeContract {
                 "sendMoney",
                 Arrays.asList(
                         new Uint256(amount),
-                        new Address(address)
+                        new Address(address),
+                        new Uint8(sendCurrency),
+                        new Uint8(receiveCurrency)
                 ),
                 Collections.emptyList()
         );

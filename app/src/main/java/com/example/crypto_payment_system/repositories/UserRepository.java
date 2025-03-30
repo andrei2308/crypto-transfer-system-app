@@ -1,14 +1,24 @@
 package com.example.crypto_payment_system.repositories;
 
+import static android.content.ContentValues.TAG;
+
+import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
+import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
+
+import android.util.Log;
+
 import com.example.crypto_payment_system.api.FirestoreService;
 import com.example.crypto_payment_system.models.User;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Repository class for user management
  */
 public class UserRepository {
+
     private final FirestoreService firestoreService;
 
     public UserRepository(FirestoreService firestoreService) {
@@ -65,5 +75,44 @@ public class UserRepository {
      */
     public CompletableFuture<Void> updatePreferredCurrency(String walletAddress, String currencies) {
         return firestoreService.updatePreferredCurrency(walletAddress, currencies);
+    }
+
+    /**
+     * Get the preferred currency of a user as an integer value compatible with the smart contract
+     * @param walletAddress The wallet address of the user
+     * @return CompletableFuture with the preferred currency as an integer (1=EUR, 2=USD)
+     *         If user has multiple preferred currencies, returns the first one.
+     *         Defaults to EUR (1) if no preference is set or user not found.
+     */
+    public CompletableFuture<Integer> getPreferredCurrency(String walletAddress) {
+        return getUserData(walletAddress)
+                .thenApply(user -> {
+                    if (user == null || user.getPreferredCurrency() == null || user.getPreferredCurrency().isEmpty()) {
+                        Log.w(TAG, "User not found or no preferred currency set for: " + walletAddress);
+                        return CURRENCY_EUR;
+                    }
+
+                    String preferredCurrencies = user.getPreferredCurrency();
+                    List<String> currencyList = Arrays.asList(preferredCurrencies.split(","));
+
+                    if (!currencyList.isEmpty()) {
+                        String firstPreference = currencyList.get(0).trim().toUpperCase();
+                        switch (firstPreference) {
+                            case "EUR":
+                                return CURRENCY_EUR;
+                            case "USD":
+                                return CURRENCY_USD;
+                            default:
+                                Log.w(TAG, "Unknown currency preference: " + firstPreference);
+                                return CURRENCY_EUR;
+                        }
+                    } else {
+                        return CURRENCY_EUR;
+                    }
+                })
+                .exceptionally(e -> {
+                    Log.e(TAG, "Error getting preferred currency", e);
+                    return CURRENCY_EUR;
+                });
     }
 }

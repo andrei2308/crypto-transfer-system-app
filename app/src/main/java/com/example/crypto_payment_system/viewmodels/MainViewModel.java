@@ -1,6 +1,7 @@
 package com.example.crypto_payment_system.viewmodels;
 
 import android.app.Application;
+import android.text.TextUtils;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -20,6 +21,8 @@ import com.example.crypto_payment_system.repositories.UserRepository;
 
 import org.web3j.crypto.Credentials;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -177,7 +180,7 @@ public class MainViewModel extends AndroidViewModel {
         if ("EUR".equals(preferredCurrency)) {
             exchangeEurToUsd();
         } else {
-//            exchangeUsdToEur(); // to be implemented
+            exchangeUsdToEur();
         }
     }
 
@@ -262,6 +265,24 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     /**
+     * Exchange USD to EUR
+     */
+    public void exchangeUsdToEur(){
+        if(!web3Service.isConnected()){
+            transactionResult.setValue(new TransactionResult(false,null,"Connect to Ethereum first"));
+            return;
+        }
+
+        isLoading.setValue(true);
+
+        exchangeRepository.exchangeUsdToEur()
+                .thenAccept(result->{
+                    transactionResult.postValue(result);
+                    isLoading.postValue(false);
+                });
+    }
+
+    /**
      * Clean up resources
      */
     @Override
@@ -290,19 +311,43 @@ public class MainViewModel extends AndroidViewModel {
         return isLoading;
     }
 
-    public void sendMoney(String address) {
-        if(!web3Service.isConnected()){
-            transactionResult.setValue(new TransactionResult(false,null,"Connect to Ethereum first!"));
+    public void sendMoney(String recipientAddress,int sendCurrency) {
+        if (!web3Service.isConnected()) {
+            transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first!"));
             return;
         }
 
-        isLoading.setValue(true);
+        if (TextUtils.isEmpty(recipientAddress)) {
+            transactionResult.setValue(new TransactionResult(false, null, "Recipient address cannot be empty"));
+            return;
+        }
 
-        exchangeRepository.sendTransaction(address)
-                .thenAccept(result -> {
-                    transactionResult.postValue(result);
-                    isLoading.postValue(false);
-                });
+        try {
 
+            userRepository.getPreferredCurrency(recipientAddress)
+                    .thenCompose(receiveCurrency -> {
+                        return exchangeRepository.sendTransaction(
+                                recipientAddress,
+                                sendCurrency,
+                                receiveCurrency);
+                    })
+                    .thenAccept(result -> {
+                        transactionResult.postValue(result);
+                        isLoading.postValue(false);
+                    })
+                    .exceptionally(e -> {
+                        transactionResult.postValue(new TransactionResult(false, null,
+                                "Transaction failed: " + e.getMessage()));
+                        isLoading.postValue(false);
+                        return null;
+                    });
+        } catch (NumberFormatException e) {
+            transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
+            isLoading.setValue(false);
+        } catch (Exception e) {
+            transactionResult.setValue(new TransactionResult(false, null,
+                    "Error: " + e.getMessage()));
+            isLoading.setValue(false);
+        }
     }
 }
