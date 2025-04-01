@@ -8,14 +8,13 @@ import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Function;
-import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Numeric;
@@ -96,6 +95,53 @@ public class ExchangeContract {
         );
 
         return sendTransaction(credentials, function);
+    }
+
+    /**
+     * Exchange USD to EUR
+     */
+    public String exchangeUsdToEur(String usdtAddress, BigInteger amount) throws Exception{
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(usdtAddress,amount);
+        if(approvalTxHash != null){
+            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if(!receipt.isStatusOK()){
+                throw new Exception("Token approval failed");
+            }
+        }
+
+        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
+
+        Function function = new Function(
+                "exchangeUsdToEur",
+                Arrays.asList(new Uint256(amount)),
+                Arrays.asList(new TypeReference<Uint256>() {})
+        );
+
+        return sendTransaction(credentials,function);
+    }
+    public String sendMoney(BigInteger amount,String address, int sendCurrency, int receiveCurrency) throws Exception {
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(address,amount);
+        if(approvalTxHash != null){
+            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if(!receipt.isStatusOK()){
+                throw new Exception("Token approval failed");
+            }
+        }
+
+        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
+
+        Function function = new Function(
+                "sendMoney",
+                Arrays.asList(
+                        new Uint256(amount),
+                        new Address(address),
+                        new Uint8(sendCurrency),
+                        new Uint8(receiveCurrency)
+                ),
+                Collections.emptyList()
+        );
+
+        return sendTransaction(credentials,function);
     }
 
     /**

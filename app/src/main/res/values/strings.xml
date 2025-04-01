@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">crypto-payment-system</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <!-- Currency arrays for settings -->
+    <string-array name="display_currency_entries">
+        <item>EUR (Euro)</item>
+        <item>USD (US Dollar)</item>
+    </string-array>
+    <string-array name="display_currency_values">
+        <item>EUR</item>
+        <item>USD</item>
+    </string-array>
 </resources>

@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.api;
 
+import static com.example.crypto_payment_system.config.Constants.DEFAULT_APPROVAL;
+
 import com.example.crypto_payment_system.config.Constants;
 
 import org.web3j.abi.FunctionEncoder;
@@ -16,7 +18,6 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
-import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.utils.Numeric;
 
@@ -174,7 +175,7 @@ public class TokenContractService {
         BigInteger currentAllowance = getAllowance(credentials.getAddress(), tokenAddress);
 
         if (currentAllowance.compareTo(amount) < 0) {
-            BigInteger approvalAmount = new BigInteger(Constants.DEFAULT_APPROVAL_AMOUNT);
+            BigInteger approvalAmount = new BigInteger(DEFAULT_APPROVAL);
 
             Function approveFunction = new Function(
                     "approve",
