@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.viewmodels;
 
+import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
+import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
+
 import android.app.Application;
 import android.text.TextUtils;
 
@@ -21,8 +24,6 @@ import com.example.crypto_payment_system.repositories.UserRepository;
 
 import org.web3j.crypto.Credentials;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -167,7 +168,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Exchange tokens based on user's preferred currency
      */
-    public void exchangeBasedOnPreference() {
+    public void exchangeBasedOnPreference(String currencyToExchange) {
         User user = currentUser.getValue();
         if (user == null) {
             transactionResult.setValue(
@@ -176,11 +177,12 @@ public class MainViewModel extends AndroidViewModel {
             return;
         }
 
-        String preferredCurrency = user.getPreferredCurrency();
-        if ("EUR".equals(preferredCurrency)) {
+        if ("EUR".equals(currencyToExchange)) {
             exchangeEurToUsd();
-        } else {
+        } else if ("USD".equals(currencyToExchange)){
             exchangeUsdToEur();
+        } else {
+            new TransactionResult(false,null,"Invalid currency");
         }
     }
 
@@ -311,7 +313,7 @@ public class MainViewModel extends AndroidViewModel {
         return isLoading;
     }
 
-    public void sendMoney(String recipientAddress,int sendCurrency) {
+    public void sendMoney(String recipientAddress, String sendCurrency) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first!"));
             return;
@@ -323,13 +325,23 @@ public class MainViewModel extends AndroidViewModel {
         }
 
         try {
+            int sendCurrencyCode;
+            if (sendCurrency.equals("EUR")) {
+                sendCurrencyCode = CURRENCY_EUR;
+            } else if (sendCurrency.equals("USD")) {
+                sendCurrencyCode = CURRENCY_USD;
+            } else {
+                sendCurrencyCode = CURRENCY_EUR;
+            }
 
-            userRepository.getPreferredCurrency(recipientAddress)
-                    .thenCompose(receiveCurrency -> {
+            isLoading.setValue(true);
+
+            userRepository.getPreferredCurrency(recipientAddress, sendCurrency)
+                    .thenCompose(receiveCurrencyCode -> {
                         return exchangeRepository.sendTransaction(
                                 recipientAddress,
-                                sendCurrency,
-                                receiveCurrency);
+                                sendCurrencyCode,
+                                receiveCurrencyCode);
                     })
                     .thenAccept(result -> {
                         transactionResult.postValue(result);
@@ -350,4 +362,5 @@ public class MainViewModel extends AndroidViewModel {
             isLoading.setValue(false);
         }
     }
+
 }

@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.api;
 
+import static com.example.crypto_payment_system.config.Constants.DEFAULT_APPROVAL;
+
 import com.example.crypto_payment_system.config.Constants;
 
 import org.web3j.abi.FunctionEncoder;
@@ -173,7 +175,7 @@ public class TokenContractService {
         BigInteger currentAllowance = getAllowance(credentials.getAddress(), tokenAddress);
 
         if (currentAllowance.compareTo(amount) < 0) {
-            BigInteger approvalAmount = new BigInteger(Constants.DEFAULT_APPROVAL_AMOUNT);
+            BigInteger approvalAmount = new BigInteger(DEFAULT_APPROVAL);
 
             Function approveFunction = new Function(
                     "approve",

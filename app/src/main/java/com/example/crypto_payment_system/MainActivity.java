@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        exchangeButton.setOnClickListener(v -> viewModel.exchangeBasedOnPreference());
+        exchangeButton.setOnClickListener(v -> viewModel.exchangeBasedOnPreference(currencySpinner.getSelectedItem().toString()));
 
         sendMoneyButton.setOnClickListener(v -> sendMoney());
 
@@ -244,11 +244,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         String selectedCurrency = currencySpinner.getSelectedItem().toString();
-        if (selectedCurrency.equals("EUR")) {
-            viewModel.sendMoney(addressTeit.getText().toString(), 1);
-        } else if (selectedCurrency.equals("USD")) {
-            viewModel.sendMoney(addressTeit.getText().toString(), 2);
-        }
+
+        viewModel.sendMoney(addressTeit.getText().toString(),selectedCurrency);
     }
 
     @Override

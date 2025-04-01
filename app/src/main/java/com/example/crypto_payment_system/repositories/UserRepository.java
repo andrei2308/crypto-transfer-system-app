@@ -84,8 +84,8 @@ public class UserRepository {
      *         If user has multiple preferred currencies, returns the first one.
      *         Defaults to EUR (1) if no preference is set or user not found.
      */
-    public CompletableFuture<Integer> getPreferredCurrency(String walletAddress) {
-        return getUserData(walletAddress)
+    public CompletableFuture<Integer> getPreferredCurrency(String walletAddress, String sendCurrency) {
+        return getUserData(walletAddress.toLowerCase())
                 .thenApply(user -> {
                     if (user == null || user.getPreferredCurrency() == null || user.getPreferredCurrency().isEmpty()) {
                         Log.w(TAG, "User not found or no preferred currency set for: " + walletAddress);
@@ -95,19 +95,26 @@ public class UserRepository {
                     String preferredCurrencies = user.getPreferredCurrency();
                     List<String> currencyList = Arrays.asList(preferredCurrencies.split(","));
 
-                    if (!currencyList.isEmpty()) {
-                        String firstPreference = currencyList.get(0).trim().toUpperCase();
-                        switch (firstPreference) {
-                            case "EUR":
-                                return CURRENCY_EUR;
-                            case "USD":
-                                return CURRENCY_USD;
-                            default:
-                                Log.w(TAG, "Unknown currency preference: " + firstPreference);
-                                return CURRENCY_EUR;
+                    if (currencyList.isEmpty()) {
+                        return CURRENCY_EUR;
+                    }
+                    if (currencyList.contains(sendCurrency)) {
+                        if (sendCurrency.equals("EUR")) {
+                            return CURRENCY_EUR;
+                        } else if (sendCurrency.equals("USD")) {
+                            return CURRENCY_USD;
+                        } else {
+                            return CURRENCY_EUR;
                         }
                     } else {
-                        return CURRENCY_EUR;
+                        String firstPreferredCurrency = currencyList.get(0);
+                        if (firstPreferredCurrency.equals("EUR")) {
+                            return CURRENCY_EUR;
+                        } else if (firstPreferredCurrency.equals("USD")) {
+                            return CURRENCY_USD;
+                        } else {
+                            return CURRENCY_EUR;
+                        }
                     }
                 })
                 .exceptionally(e -> {
