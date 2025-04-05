@@ -58,9 +58,7 @@ public class UserRepository {
                     if (document.exists()) {
                         return new User(
                                 document.getString("walletAddress"),
-                                document.getString("preferredCurrency"),
-                                document.getLong("createdAt"),
-                                document.getLong("lastLogin")
+                                document.getString("preferredCurrency")
                         );
                     } else {
                         return null;

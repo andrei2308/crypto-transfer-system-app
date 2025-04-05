@@ -54,12 +54,11 @@ public class TokenRepository {
     /**
      * Get all token balances
      */
-    public CompletableFuture<Map<String, TokenBalance>> getAllBalances() {
+    public CompletableFuture<Map<String, TokenBalance>> getAllBalances(Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             Map<String, TokenBalance> balances = new HashMap<>();
 
             try {
-                Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
                 String walletAddress = credentials.getAddress();
 
                 // Get EUR token balances
@@ -83,13 +82,13 @@ public class TokenRepository {
     /**
      * Mint tokens
      */
-    public CompletableFuture<TransactionResult> mintTokens(String currency) {
+    public CompletableFuture<TransactionResult> mintTokens(String currency, Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 final String tokenAddress = currency.equals("USD") ? usdtAddress : eurcAddress;
                 BigInteger mintAmount = new BigInteger(Constants.DEFAULT_MINT_AMOUNT);
 
-                String txHash = tokenService.mintTokens(tokenAddress, mintAmount);
+                String txHash = tokenService.mintTokens(tokenAddress, mintAmount, credentials);
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = receipt.isStatusOK();

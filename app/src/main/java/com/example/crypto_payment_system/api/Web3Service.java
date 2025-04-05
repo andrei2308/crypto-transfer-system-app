@@ -16,6 +16,7 @@ import org.web3j.protocol.http.HttpService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -71,8 +72,8 @@ public class Web3Service {
     /**
      * Load contract data from JSON asset file
      */
-    private void loadContractFromJson() throws JSONException {
-        String contractJson = loadJsonFromAsset(Constants.CONTRACT_JSON_FILE);
+    private void loadContractFromJson() throws JSONException, IOException {
+        String contractJson = loadJsonFromAsset();
         JSONObject jsonObject = new JSONObject(contractJson);
         contractAddress = jsonObject.getString("address");
         contractAbi = jsonObject.getJSONArray("abi");
@@ -81,18 +82,17 @@ public class Web3Service {
     /**
      * Helper method to load JSON from assets
      */
-    private String loadJsonFromAsset(String fileName) {
+    private String loadJsonFromAsset() throws IOException {
         String json;
         try {
-            InputStream is = context.getAssets().open(fileName);
+            InputStream is = context.getAssets().open(Constants.CONTRACT_JSON_FILE);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            json = new String(buffer, "UTF-8");
+            json = new String(buffer, StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
+            throw new IOException("Could not read the contract json file");
         }
         return json;
     }
@@ -101,7 +101,7 @@ public class Web3Service {
      * Wait for transaction receipt with timeout
      */
     public TransactionReceipt waitForTransactionReceipt(String transactionHash)
-            throws InterruptedException, ExecutionException, Exception {
+            throws Exception {
         return Web3Utils.waitForTransactionReceipt(web3j, transactionHash);
     }
 

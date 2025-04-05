@@ -22,22 +22,18 @@ import org.web3j.utils.Numeric;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
+import java.util.List;
 
 /**
  * Class that handles interactions with the exchange contract
  */
 public class ExchangeContract {
-    private final Web3j web3j;
-    private final String contractAddress;
     private final Web3Service web3Service;
     private final TokenContractService tokenService;
 
     public ExchangeContract(Web3Service web3Service, TokenContractService tokenService) {
         this.web3Service = web3Service;
         this.tokenService = tokenService;
-        this.web3j = web3Service.getWeb3j();
-        this.contractAddress = web3Service.getContractAddress();
     }
 
     private Web3j getWeb3j() {
@@ -51,16 +47,14 @@ public class ExchangeContract {
     /**
      * Add liquidity to the exchange contract
      */
-    public String addLiquidity(String tokenAddress, BigInteger amount) throws Exception {
-        String approvalTxHash = tokenService.checkAndApproveIfNeeded(tokenAddress, amount);
+    public String addLiquidity(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception {
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(tokenAddress, amount, credentials);
         if (approvalTxHash != null) {
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
             if (!receipt.isStatusOK()) {
                 throw new Exception("Token approval failed");
             }
         }
-
-        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
 
         Function function = new Function(
                 "addLiquidity",
@@ -77,8 +71,8 @@ public class ExchangeContract {
     /**
      * Exchange EUR to USD
      */
-    public String exchangeEurToUsd(String eurcAddress, BigInteger amount) throws Exception {
-        String approvalTxHash = tokenService.checkAndApproveIfNeeded(eurcAddress, amount);
+    public String exchangeEurToUsd(String eurcAddress, BigInteger amount, Credentials credentials) throws Exception {
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(eurcAddress, amount, credentials);
         if (approvalTxHash != null) {
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
             if (!receipt.isStatusOK()) {
@@ -86,12 +80,11 @@ public class ExchangeContract {
             }
         }
 
-        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
-
         Function function = new Function(
                 "exchangeEurToUsd",
-                Arrays.asList(new Uint256(amount)),
-                Arrays.asList(new TypeReference<Uint256>() {})
+                List.of(new Uint256(amount)),
+                List.of(new TypeReference<Uint256>() {
+                })
         );
 
         return sendTransaction(credentials, function);
@@ -100,8 +93,8 @@ public class ExchangeContract {
     /**
      * Exchange USD to EUR
      */
-    public String exchangeUsdToEur(String usdtAddress, BigInteger amount) throws Exception{
-        String approvalTxHash = tokenService.checkAndApproveIfNeeded(usdtAddress,amount);
+    public String exchangeUsdToEur(String usdtAddress, BigInteger amount, Credentials credentials) throws Exception{
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(usdtAddress,amount, credentials);
         if(approvalTxHash != null){
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
             if(!receipt.isStatusOK()){
@@ -109,26 +102,23 @@ public class ExchangeContract {
             }
         }
 
-        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
-
         Function function = new Function(
                 "exchangeUsdToEur",
-                Arrays.asList(new Uint256(amount)),
-                Arrays.asList(new TypeReference<Uint256>() {})
+                List.of(new Uint256(amount)),
+                List.of(new TypeReference<Uint256>() {
+                })
         );
 
         return sendTransaction(credentials,function);
     }
-    public String sendMoney(BigInteger amount,String address, int sendCurrency, int receiveCurrency) throws Exception {
-        String approvalTxHash = tokenService.checkAndApproveIfNeeded(address,amount);
+    public String sendMoney(BigInteger amount,String address, int sendCurrency, int receiveCurrency, Credentials credentials) throws Exception {
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(address,amount, credentials);
         if(approvalTxHash != null){
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
             if(!receipt.isStatusOK()){
                 throw new Exception("Token approval failed");
             }
         }
-
-        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
 
         Function function = new Function(
                 "sendMoney",
@@ -148,7 +138,7 @@ public class ExchangeContract {
      * Helper method to send a transaction to the exchange contract
      */
     private String sendTransaction(Credentials credentials, Function function)
-            throws InterruptedException, ExecutionException, Exception {
+            throws Exception {
 
         Web3j web3j = getWeb3j();
         String contractAddress = getContractAddress();
