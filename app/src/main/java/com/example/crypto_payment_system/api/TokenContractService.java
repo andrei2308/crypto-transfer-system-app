@@ -25,7 +25,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Service class for token contract interactions
@@ -58,7 +57,8 @@ public class TokenContractService {
         Function function = new Function(
                 methodName,
                 Collections.emptyList(),
-                Arrays.asList(new TypeReference<Address>() {})
+                List.of(new TypeReference<Address>() {
+                })
         );
 
         String encodedFunction = FunctionEncoder.encode(function);
@@ -90,8 +90,9 @@ public class TokenContractService {
     public BigInteger getTokenBalance(String address, String tokenAddress) throws Exception {
         Function function = new Function(
                 "balanceOf",
-                Arrays.asList(new Address(address)),
-                Arrays.asList(new TypeReference<Uint256>() {})
+                List.of(new Address(address)),
+                List.of(new TypeReference<Uint256>() {
+                })
         );
 
         String encodedFunction = FunctionEncoder.encode(function);
@@ -122,8 +123,9 @@ public class TokenContractService {
     public BigInteger getContractTokenBalance(String methodName, String tokenAddress) throws Exception {
         Function function = new Function(
                 methodName,
-                Arrays.asList(new Address(tokenAddress)),
-                Arrays.asList(new TypeReference<Uint256>() {})
+                List.of(new Address(tokenAddress)),
+                List.of(new TypeReference<Uint256>() {
+                })
         );
 
         String encodedFunction = FunctionEncoder.encode(function);
@@ -151,8 +153,7 @@ public class TokenContractService {
     /**
      * Mint tokens
      */
-    public String mintTokens(String tokenAddress, BigInteger amount) throws Exception {
-        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
+    public String mintTokens(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception {
 
         Function mintFunction = new Function(
                 "mint",
@@ -169,8 +170,7 @@ public class TokenContractService {
     /**
      * Check and approve tokens if needed
      */
-    public String checkAndApproveIfNeeded(String tokenAddress, BigInteger amount) throws Exception {
-        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
+    public String checkAndApproveIfNeeded(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception {
 
         BigInteger currentAllowance = getAllowance(credentials.getAddress(), tokenAddress);
 
@@ -204,7 +204,8 @@ public class TokenContractService {
                         new Address(ownerAddress),
                         new Address(contractAddress)
                 ),
-                Arrays.asList(new TypeReference<Uint256>() {})
+                List.of(new TypeReference<Uint256>() {
+                })
         );
 
         String encodedAllowanceFunction = FunctionEncoder.encode(allowanceFunction);
@@ -234,7 +235,7 @@ public class TokenContractService {
      * Helper method to send a transaction
      */
     private String sendTransaction(Credentials credentials, String to, Function function, long gasLimit)
-            throws InterruptedException, ExecutionException, Exception {
+            throws Exception {
 
         String encodedFunction = FunctionEncoder.encode(function);
 

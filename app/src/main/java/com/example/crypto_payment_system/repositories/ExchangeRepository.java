@@ -5,6 +5,7 @@ import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.repositories.TokenRepository.TransactionResult;
 
+import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.math.BigInteger;
@@ -27,7 +28,7 @@ public class ExchangeRepository {
     /**
      * Add liquidity to the exchange
      */
-    public CompletableFuture<TransactionResult> addLiquidity(String currency) {
+    public CompletableFuture<TransactionResult> addLiquidity(String currency, Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String tokenAddress = currency.equals("USD") ?
@@ -35,7 +36,7 @@ public class ExchangeRepository {
 
                 BigInteger amount = new BigInteger(Constants.DEFAULT_EXCHANGE_AMOUNT);
 
-                String txHash = exchangeContract.addLiquidity(tokenAddress, amount);
+                String txHash = exchangeContract.addLiquidity(tokenAddress, amount, credentials);
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = receipt.isStatusOK();
@@ -43,7 +44,6 @@ public class ExchangeRepository {
                         "Liquidity added successfully" : "Adding liquidity failed");
 
             } catch (Exception e) {
-                e.printStackTrace();
                 return new TransactionResult(false, null, "Error: " + e.getMessage());
             }
         });
@@ -52,13 +52,13 @@ public class ExchangeRepository {
     /**
      * Exchange EUR to USD
      */
-    public CompletableFuture<TransactionResult> exchangeEurToUsd() {
+    public CompletableFuture<TransactionResult> exchangeEurToUsd(Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 BigInteger amount = new BigInteger(Constants.DEFAULT_EXCHANGE_AMOUNT);
 
                 String txHash = exchangeContract.exchangeEurToUsd(
-                        tokenRepository.getEurcAddress(), amount);
+                        tokenRepository.getEurcAddress(), amount, credentials);
 
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
@@ -67,7 +67,6 @@ public class ExchangeRepository {
                         "Exchange completed successfully" : "Exchange failed");
 
             } catch (Exception e) {
-                e.printStackTrace();
                 return new TransactionResult(false, null, "Error: " + e.getMessage());
             }
         });
@@ -76,37 +75,35 @@ public class ExchangeRepository {
     /**
      * Exchange USD to EUR
      */
-    public CompletableFuture<TransactionResult> exchangeUsdToEur(){
+    public CompletableFuture<TransactionResult> exchangeUsdToEur(Credentials credentials){
         return CompletableFuture.supplyAsync(()->{
            try{
                BigInteger amount = new BigInteger(Constants.DEFAULT_EXCHANGE_AMOUNT);
-               String txHash = exchangeContract.exchangeUsdToEur(tokenRepository.getUsdtAddress(),amount);
+               String txHash = exchangeContract.exchangeUsdToEur(tokenRepository.getUsdtAddress(),amount, credentials);
                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                boolean success = receipt.isStatusOK();
                return new TransactionResult(success,txHash,success ?
                        "Exchange completed successfully" : "Exchange failed");
            }catch(Exception e){
-               e.printStackTrace();
                return new TransactionResult(false,null,"Error: "+e.getMessage());
            }
         });
     }
 
-    public CompletableFuture<TransactionResult> sendTransaction(String address, int sendCurrency, int receiveCurrency) {
+    public CompletableFuture<TransactionResult> sendTransaction(String address, int sendCurrency, int receiveCurrency, Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
           try{
             BigInteger amount = new BigInteger(Constants.DEFAULT_SEND_AMOUNT);
 
-            String txHash = exchangeContract.sendMoney(amount,address,sendCurrency,receiveCurrency);
+            String txHash = exchangeContract.sendMoney(amount,address,sendCurrency,receiveCurrency, credentials);
 
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
             boolean success = receipt.isStatusOK();
             return new TransactionResult(success,txHash,success ?
-                    "Money sent succesfully" : "Exchange failed");
+                    "Money sent successfully" : "Exchange failed");
           }catch(Exception e){
-              e.printStackTrace();
               return new TransactionResult(false,null,"Error: "+e.getMessage());
           }
         });

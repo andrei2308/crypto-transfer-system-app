@@ -1,9 +1,11 @@
 package com.example.crypto_payment_system;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -13,20 +15,24 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.crypto_payment_system.models.WalletAccount;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
+import com.example.crypto_payment_system.utils.AccountAdapter;
 import com.example.crypto_payment_system.viewmodels.MainViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -34,15 +40,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView resultTextView;
     private ProgressBar progressBar;
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
     private TextView walletAddressText;
     private Spinner currencySpinner;
-    private Button connectButton;
-    private Button checkAllBalancesButton;
-    private Button mintTokenButton;
-    private Button callTransactionMethodButton;
     private Button exchangeButton;
-    private Button sendMoneyButton;
     private TextInputEditText addressTeit;
     private ArrayAdapter<String> currencyAdapter;
 
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -70,18 +70,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         resultTextView = contentView.findViewById(R.id.resultTextView);
         progressBar = contentView.findViewById(R.id.progressBar);
         currencySpinner = contentView.findViewById(R.id.currencySpinner);
-        connectButton = contentView.findViewById(R.id.connectButton);
-        checkAllBalancesButton = contentView.findViewById(R.id.checkAllBalancesButton);
-        mintTokenButton = contentView.findViewById(R.id.mintTokenButton);
-        callTransactionMethodButton = contentView.findViewById(R.id.callTransactionMethodButton);
+        Button connectButton = contentView.findViewById(R.id.connectButton);
+        Button checkAllBalancesButton = contentView.findViewById(R.id.checkAllBalancesButton);
+        Button mintTokenButton = contentView.findViewById(R.id.mintTokenButton);
+        Button callTransactionMethodButton = contentView.findViewById(R.id.callTransactionMethodButton);
         exchangeButton = contentView.findViewById(R.id.exchangeButton);
-        sendMoneyButton = contentView.findViewById(R.id.send_money_btn);
+        Button sendMoneyButton = contentView.findViewById(R.id.send_money_btn);
         addressTeit = contentView.findViewById(R.id.address_teit);
 
         View headerView = navigationView.getHeaderView(0);
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
 
-        // Initialize the adapter with an empty list
         currencyAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
@@ -117,12 +116,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sendMoneyButton.setOnClickListener(v -> sendMoney());
 
         observeViewModel();
+
+        setupAccountSelection();
     }
 
     private void observeViewModel() {
-        viewModel.getConnectionStatus().observe(this, status -> {
-            resultTextView.setText(status);
-        });
+        viewModel.getConnectionStatus().observe(this, status -> resultTextView.setText(status));
 
         viewModel.isNewUser().observe(this, isNew -> {
             if (isNew) {
@@ -136,16 +135,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 String preferredCurrencies = user.getPreferredCurrency();
                 if (preferredCurrencies != null && !preferredCurrencies.isEmpty()) {
-                    // Update the spinner with only the user's preferred currencies
                     updateCurrencySpinner(preferredCurrencies);
 
-                    // Get primary currency (first in the list)
                     String primaryCurrency = preferredCurrencies.split(",")[0];
                     updateExchangeButtonText(primaryCurrency);
                 }
             } else {
-                walletAddressText.setText("Connect to view wallet address");
-                // Reset the spinner with default options
+                walletAddressText.setText(R.string.connect_to_view_wallet_address);
                 resetCurrencySpinner();
             }
         });
@@ -154,15 +150,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             StringBuilder sb = new StringBuilder();
             sb.append("YOUR WALLET BALANCES:\n");
 
-            balances.forEach((symbol, balance) -> {
-                sb.append(symbol).append(": ").append(balance.getWalletBalance()).append("\n");
-            });
+            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getWalletBalance()).append("\n"));
 
             sb.append("\nCONTRACT BALANCES:\n");
 
-            balances.forEach((symbol, balance) -> {
-                sb.append(symbol).append(": ").append(balance.getContractBalance()).append("\n");
-            });
+            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getContractBalance()).append("\n"));
 
             resultTextView.setText(sb.toString());
         });
@@ -185,9 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             resultTextView.setText(sb.toString());
         });
 
-        viewModel.getIsLoading().observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        });
+        viewModel.getIsLoading().observe(this, isLoading -> progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
     }
 
     /**
@@ -196,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void updateCurrencySpinner(String preferredCurrencies) {
         // Parse comma-separated list into an array
-        List<String> currencies = Arrays.asList(preferredCurrencies.split(","));
+        String[] currencies = preferredCurrencies.split(",");
 
         // Clear existing items
         currencyAdapter.clear();
@@ -231,9 +221,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void updateExchangeButtonText(String primaryCurrency) {
         if ("EUR".equals(primaryCurrency)) {
-            exchangeButton.setText("Exchange EUR → USD");
+            exchangeButton.setText(R.string.exchange_eur_usd);
         } else {
-            exchangeButton.setText("Exchange USD → EUR");
+            exchangeButton.setText(R.string.exchange_usd_eur);
         }
     }
 
@@ -245,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         String selectedCurrency = currencySpinner.getSelectedItem().toString();
 
-        viewModel.sendMoney(addressTeit.getText().toString(),selectedCurrency);
+        viewModel.sendMoney(Objects.requireNonNull(addressTeit.getText()).toString(),selectedCurrency);
     }
 
     @Override
@@ -285,6 +275,103 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         recreate();
+    }
+
+    private void setupAccountSelection() {
+        View accountSelectionView = findViewById(R.id.account_selection_layout);
+        if(accountSelectionView == null){
+            return;
+        }
+
+        Spinner accountsSpinner = accountSelectionView.findViewById(R.id.accountsSpinner);
+        Button addAccountButton = accountSelectionView.findViewById(R.id.addAccountButton);
+
+        ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this,new ArrayList<>());
+        accountsSpinner.setAdapter(accountArrayAdapter);
+
+        accountsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                WalletAccount selectedAccount = (WalletAccount) parent.getItemAtPosition(position);
+                if(selectedAccount != null){
+                    try {
+                        viewModel.switchAccount(selectedAccount.getAddress());
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        addAccountButton.setOnClickListener(v -> showAccountDialog());
+
+        viewModel.getAccounts().observe(this,accounts-> {
+            accountArrayAdapter.clear();
+            accountArrayAdapter.addAll(accounts);
+            accountArrayAdapter.notifyDataSetChanged();
+        });
+
+        viewModel.getActiveAccount().observe(this,account->{
+            if(account!=null){
+                for(int i=0;i<accountArrayAdapter.getCount();i++){
+                    if(Objects.requireNonNull(accountArrayAdapter.getItem(i)).getAddress().equals(account.getAddress())){
+                        accountsSpinner.setSelection(i);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Show dialog to add a new Ethereum account
+     */
+    private void showAccountDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add Ethereum Account");
+
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.add_account_dialog, null);
+        builder.setView(dialogView);
+
+        TextInputEditText accountNameEditText = dialogView.findViewById(R.id.accountNameEditText);
+        TextInputEditText privateKeyEditText = dialogView.findViewById(R.id.privateKeyEditText);
+
+        builder.setPositiveButton("Add", (dialog, which) -> {
+            String name = Objects.requireNonNull(accountNameEditText.getText()).toString().trim();
+            String privateKey = Objects.requireNonNull(privateKeyEditText.getText()).toString().trim();
+
+            if (name.isEmpty()) {
+                Toast.makeText(this, "Account name is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (privateKey.isEmpty()) {
+                Toast.makeText(this, "Private key is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean success;
+            try {
+                success = viewModel.addAccount(name, privateKey);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            if (success) {
+                Toast.makeText(this, "Account added successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Account already exists", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override

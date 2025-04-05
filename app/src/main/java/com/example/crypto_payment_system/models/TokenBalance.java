@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.models;
 
+import androidx.annotation.NonNull;
+
 import java.math.BigInteger;
 
 /**
@@ -34,6 +36,7 @@ public class TokenBalance {
         return contractBalance;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return tokenSymbol + ": " + walletBalance + " (wallet) / " + contractBalance + " (contract)";

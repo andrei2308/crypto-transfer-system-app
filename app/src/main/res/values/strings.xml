@@ -3,6 +3,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
+    <string name="connect_to_view_wallet_address">Connect to view wallet address</string>
+    <string name="exchange_eur_usd">Exchange EUR → USD</string>
+    <string name="exchange_usd_eur">Exchange USD → EUR</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
