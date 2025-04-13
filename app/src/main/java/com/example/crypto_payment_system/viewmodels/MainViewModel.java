@@ -27,6 +27,7 @@ import com.example.crypto_payment_system.repositories.UserRepository;
 import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -264,37 +265,93 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Mint tokens
      */
-    public void mintTokens(String currency) {
+    public void mintTokens(String currency, String humanReadableAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
         }
+        try{
+            double amount = Double.parseDouble(humanReadableAmount);
+            if (amount <= 0) {
+                transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
+                return;
+            }
+            BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+            BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
+            String tokenAmount = tokenUnits.toBigInteger().toString();
 
-        isLoading.setValue(true);
+            isLoading.setValue(true);
 
-        tokenRepository.mintTokens(currency, getActiveCredentials())
-                .thenAccept(result -> {
-                    transactionResult.postValue(result);
-                    isLoading.postValue(false);
-                });
+            final String displayAmount = humanReadableAmount;
+            final String displayCurrency = currency.equals("USD") ? "USDT" : "EURC";
+
+            tokenRepository.mintTokens(currency, getActiveCredentials(), tokenAmount)
+                    .thenAccept(result -> {
+                        if (result.isSuccess()) {
+                            result = new TransactionResult(
+                                    true,
+                                    result.getTransactionHash(),
+                                    "Successfully added " + displayAmount + " " + displayCurrency + " as liquidity"
+                            );
+                        }
+                        transactionResult.postValue(result);
+                        isLoading.postValue(false);
+
+                        if (result.isSuccess()) {
+                            tokenRepository.getAllBalances(getActiveCredentials())
+                                    .thenAccept(balances -> tokenBalances.postValue(balances));
+                        }
+                    });
+        }catch (NumberFormatException e) {
+            transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
+            isLoading.setValue(false);
+        }
     }
 
     /**
-     * Add liquidity
+     * Add liquidity - ViewModel Method
      */
-    public void addLiquidity(String currency) {
+    public void addLiquidity(String currency, String humanReadableAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
         }
+        try {
+            double amount = Double.parseDouble(humanReadableAmount);
+            if (amount <= 0) {
+                transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
+                return;
+            }
+            BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+            BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000)); // 10^6
+            String tokenAmount = tokenUnits.toBigInteger().toString();
 
-        isLoading.setValue(true);
+            isLoading.setValue(true);
 
-        exchangeRepository.addLiquidity(currency, getActiveCredentials())
-                .thenAccept(result -> {
-                    transactionResult.postValue(result);
-                    isLoading.postValue(false);
-                });
+            final String displayAmount = humanReadableAmount;
+            final String displayCurrency = currency.equals("USD") ? "USDT" : "EURC";
+
+            exchangeRepository.addLiquidity(currency, getActiveCredentials(), tokenAmount)
+                    .thenAccept(result -> {
+                        if (result.isSuccess()) {
+                            result = new TransactionResult(
+                                    true,
+                                    result.getTransactionHash(),
+                                    "Successfully added " + displayAmount + " " + displayCurrency + " as liquidity"
+                            );
+                        }
+                        transactionResult.postValue(result);
+                        isLoading.postValue(false);
+
+                        if (result.isSuccess()) {
+                            tokenRepository.getAllBalances(getActiveCredentials())
+                                    .thenAccept(balances -> tokenBalances.postValue(balances));
+                        }
+                    });
+        } catch (NumberFormatException e) {
+            transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
+            isLoading.setValue(false);
+        }
     }
 
     /**
@@ -336,7 +393,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Send money to another address
      */
-    public void sendMoney(String recipientAddress, String sendCurrency) {
+    public void sendMoney(String recipientAddress, String sendCurrency, String amount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first!"));
             return;
@@ -345,6 +402,10 @@ public class MainViewModel extends AndroidViewModel {
         if (TextUtils.isEmpty(recipientAddress)) {
             transactionResult.setValue(new TransactionResult(false, null, "Recipient address cannot be empty"));
             return;
+        }
+
+        if(TextUtils.isEmpty(amount)){
+            transactionResult.setValue(new TransactionResult(false,null,"Please introduce an amount."));
         }
 
         try {
@@ -364,7 +425,8 @@ public class MainViewModel extends AndroidViewModel {
                             recipientAddress,
                             sendCurrencyCode,
                             receiveCurrencyCode,
-                            getActiveCredentials()))
+                            getActiveCredentials(),
+                            amount))
                     .thenAccept(result -> {
                         transactionResult.postValue(result);
                         isLoading.postValue(false);

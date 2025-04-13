@@ -25,18 +25,15 @@ public class ExchangeRepository {
         this.tokenRepository = tokenRepository;
     }
 
-    /**
-     * Add liquidity to the exchange
-     */
-    public CompletableFuture<TransactionResult> addLiquidity(String currency, Credentials credentials) {
+    public CompletableFuture<TransactionResult> addLiquidity(String currency, Credentials credentials, String tokenUnitAmount) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 String tokenAddress = currency.equals("USD") ?
                         tokenRepository.getUsdtAddress() : tokenRepository.getEurcAddress();
 
-                BigInteger amount = new BigInteger(Constants.DEFAULT_EXCHANGE_AMOUNT);
+                BigInteger amountToAdd = new BigInteger(tokenUnitAmount);
 
-                String txHash = exchangeContract.addLiquidity(tokenAddress, amount, credentials);
+                String txHash = exchangeContract.addLiquidity(tokenAddress, amountToAdd, credentials);
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = receipt.isStatusOK();
@@ -91,12 +88,12 @@ public class ExchangeRepository {
         });
     }
 
-    public CompletableFuture<TransactionResult> sendTransaction(String address, int sendCurrency, int receiveCurrency, Credentials credentials) {
+    public CompletableFuture<TransactionResult> sendTransaction(String address, int sendCurrency, int receiveCurrency, Credentials credentials, String amount) {
         return CompletableFuture.supplyAsync(() -> {
           try{
-            BigInteger amount = new BigInteger(Constants.DEFAULT_SEND_AMOUNT);
+            BigInteger amountToSend = new BigInteger(amount);
 
-            String txHash = exchangeContract.sendMoney(amount,address,sendCurrency,receiveCurrency, credentials);
+            String txHash = exchangeContract.sendMoney(amountToSend,address,sendCurrency,receiveCurrency, credentials);
 
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 

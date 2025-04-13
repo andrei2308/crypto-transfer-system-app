@@ -23,6 +23,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.models.WalletAccount;
+import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
 import com.example.crypto_payment_system.utils.AccountAdapter;
 import com.example.crypto_payment_system.viewmodels.MainViewModel;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Spinner currencySpinner;
     private Button exchangeButton;
     private TextInputEditText addressTeit;
+    private TextInputEditText amountTeit;
+    private TextInputEditText mintAmountTeit;
     private ArrayAdapter<String> currencyAdapter;
 
     @Override
@@ -75,8 +78,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button mintTokenButton = contentView.findViewById(R.id.mintTokenButton);
         Button callTransactionMethodButton = contentView.findViewById(R.id.callTransactionMethodButton);
         exchangeButton = contentView.findViewById(R.id.exchangeButton);
-        Button sendMoneyButton = contentView.findViewById(R.id.send_money_btn);
         addressTeit = contentView.findViewById(R.id.address_teit);
+        amountTeit = contentView.findViewById(R.id.amount_teit);
+        mintAmountTeit = contentView.findViewById(R.id.mintAmount_teit);
+
 
         View headerView = navigationView.getHeaderView(0);
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
@@ -96,7 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mintTokenButton.setOnClickListener(v -> {
             if (currencySpinner.getSelectedItem() != null) {
                 String selectedCurrency = currencySpinner.getSelectedItem().toString();
-                viewModel.mintTokens(selectedCurrency);
+                String amount = Objects.requireNonNull(mintAmountTeit.getText()).toString();
+                viewModel.mintTokens(selectedCurrency, amount);
             } else {
                 Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
             }
@@ -105,15 +111,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         callTransactionMethodButton.setOnClickListener(v -> {
             if (currencySpinner.getSelectedItem() != null) {
                 String selectedCurrency = currencySpinner.getSelectedItem().toString();
-                viewModel.addLiquidity(selectedCurrency);
+                String amount = Objects.requireNonNull(amountTeit.getText()).toString();
+                viewModel.addLiquidity(selectedCurrency, amount);
             } else {
                 Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
             }
         });
 
         exchangeButton.setOnClickListener(v -> viewModel.exchangeBasedOnPreference(currencySpinner.getSelectedItem().toString()));
-
-        sendMoneyButton.setOnClickListener(v -> sendMoney());
 
         observeViewModel();
 
@@ -150,11 +155,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             StringBuilder sb = new StringBuilder();
             sb.append("YOUR WALLET BALANCES:\n");
 
-            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getWalletBalance()).append("\n"));
+            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getFormattedWalletBalance()).append("\n"));
 
             sb.append("\nCONTRACT BALANCES:\n");
 
-            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getContractBalance()).append("\n"));
+            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getFormattedContractBalance()).append("\n"));
 
             resultTextView.setText(sb.toString());
         });
@@ -185,13 +190,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * @param preferredCurrencies Comma-separated list of currencies
      */
     private void updateCurrencySpinner(String preferredCurrencies) {
-        // Parse comma-separated list into an array
         String[] currencies = preferredCurrencies.split(",");
 
-        // Clear existing items
         currencyAdapter.clear();
 
-        // Add only the preferred currencies to the adapter
         for (String currency : currencies) {
             String trimmedCurrency = currency.trim().toUpperCase();
             if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
@@ -199,10 +201,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
-        // Notify the adapter that data has changed
         currencyAdapter.notifyDataSetChanged();
 
-        // Select the first currency if available
         if (currencyAdapter.getCount() > 0) {
             currencySpinner.setSelection(0);
         }
@@ -227,17 +227,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void sendMoney() {
-        if (currencySpinner.getSelectedItem() == null) {
-            Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String selectedCurrency = currencySpinner.getSelectedItem().toString();
-
-        viewModel.sendMoney(Objects.requireNonNull(addressTeit.getText()).toString(),selectedCurrency);
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -249,7 +238,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_logout) {
             Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show();
             // viewModel.disconnect(); // to be implemented
-        } else if (id == R.id.nav_transactions) {
+        } else if (id == R.id.nav_send_money){
+            navigateToFragment(new SendMoneyFragment());
+        }
+        else if (id == R.id.nav_transactions) {
             Toast.makeText(this, "Transactions feature coming soon", Toast.LENGTH_SHORT).show(); // maybe???
         }
 

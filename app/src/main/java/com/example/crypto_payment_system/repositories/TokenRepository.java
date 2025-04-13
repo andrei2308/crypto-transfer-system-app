@@ -82,11 +82,11 @@ public class TokenRepository {
     /**
      * Mint tokens
      */
-    public CompletableFuture<TransactionResult> mintTokens(String currency, Credentials credentials) {
+    public CompletableFuture<TransactionResult> mintTokens(String currency, Credentials credentials, String amount) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 final String tokenAddress = currency.equals("USD") ? usdtAddress : eurcAddress;
-                BigInteger mintAmount = new BigInteger(Constants.DEFAULT_MINT_AMOUNT);
+                BigInteger mintAmount = new BigInteger(amount);
 
                 String txHash = tokenService.mintTokens(tokenAddress, mintAmount, credentials);
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);

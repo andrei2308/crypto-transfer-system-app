@@ -30,7 +30,7 @@ public class Constants {
     public static final String DEFAULT_MINT_AMOUNT = "1000";
     public static final String DEFAULT_EXCHANGE_AMOUNT = "100";
     public static final String DEFAULT_SEND_AMOUNT = "300";
-    public static final String DEFAULT_APPROVAL = "1000000";
+    public static final String DEFAULT_APPROVAL = "1000000000000000000000";
 
     // currency codes
     public static final int CURRENCY_EUR = 1;

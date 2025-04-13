@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:theme="@style/Theme.GreenWhiteApp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <!-- Title Section -->
@@ -153,9 +154,9 @@
             android:text="Exchange" />
     </LinearLayout>
 
-    <!-- Send Money Section -->
+    <!-- Amount Input -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/addressInputLayout"
+        android:id="@+id/amountInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -164,22 +165,29 @@
         app:layout_constraintTop_toBottomOf="@id/buttonGroup2">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/address_teit"
+            android:id="@+id/amount_teit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Address to send money to"
-            android:inputType="text" />
+            android:hint="Amount"
+            android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/send_money_btn"
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/mintAmountInputLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Send Money"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addressInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/amountInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/mintAmount_teit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Amount to mint"
+            android:inputType="numberDecimal" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Results Section -->
     <TextView
@@ -190,7 +198,7 @@
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/send_money_btn" />
+        app:layout_constraintTop_toBottomOf="@+id/mintAmountInputLayout" />
 
     <TextView
         android:id="@+id/resultTextView"
