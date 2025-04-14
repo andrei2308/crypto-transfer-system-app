@@ -1,8 +1,10 @@
 package com.example.crypto_payment_system;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -23,6 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.models.WalletAccount;
+import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
 import com.example.crypto_payment_system.utils.AccountAdapter;
@@ -46,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Button exchangeButton;
     private TextInputEditText addressTeit;
     private TextInputEditText amountTeit;
-    private TextInputEditText mintAmountTeit;
     private ArrayAdapter<String> currencyAdapter;
 
     @Override
@@ -75,13 +77,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currencySpinner = contentView.findViewById(R.id.currencySpinner);
         Button connectButton = contentView.findViewById(R.id.connectButton);
         Button checkAllBalancesButton = contentView.findViewById(R.id.checkAllBalancesButton);
-        Button mintTokenButton = contentView.findViewById(R.id.mintTokenButton);
         Button callTransactionMethodButton = contentView.findViewById(R.id.callTransactionMethodButton);
         exchangeButton = contentView.findViewById(R.id.exchangeButton);
         addressTeit = contentView.findViewById(R.id.address_teit);
         amountTeit = contentView.findViewById(R.id.amount_teit);
-        mintAmountTeit = contentView.findViewById(R.id.mintAmount_teit);
-
 
         View headerView = navigationView.getHeaderView(0);
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
@@ -93,20 +92,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         currencySpinner.setAdapter(currencyAdapter);
+        setupCurrencySpinner();
 
         connectButton.setOnClickListener(v -> viewModel.connectToEthereum());
 
         checkAllBalancesButton.setOnClickListener(v -> viewModel.checkAllBalances());
-
-        mintTokenButton.setOnClickListener(v -> {
-            if (currencySpinner.getSelectedItem() != null) {
-                String selectedCurrency = currencySpinner.getSelectedItem().toString();
-                String amount = Objects.requireNonNull(mintAmountTeit.getText()).toString();
-                viewModel.mintTokens(selectedCurrency, amount);
-            } else {
-                Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         callTransactionMethodButton.setOnClickListener(v -> {
             if (currencySpinner.getSelectedItem() != null) {
@@ -240,9 +230,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // viewModel.disconnect(); // to be implemented
         } else if (id == R.id.nav_send_money){
             navigateToFragment(new SendMoneyFragment());
-        }
-        else if (id == R.id.nav_transactions) {
+        } else if (id == R.id.nav_transactions) {
             Toast.makeText(this, "Transactions feature coming soon", Toast.LENGTH_SHORT).show(); // maybe???
+        } else if (id == R.id.nav_mint_tokens){
+            navigateToFragment(new MintFragment());
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -269,50 +260,112 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recreate();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setupAccountSelection() {
         View accountSelectionView = findViewById(R.id.account_selection_layout);
-        if(accountSelectionView == null){
+        if(accountSelectionView == null) {
             return;
         }
 
         Spinner accountsSpinner = accountSelectionView.findViewById(R.id.accountsSpinner);
         Button addAccountButton = accountSelectionView.findViewById(R.id.addAccountButton);
 
-        ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this,new ArrayList<>());
+        ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
         accountsSpinner.setAdapter(accountArrayAdapter);
+
+        final String[] previouslySelectedAddress = {null};
+
+        accountsSpinner.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                int position = accountsSpinner.getSelectedItemPosition();
+                if (position >= 0 && position < accountArrayAdapter.getCount()) {
+                    WalletAccount account = accountArrayAdapter.getItem(position);
+                    if (account != null) {
+                        previouslySelectedAddress[0] = account.getAddress();
+                    }
+                }
+            }
+            return false;
+        });
 
         accountsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 WalletAccount selectedAccount = (WalletAccount) parent.getItemAtPosition(position);
-                if(selectedAccount != null){
-                    try {
-                        viewModel.switchAccount(selectedAccount.getAddress());
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                if (selectedAccount != null) {
+                    String newAddress = selectedAccount.getAddress();
+
+                    if (!newAddress.equals(previouslySelectedAddress[0])) {
+                        try {
+                            progressBar.setVisibility(View.VISIBLE);
+
+                            walletAddressText.setText(newAddress);
+
+                            viewModel.switchAccount(newAddress);
+
+                            Toast.makeText(MainActivity.this,
+                                    "Switching to account: " + selectedAccount.getName(),
+                                    Toast.LENGTH_SHORT).show();
+
+                            previouslySelectedAddress[0] = newAddress;
+
+                        } catch (JSONException e) {
+                            Toast.makeText(MainActivity.this,
+                                    "Error switching accounts: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                // Do nothing
             }
         });
 
         addAccountButton.setOnClickListener(v -> showAccountDialog());
 
-        viewModel.getAccounts().observe(this,accounts-> {
+        viewModel.getAccounts().observe(this, accounts -> {
+            int currentPosition = accountsSpinner.getSelectedItemPosition();
+            String currentAddress = null;
+
+            if (currentPosition >= 0 && currentPosition < accountArrayAdapter.getCount()) {
+                WalletAccount currentAccount = accountArrayAdapter.getItem(currentPosition);
+                if (currentAccount != null) {
+                    currentAddress = currentAccount.getAddress();
+                }
+            }
+
             accountArrayAdapter.clear();
             accountArrayAdapter.addAll(accounts);
             accountArrayAdapter.notifyDataSetChanged();
+
+            if (currentAddress != null) {
+                for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
+                    WalletAccount account = accountArrayAdapter.getItem(i);
+                    if (account != null && account.getAddress().equals(currentAddress)) {
+                        accountsSpinner.setSelection(i);
+                        break;
+                    }
+                }
+            }
         });
 
-        viewModel.getActiveAccount().observe(this,account->{
-            if(account!=null){
-                for(int i=0;i<accountArrayAdapter.getCount();i++){
-                    if(Objects.requireNonNull(accountArrayAdapter.getItem(i)).getAddress().equals(account.getAddress())){
-                        accountsSpinner.setSelection(i);
+        viewModel.getActiveAccount().observe(this, account -> {
+            if (account != null) {
+                String activeAddress = account.getAddress();
+
+                walletAddressText.setText(activeAddress);
+
+                previouslySelectedAddress[0] = activeAddress;
+
+                for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
+                    WalletAccount adapterAccount = accountArrayAdapter.getItem(i);
+                    if (adapterAccount != null && adapterAccount.getAddress().equals(activeAddress)) {
+                        if (accountsSpinner.getSelectedItemPosition() != i) {
+                            accountsSpinner.setSelection(i);
+                        }
                         break;
                     }
                 }
@@ -364,6 +417,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void setupCurrencySpinner() {
+        currencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedCurrency = parent.getItemAtPosition(position).toString();
+                updateExchangeButtonText(selectedCurrency);
+                viewModel.setSelectedCurrency(selectedCurrency);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override

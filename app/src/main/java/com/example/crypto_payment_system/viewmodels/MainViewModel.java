@@ -48,6 +48,7 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isNewUser = new MutableLiveData<>(false);
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
+    private final MutableLiveData<String> selectedCurrency = new MutableLiveData<>();
 
     public MainViewModel(Application application) throws JSONException {
         super(application);
@@ -139,8 +140,8 @@ public class MainViewModel extends AndroidViewModel {
     public void switchAccount(String address) throws JSONException {
         isLoading.setValue(true);
         walletManager.switchAccount(address);
+//        checkAllBalances();
         isLoading.setValue(false);
-        // The account change observer will handle reloading user data
     }
 
     /**
@@ -490,5 +491,13 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<WalletAccount> getActiveAccount() {
         return walletManager.getActiveAccountLiveData();
+    }
+
+    public void setSelectedCurrency(String currency) {
+        selectedCurrency.setValue(currency);
+    }
+
+    public LiveData<String> getSelectedCurrency() {
+        return selectedCurrency;
     }
 }

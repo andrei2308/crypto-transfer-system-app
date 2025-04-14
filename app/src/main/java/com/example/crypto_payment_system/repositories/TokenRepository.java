@@ -2,10 +2,12 @@ package com.example.crypto_payment_system.repositories;
 
 import com.example.crypto_payment_system.api.TokenContractService;
 import com.example.crypto_payment_system.api.Web3Service;
-import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.models.TokenBalance;
 
 import org.web3j.crypto.Credentials;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.math.BigInteger;
@@ -60,6 +62,14 @@ public class TokenRepository {
 
             try {
                 String walletAddress = credentials.getAddress();
+                Web3j web3j = web3Service.getWeb3j();
+
+                // Get ETH balance
+                EthGetBalance ethBalance = web3j.ethGetBalance(walletAddress, DefaultBlockParameterName.LATEST).send();
+                BigInteger walletEthBalance = ethBalance.getBalance();
+                BigInteger contractEthBalance = BigInteger.ZERO;
+
+                balances.put("ETH", new TokenBalance("ETH", "native", walletEthBalance, contractEthBalance));
 
                 // Get EUR token balances
                 BigInteger walletEurcBalance = tokenService.getTokenBalance(walletAddress, eurcAddress);

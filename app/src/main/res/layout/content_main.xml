@@ -117,14 +117,6 @@
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
             android:text="Check Balances" />
-
-        <Button
-            android:id="@+id/mintTokenButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:text="Mint Token" />
     </LinearLayout>
 
     <LinearLayout
@@ -172,23 +164,6 @@
             android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/mintAmountInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/amountInputLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/mintAmount_teit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Amount to mint"
-            android:inputType="numberDecimal" />
-    </com.google.android.material.textfield.TextInputLayout>
-
     <!-- Results Section -->
     <TextView
         android:id="@+id/resultsLabel"
@@ -198,7 +173,7 @@
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mintAmountInputLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/amountInputLayout" />
 
     <TextView
         android:id="@+id/resultTextView"

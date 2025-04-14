@@ -6,6 +6,9 @@
     <string name="connect_to_view_wallet_address">Connect to view wallet address</string>
     <string name="exchange_eur_usd">Exchange EUR → USD</string>
     <string name="exchange_usd_eur">Exchange USD → EUR</string>
+    <string name="transaction_successful_minted">"Transaction successful!\nMinted "</string>
+    <string name="transaction_failed">"Transaction failed: "</string>
+    <string name="processing_transaction">Processing transaction</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
