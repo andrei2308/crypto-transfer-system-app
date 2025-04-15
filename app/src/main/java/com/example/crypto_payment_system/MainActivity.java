@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private TextView walletAddressText;
     private Spinner currencySpinner;
-    private Button exchangeButton;
     private TextInputEditText addressTeit;
     private TextInputEditText amountTeit;
     private ArrayAdapter<String> currencyAdapter;
@@ -105,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button connectButton = contentView.findViewById(R.id.connectButton);
         Button checkAllBalancesButton = contentView.findViewById(R.id.checkAllBalancesButton);
         Button callTransactionMethodButton = contentView.findViewById(R.id.callTransactionMethodButton);
-        exchangeButton = contentView.findViewById(R.id.exchangeButton);
         addressTeit = contentView.findViewById(R.id.address_teit);
         amountTeit = contentView.findViewById(R.id.amount_teit);
 
@@ -135,8 +133,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-//        exchangeButton.setOnClickListener(v -> viewModel.exchangeBasedOnPreference(currencySpinner.getSelectedItem().toString()));
-
         observeViewModel();
 
         setupAccountSelection();
@@ -160,7 +156,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     updateCurrencySpinner(preferredCurrencies);
 
                     String primaryCurrency = preferredCurrencies.split(",")[0];
-                    updateExchangeButtonText(primaryCurrency);
                 }
             } else {
                 walletAddressText.setText(R.string.connect_to_view_wallet_address);
@@ -235,14 +230,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currencyAdapter.add("USD");
         currencyAdapter.notifyDataSetChanged();
         currencySpinner.setSelection(0);
-    }
-
-    private void updateExchangeButtonText(String primaryCurrency) {
-        if ("EUR".equals(primaryCurrency)) {
-            exchangeButton.setText(R.string.exchange_eur_usd);
-        } else {
-            exchangeButton.setText(R.string.exchange_usd_eur);
-        }
     }
 
     @Override
@@ -453,7 +440,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedCurrency = parent.getItemAtPosition(position).toString();
-                updateExchangeButtonText(selectedCurrency);
                 viewModel.setSelectedCurrency(selectedCurrency);
             }
 
