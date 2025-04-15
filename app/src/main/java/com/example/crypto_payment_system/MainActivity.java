@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -25,6 +27,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.models.WalletAccount;
+import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextInputEditText addressTeit;
     private TextInputEditText amountTeit;
     private ArrayAdapter<String> currencyAdapter;
+    private View submenuView;
+    private boolean isSubmenuVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +73,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
+        FrameLayout submenuContainer = findViewById(R.id.submenu_container);
+        submenuView = getLayoutInflater().inflate(R.layout.send_money_submenu,
+                submenuContainer,false);
+        submenuContainer.addView(submenuView);
+
+        submenuView.setVisibility(View.GONE);
+
+        ImageButton closeButton = submenuView.findViewById(R.id.btn_close_submenu);
+        closeButton.setOnClickListener(v-> hideSubmenu());
+
+        submenuView.findViewById(R.id.option_make_payment).setOnClickListener(v->{
+            hideSubmenu();
+            navigateToFragment(new SendMoneyFragment());
+            drawerLayout.closeDrawer(GravityCompat.START);
+        });
+
+        submenuView.findViewById(R.id.option_transfer_accounts).setOnClickListener(v->{
+            hideSubmenu();
+            navigateToFragment(new ExchangeFragment());
+            drawerLayout.closeDrawer(GravityCompat.START);
+        });
 
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -108,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        exchangeButton.setOnClickListener(v -> viewModel.exchangeBasedOnPreference(currencySpinner.getSelectedItem().toString()));
+//        exchangeButton.setOnClickListener(v -> viewModel.exchangeBasedOnPreference(currencySpinner.getSelectedItem().toString()));
 
         observeViewModel();
 
@@ -229,7 +256,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show();
             // viewModel.disconnect(); // to be implemented
         } else if (id == R.id.nav_send_money){
-            navigateToFragment(new SendMoneyFragment());
+            showSubmenu();
+            return true;
         } else if (id == R.id.nav_transactions) {
             Toast.makeText(this, "Transactions feature coming soon", Toast.LENGTH_SHORT).show(); // maybe???
         } else if (id == R.id.nav_mint_tokens){
@@ -435,10 +463,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    private void showSubmenu() {
+        submenuView.setVisibility(View.VISIBLE);
+        isSubmenuVisible = true;
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.getMenu().setGroupVisible(R.id.nav_main_group, false);
+    }
+
+    private void hideSubmenu() {
+        submenuView.setVisibility(View.GONE);
+        isSubmenuVisible = false;
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.getMenu().setGroupVisible(R.id.nav_main_group, true);
+    }
+
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
+            if (isSubmenuVisible) {
+                hideSubmenu();
+            } else {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
         } else {
             super.onBackPressed();
         }

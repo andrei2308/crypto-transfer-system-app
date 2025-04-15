@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".ExchangeFragment">
+
+    <!-- Title Section -->
+    <TextView
+        android:id="@+id/exchangeTitleTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Exchange Funds"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Wallet Balance Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/balanceCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/exchangeTitleTextView">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/walletBalanceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Wallet Balance"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/eurBalanceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EUR:"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/walletBalanceLabel" />
+
+            <TextView
+                android:id="@+id/eurBalanceValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="0.00 EUR"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@id/eurBalanceLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/eurBalanceLabel" />
+
+            <TextView
+                android:id="@+id/usdBalanceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="USD:"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/eurBalanceLabel" />
+
+            <TextView
+                android:id="@+id/usdBalanceValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="0.00 USD"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@id/usdBalanceLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/usdBalanceLabel" />
+
+            <Button
+                android:id="@+id/refreshBalanceButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Refresh"
+                android:textSize="12sp"
+                android:minHeight="36dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/usdBalanceLabel" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- From Currency Section -->
+    <TextView
+        android:id="@+id/fromCurrencyLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From Currency:"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/balanceCardView" />
+
+    <Spinner
+        android:id="@+id/fromCurrencySpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/fromCurrencyLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/fromCurrencyLabel"
+        app:layout_constraintBottom_toBottomOf="@+id/fromCurrencyLabel" />
+
+    <!-- From Amount Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/fromAmountInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fromCurrencyLabel">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/fromAmountEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Amount to Exchange"
+            android:inputType="numberDecimal" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Exchange Direction Indicator -->
+    <ImageView
+        android:id="@+id/exchangeArrowImage"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:src="@android:drawable/arrow_down_float"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fromAmountInputLayout" />
+
+    <!-- To Currency Section -->
+    <TextView
+        android:id="@+id/toCurrencyLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To Currency:"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/exchangeArrowImage" />
+
+    <Spinner
+        android:id="@+id/toCurrencySpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/toCurrencyLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toCurrencyLabel"
+        app:layout_constraintBottom_toBottomOf="@+id/toCurrencyLabel" />
+
+    <!-- Exchange Rate Display -->
+    <TextView
+        android:id="@+id/exchangeRateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estimated Exchange Rate:"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toCurrencyLabel" />
+
+    <TextView
+        android:id="@+id/exchangeRateValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="--"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/exchangeRateLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/exchangeRateLabel"
+        app:layout_constraintBottom_toBottomOf="@+id/exchangeRateLabel" />
+
+    <!-- Estimated Amount Display -->
+    <TextView
+        android:id="@+id/estimatedAmountLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estimated Amount:"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/exchangeRateLabel" />
+
+    <TextView
+        android:id="@+id/estimatedAmountValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="--"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/estimatedAmountLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/estimatedAmountLabel"
+        app:layout_constraintBottom_toBottomOf="@+id/estimatedAmountLabel" />
+
+    <!-- Action Buttons -->
+    <Button
+        android:id="@+id/calculateButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="4dp"
+        android:text="Calculate"
+        app:layout_constraintEnd_toStartOf="@+id/exchangeButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/estimatedAmountLabel" />
+
+    <Button
+        android:id="@+id/exchangeButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="Exchange"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/calculateButton"
+        app:layout_constraintTop_toTopOf="@+id/calculateButton" />
+
+    <!-- Results Section -->
+    <TextView
+        android:id="@+id/resultsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Transaction Status:"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calculateButton" />
+
+    <TextView
+        android:id="@+id/resultTextView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:background="#F5F5F5"
+        android:padding="12dp"
+        android:scrollbars="vertical"
+        android:text="Exchange transaction results will appear here"
+        android:fontFamily="monospace"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resultsLabel" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

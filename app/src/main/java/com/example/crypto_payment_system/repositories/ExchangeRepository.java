@@ -49,10 +49,10 @@ public class ExchangeRepository {
     /**
      * Exchange EUR to USD
      */
-    public CompletableFuture<TransactionResult> exchangeEurToUsd(Credentials credentials) {
+    public CompletableFuture<TransactionResult> exchangeEurToUsd(String tokenAmount, Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                BigInteger amount = new BigInteger(Constants.DEFAULT_EXCHANGE_AMOUNT);
+                BigInteger amount = new BigInteger(tokenAmount);
 
                 String txHash = exchangeContract.exchangeEurToUsd(
                         tokenRepository.getEurcAddress(), amount, credentials);
@@ -72,10 +72,10 @@ public class ExchangeRepository {
     /**
      * Exchange USD to EUR
      */
-    public CompletableFuture<TransactionResult> exchangeUsdToEur(Credentials credentials){
+    public CompletableFuture<TransactionResult> exchangeUsdToEur(String tokenAmount, Credentials credentials){
         return CompletableFuture.supplyAsync(()->{
            try{
-               BigInteger amount = new BigInteger(Constants.DEFAULT_EXCHANGE_AMOUNT);
+               BigInteger amount = new BigInteger(tokenAmount);
                String txHash = exchangeContract.exchangeUsdToEur(tokenRepository.getUsdtAddress(),amount, credentials);
                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 

@@ -225,7 +225,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Exchange tokens based on user's preferred currency
      */
-    public void exchangeBasedOnPreference(String currencyToExchange) {
+    public void exchangeBasedOnPreference(String currencyToExchange, String humanReadableAmount) {
         User user = currentUser.getValue();
         if (user == null) {
             transactionResult.setValue(
@@ -234,14 +234,37 @@ public class MainViewModel extends AndroidViewModel {
             return;
         }
 
-        if ("EUR".equals(currencyToExchange)) {
-            exchangeEurToUsd();
-        } else if ("USD".equals(currencyToExchange)){
-            exchangeUsdToEur();
-        } else {
-            transactionResult.setValue(
-                    new TransactionResult(false, null, "Invalid currency")
-            );
+        try{
+            double amount = Double.parseDouble(humanReadableAmount);
+            if (amount <= 0) {
+                transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
+                return;
+            }
+            BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+            BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
+            String tokenAmount = tokenUnits.toBigInteger().toString();
+
+            isLoading.setValue(true);
+
+
+            final String displayAmount = humanReadableAmount;
+            final String displayCurrency = currencyToExchange.equals("USD") ? "USDT" : "EURC";
+
+
+            if ("EUR".equals(currencyToExchange)) {
+                exchangeEurToUsd(tokenAmount);
+            } else if ("USD".equals(currencyToExchange)){
+                exchangeUsdToEur(tokenAmount);
+            } else {
+                transactionResult.setValue(
+                        new TransactionResult(false, null, "Invalid currency")
+                );
+            }
+
+
+        }catch (NumberFormatException e) {
+            transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
+            isLoading.setValue(false);
         }
     }
 
@@ -358,7 +381,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Exchange EUR to USD
      */
-    public void exchangeEurToUsd() {
+    public void exchangeEurToUsd(String tokenAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
@@ -366,7 +389,7 @@ public class MainViewModel extends AndroidViewModel {
 
         isLoading.setValue(true);
 
-        exchangeRepository.exchangeEurToUsd(getActiveCredentials())
+        exchangeRepository.exchangeEurToUsd(tokenAmount, getActiveCredentials())
                 .thenAccept(result -> {
                     transactionResult.postValue(result);
                     isLoading.postValue(false);
@@ -376,7 +399,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Exchange USD to EUR
      */
-    public void exchangeUsdToEur() {
+    public void exchangeUsdToEur(String tokenAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
@@ -384,7 +407,7 @@ public class MainViewModel extends AndroidViewModel {
 
         isLoading.setValue(true);
 
-        exchangeRepository.exchangeUsdToEur(getActiveCredentials())
+        exchangeRepository.exchangeUsdToEur(tokenAmount, getActiveCredentials())
                 .thenAccept(result -> {
                     transactionResult.postValue(result);
                     isLoading.postValue(false);
