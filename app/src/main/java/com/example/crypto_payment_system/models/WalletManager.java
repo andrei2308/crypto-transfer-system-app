@@ -99,7 +99,8 @@ public class WalletManager {
 
     /**
      * Add a new account
-     * @param name User-friendly name for the account
+     *
+     * @param name       User-friendly name for the account
      * @param privateKey Ethereum private key
      * @return The newly created account, or null if account already exists
      */
@@ -130,6 +131,7 @@ public class WalletManager {
 
     /**
      * Switch to a different account
+     *
      * @param address Address of the account to switch to
      * @return true if successful, false if account not found
      */
@@ -147,6 +149,7 @@ public class WalletManager {
 
     /**
      * Remove an account
+     *
      * @param address Address of the account to remove
      * @return true if successful, false if account not found
      */

@@ -92,6 +92,7 @@ public class SendMoneyFragment extends Fragment {
         currencyAdapter.add("USD");
         currencyAdapter.notifyDataSetChanged();
     }
+
     private void updateCurrencySpinner(String preferredCurrencies) {
         String[] currencies = preferredCurrencies.split(",");
 

@@ -42,7 +42,8 @@ public class UserRepository {
 
     /**
      * Create a new user with preferred currency
-     * @param walletAddress The wallet address
+     *
+     * @param walletAddress     The wallet address
      * @param preferredCurrency Comma-separated list of currency codes (e.g., "EUR,USD")
      */
     public CompletableFuture<Void> createNewUser(String walletAddress, String preferredCurrency) {
@@ -68,8 +69,9 @@ public class UserRepository {
 
     /**
      * Update user's preferred currency
+     *
      * @param walletAddress The wallet address
-     * @param currencies Comma-separated list of currency codes (e.g., "EUR,USD")
+     * @param currencies    Comma-separated list of currency codes (e.g., "EUR,USD")
      */
     public CompletableFuture<Void> updatePreferredCurrency(String walletAddress, String currencies) {
         return firestoreService.updatePreferredCurrency(walletAddress, currencies);
@@ -77,10 +79,11 @@ public class UserRepository {
 
     /**
      * Get the preferred currency of a user as an integer value compatible with the smart contract
+     *
      * @param walletAddress The wallet address of the user
      * @return CompletableFuture with the preferred currency as an integer (1=EUR, 2=USD)
-     *         If user has multiple preferred currencies, returns the first one.
-     *         Defaults to EUR (1) if no preference is set or user not found.
+     * If user has multiple preferred currencies, returns the first one.
+     * Defaults to EUR (1) if no preference is set or user not found.
      */
     public CompletableFuture<Integer> getPreferredCurrency(String walletAddress, String sendCurrency) {
         return getUserData(walletAddress.toLowerCase())

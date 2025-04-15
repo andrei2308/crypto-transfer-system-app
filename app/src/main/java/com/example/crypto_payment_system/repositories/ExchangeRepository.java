@@ -72,37 +72,37 @@ public class ExchangeRepository {
     /**
      * Exchange USD to EUR
      */
-    public CompletableFuture<TransactionResult> exchangeUsdToEur(String tokenAmount, Credentials credentials){
-        return CompletableFuture.supplyAsync(()->{
-           try{
-               BigInteger amount = new BigInteger(tokenAmount);
-               String txHash = exchangeContract.exchangeUsdToEur(tokenRepository.getUsdtAddress(),amount, credentials);
-               TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
+    public CompletableFuture<TransactionResult> exchangeUsdToEur(String tokenAmount, Credentials credentials) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                BigInteger amount = new BigInteger(tokenAmount);
+                String txHash = exchangeContract.exchangeUsdToEur(tokenRepository.getUsdtAddress(), amount, credentials);
+                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
-               boolean success = receipt.isStatusOK();
-               return new TransactionResult(success,txHash,success ?
-                       "Exchange completed successfully" : "Exchange failed");
-           }catch(Exception e){
-               return new TransactionResult(false,null,"Error: "+e.getMessage());
-           }
+                boolean success = receipt.isStatusOK();
+                return new TransactionResult(success, txHash, success ?
+                        "Exchange completed successfully" : "Exchange failed");
+            } catch (Exception e) {
+                return new TransactionResult(false, null, "Error: " + e.getMessage());
+            }
         });
     }
 
     public CompletableFuture<TransactionResult> sendTransaction(String address, int sendCurrency, int receiveCurrency, Credentials credentials, String amount) {
         return CompletableFuture.supplyAsync(() -> {
-          try{
-            BigInteger amountToSend = new BigInteger(amount);
+            try {
+                BigInteger amountToSend = new BigInteger(amount);
 
-            String txHash = exchangeContract.sendMoney(amountToSend,address,sendCurrency,receiveCurrency, credentials);
+                String txHash = exchangeContract.sendMoney(amountToSend, address, sendCurrency, receiveCurrency, credentials);
 
-            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
+                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
-            boolean success = receipt.isStatusOK();
-            return new TransactionResult(success,txHash,success ?
-                    "Money sent successfully" : "Exchange failed");
-          }catch(Exception e){
-              return new TransactionResult(false,null,"Error: "+e.getMessage());
-          }
+                boolean success = receipt.isStatusOK();
+                return new TransactionResult(success, txHash, success ?
+                        "Money sent successfully" : "Exchange failed");
+            } catch (Exception e) {
+                return new TransactionResult(false, null, "Error: " + e.getMessage());
+            }
         });
     }
 }

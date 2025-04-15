@@ -127,6 +127,7 @@ public class MainViewModel extends AndroidViewModel {
 
     /**
      * Add a new Ethereum account
+     *
      * @return true if successful, false if account already exists
      */
     public boolean addAccount(String name, String privateKey) throws JSONException {
@@ -146,6 +147,7 @@ public class MainViewModel extends AndroidViewModel {
 
     /**
      * Remove an account
+     *
      * @return true if successful, false if account not found
      */
     public boolean removeAccount(String address) throws JSONException {
@@ -234,7 +236,7 @@ public class MainViewModel extends AndroidViewModel {
             return;
         }
 
-        try{
+        try {
             double amount = Double.parseDouble(humanReadableAmount);
             if (amount <= 0) {
                 transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
@@ -253,7 +255,7 @@ public class MainViewModel extends AndroidViewModel {
 
             if ("EUR".equals(currencyToExchange)) {
                 exchangeEurToUsd(tokenAmount);
-            } else if ("USD".equals(currencyToExchange)){
+            } else if ("USD".equals(currencyToExchange)) {
                 exchangeUsdToEur(tokenAmount);
             } else {
                 transactionResult.setValue(
@@ -262,7 +264,7 @@ public class MainViewModel extends AndroidViewModel {
             }
 
 
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
             isLoading.setValue(false);
         }
@@ -294,7 +296,7 @@ public class MainViewModel extends AndroidViewModel {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
         }
-        try{
+        try {
             double amount = Double.parseDouble(humanReadableAmount);
             if (amount <= 0) {
                 transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
@@ -326,7 +328,7 @@ public class MainViewModel extends AndroidViewModel {
                                     .thenAccept(balances -> tokenBalances.postValue(balances));
                         }
                     });
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
             isLoading.setValue(false);
         }
@@ -428,8 +430,8 @@ public class MainViewModel extends AndroidViewModel {
             return;
         }
 
-        if(TextUtils.isEmpty(amount)){
-            transactionResult.setValue(new TransactionResult(false,null,"Please introduce an amount."));
+        if (TextUtils.isEmpty(amount)) {
+            transactionResult.setValue(new TransactionResult(false, null, "Please introduce an amount."));
         }
 
         try {

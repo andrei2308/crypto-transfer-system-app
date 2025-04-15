@@ -113,6 +113,7 @@ public class Web3Service {
             web3j.shutdown();
         }
     }
+
     public Web3j getWeb3j() {
         return web3j;
     }

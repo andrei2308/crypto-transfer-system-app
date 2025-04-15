@@ -1,9 +1,10 @@
-package com.example.crypto_payment_system.ui.exchange; // Replace with your actual package name
+package com.example.crypto_payment_system.ui.exchange;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -45,6 +46,8 @@ public class ExchangeFragment extends Fragment {
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
     private Button refreshBalanceButton;
+    private boolean isSelectionInProgress = false;
+
 
     private Observer<TokenRepository.TransactionResult> transactionObserver;
 
@@ -114,6 +117,58 @@ public class ExchangeFragment extends Fragment {
         toCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
+        fromCurrencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (isSelectionInProgress) return;
+
+                isSelectionInProgress = true;
+
+                String selectedCurrency = (String) parent.getItemAtPosition(position);
+
+                for (int i = 0; i < toCurrencyAdapter.getCount(); i++) {
+                    String currency = toCurrencyAdapter.getItem(i);
+                    if (currency != null && !currency.equals(selectedCurrency)) {
+                        toCurrencySpinner.setSelection(i);
+                        break;
+                    }
+                }
+
+                isSelectionInProgress = false;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Nothing to do
+            }
+        });
+
+        toCurrencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (isSelectionInProgress) return;
+
+                isSelectionInProgress = true;
+
+                String selectedCurrency = (String) parent.getItemAtPosition(position);
+
+                for (int i = 0; i < fromCurrencyAdapter.getCount(); i++) {
+                    String currency = fromCurrencyAdapter.getItem(i);
+                    if (currency != null && !currency.equals(selectedCurrency)) {
+                        fromCurrencySpinner.setSelection(i);
+                        break;
+                    }
+                }
+
+                isSelectionInProgress = false;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                //
+            }
+        });
+
         updateCurrencySpinners();
 
         viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
@@ -143,10 +198,45 @@ public class ExchangeFragment extends Fragment {
         if (toCurrencyAdapter.getCount() > 1) {
             toCurrencySpinner.setSelection(1);
         }
+
+        enableExchangeFunctionality();
     }
 
     private void updateCurrencySpinners(String preferredCurrencies) {
         String[] currencies = preferredCurrencies.split(",");
+
+        ArrayList<String> validCurrencies = new ArrayList<>();
+        for (String currency : currencies) {
+            String trimmedCurrency = currency.trim().toUpperCase();
+            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
+                validCurrencies.add(trimmedCurrency);
+            }
+        }
+
+        if (validCurrencies.size() <= 1) {
+            disableExchangeFunctionality("Exchange unavailable - only one currency is configured");
+
+            fromCurrencyAdapter.clear();
+            toCurrencyAdapter.clear();
+
+            if (validCurrencies.size() == 1) {
+                String currency = validCurrencies.get(0);
+                fromCurrencyAdapter.add(currency);
+                toCurrencyAdapter.add(currency);
+            }
+
+            fromCurrencyAdapter.notifyDataSetChanged();
+            toCurrencyAdapter.notifyDataSetChanged();
+
+            if (fromCurrencyAdapter.getCount() > 0) {
+                fromCurrencySpinner.setSelection(0);
+                toCurrencySpinner.setSelection(0);
+            }
+
+            return;
+        }
+
+        enableExchangeFunctionality();
 
         String currentFromSelection = null;
         String currentToSelection = null;
@@ -161,34 +251,41 @@ public class ExchangeFragment extends Fragment {
         fromCurrencyAdapter.clear();
         toCurrencyAdapter.clear();
 
-        for (String currency : currencies) {
-            String trimmedCurrency = currency.trim().toUpperCase();
-            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
-                fromCurrencyAdapter.add(trimmedCurrency);
-                toCurrencyAdapter.add(trimmedCurrency);
-            }
+        for (String currency : validCurrencies) {
+            fromCurrencyAdapter.add(currency);
+            toCurrencyAdapter.add(currency);
         }
 
         fromCurrencyAdapter.notifyDataSetChanged();
         toCurrencyAdapter.notifyDataSetChanged();
 
+        boolean fromSelectionRestored = false;
         if (currentFromSelection != null) {
             for (int i = 0; i < fromCurrencyAdapter.getCount(); i++) {
                 if (Objects.equals(fromCurrencyAdapter.getItem(i), currentFromSelection)) {
                     fromCurrencySpinner.setSelection(i);
+                    fromSelectionRestored = true;
                     break;
                 }
             }
         }
 
+        boolean toSelectionRestored = false;
         if (currentToSelection != null) {
             for (int i = 0; i < toCurrencyAdapter.getCount(); i++) {
                 if (Objects.equals(toCurrencyAdapter.getItem(i), currentToSelection)) {
                     toCurrencySpinner.setSelection(i);
+                    toSelectionRestored = true;
                     break;
                 }
             }
-        } else {
+        }
+
+        if (!fromSelectionRestored && fromCurrencyAdapter.getCount() > 0) {
+            fromCurrencySpinner.setSelection(0);
+        }
+
+        if (!toSelectionRestored) {
             if (toCurrencyAdapter.getCount() > 1 && fromCurrencySpinner.getSelectedItem() != null) {
                 String fromCurrency = fromCurrencySpinner.getSelectedItem().toString();
                 for (int i = 0; i < toCurrencyAdapter.getCount(); i++) {
@@ -222,6 +319,30 @@ public class ExchangeFragment extends Fragment {
         } else {
             toCurrencySpinner.setSelection(0);
         }
+
+        enableExchangeFunctionality();
+    }
+
+    private void disableExchangeFunctionality(String message) {
+        fromCurrencySpinner.setEnabled(false);
+        toCurrencySpinner.setEnabled(false);
+        fromAmountEditText.setEnabled(false);
+        calculateButton.setEnabled(false);
+        exchangeButton.setEnabled(false);
+
+        resultTextView.setText(message);
+        exchangeRateValue.setText("--");
+        estimatedAmountValue.setText("--");
+    }
+
+    private void enableExchangeFunctionality() {
+        fromCurrencySpinner.setEnabled(true);
+        toCurrencySpinner.setEnabled(true);
+        fromAmountEditText.setEnabled(true);
+        calculateButton.setEnabled(true);
+        exchangeButton.setEnabled(true);
+
+        resultTextView.setText("Exchange transaction results will appear here");
     }
 
     private void calculateExchangeRate() {
@@ -230,7 +351,6 @@ public class ExchangeFragment extends Fragment {
         String amount = Objects.requireNonNull(fromAmountEditText.getText()).toString();
 
         if (fromCurrency != null && toCurrency != null && !amount.isEmpty()) {
-            // hardcoded
             double rate = 0;
             if ("EUR".equals(fromCurrency) && "USD".equals(toCurrency)) {
                 rate = 1.09;
@@ -290,7 +410,6 @@ public class ExchangeFragment extends Fragment {
                 exchangeRateValue.setText("--");
                 estimatedAmountValue.setText("--");
 
-                // Refresh balances
                 refreshBalances();
             } else {
                 resultTextView.setText(getString(R.string.transaction_failed) + result.getMessage());

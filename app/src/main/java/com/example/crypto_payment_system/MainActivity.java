@@ -76,21 +76,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         FrameLayout submenuContainer = findViewById(R.id.submenu_container);
         submenuView = getLayoutInflater().inflate(R.layout.send_money_submenu,
-                submenuContainer,false);
+                submenuContainer, false);
         submenuContainer.addView(submenuView);
 
         submenuView.setVisibility(View.GONE);
 
         ImageButton closeButton = submenuView.findViewById(R.id.btn_close_submenu);
-        closeButton.setOnClickListener(v-> hideSubmenu());
+        closeButton.setOnClickListener(v -> hideSubmenu());
 
-        submenuView.findViewById(R.id.option_make_payment).setOnClickListener(v->{
+        submenuView.findViewById(R.id.option_make_payment).setOnClickListener(v -> {
             hideSubmenu();
             navigateToFragment(new SendMoneyFragment());
             drawerLayout.closeDrawer(GravityCompat.START);
         });
 
-        submenuView.findViewById(R.id.option_transfer_accounts).setOnClickListener(v->{
+        submenuView.findViewById(R.id.option_transfer_accounts).setOnClickListener(v -> {
             hideSubmenu();
             navigateToFragment(new ExchangeFragment());
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -204,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * Updates the currency spinner to only show the user's preferred currencies
+     *
      * @param preferredCurrencies Comma-separated list of currencies
      */
     private void updateCurrencySpinner(String preferredCurrencies) {
@@ -255,12 +256,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_logout) {
             Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show();
             // viewModel.disconnect(); // to be implemented
-        } else if (id == R.id.nav_send_money){
+        } else if (id == R.id.nav_send_money) {
             showSubmenu();
             return true;
         } else if (id == R.id.nav_transactions) {
             Toast.makeText(this, "Transactions feature coming soon", Toast.LENGTH_SHORT).show(); // maybe???
-        } else if (id == R.id.nav_mint_tokens){
+        } else if (id == R.id.nav_mint_tokens) {
             navigateToFragment(new MintFragment());
         }
 
@@ -291,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressLint("ClickableViewAccessibility")
     private void setupAccountSelection() {
         View accountSelectionView = findViewById(R.id.account_selection_layout);
-        if(accountSelectionView == null) {
+        if (accountSelectionView == null) {
             return;
         }
 

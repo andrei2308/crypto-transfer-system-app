@@ -93,11 +93,11 @@ public class ExchangeContract {
     /**
      * Exchange USD to EUR
      */
-    public String exchangeUsdToEur(String usdtAddress, BigInteger amount, Credentials credentials) throws Exception{
-        String approvalTxHash = tokenService.checkAndApproveIfNeeded(usdtAddress,amount, credentials);
-        if(approvalTxHash != null){
+    public String exchangeUsdToEur(String usdtAddress, BigInteger amount, Credentials credentials) throws Exception {
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(usdtAddress, amount, credentials);
+        if (approvalTxHash != null) {
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
-            if(!receipt.isStatusOK()){
+            if (!receipt.isStatusOK()) {
                 throw new Exception("Token approval failed");
             }
         }
@@ -109,13 +109,14 @@ public class ExchangeContract {
                 })
         );
 
-        return sendTransaction(credentials,function);
+        return sendTransaction(credentials, function);
     }
-    public String sendMoney(BigInteger amount,String address, int sendCurrency, int receiveCurrency, Credentials credentials) throws Exception {
-        String approvalTxHash = tokenService.checkAndApproveIfNeeded(address,amount, credentials);
-        if(approvalTxHash != null){
+
+    public String sendMoney(BigInteger amount, String address, int sendCurrency, int receiveCurrency, Credentials credentials) throws Exception {
+        String approvalTxHash = tokenService.checkAndApproveIfNeeded(address, amount, credentials);
+        if (approvalTxHash != null) {
             TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
-            if(!receipt.isStatusOK()){
+            if (!receipt.isStatusOK()) {
                 throw new Exception("Token approval failed");
             }
         }
@@ -131,7 +132,7 @@ public class ExchangeContract {
                 Collections.emptyList()
         );
 
-        return sendTransaction(credentials,function);
+        return sendTransaction(credentials, function);
     }
 
     /**
