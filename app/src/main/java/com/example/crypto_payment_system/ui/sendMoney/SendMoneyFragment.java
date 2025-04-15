@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class SendMoneyFragment extends Fragment {
 
@@ -36,6 +37,7 @@ public class SendMoneyFragment extends Fragment {
     private Spinner currencySpinner;
     private TextView resultTextView;
     private ProgressBar progressBar;
+    private ArrayAdapter<String> currencyAdapter;
     private Observer<TokenRepository.TransactionResult> transactionObserver;
 
     @Nullable
@@ -62,18 +64,72 @@ public class SendMoneyFragment extends Fragment {
     }
 
     private void setupCurrencySpinner() {
-        List<String> currencies = new ArrayList<>(Arrays.asList("EUR", "USD"));
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        currencyAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
-                currencies
+                new ArrayList<>()
         );
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        currencySpinner.setAdapter(currencyAdapter);
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        updateCurrencySpinner();
 
-        currencySpinner.setAdapter(adapter);
+        viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                String preferredCurrencies = user.getPreferredCurrency();
+                if (preferredCurrencies != null && !preferredCurrencies.isEmpty()) {
+                    updateCurrencySpinner(preferredCurrencies);
+                }
+            } else {
+                resetCurrencySpinner();
+            }
+        });
+    }
 
+    private void updateCurrencySpinner() {
+        currencyAdapter.clear();
+        currencyAdapter.add("EUR");
+        currencyAdapter.add("USD");
+        currencyAdapter.notifyDataSetChanged();
+    }
+    private void updateCurrencySpinner(String preferredCurrencies) {
+        String[] currencies = preferredCurrencies.split(",");
+
+        String currentSelection = null;
+        if (currencySpinner.getSelectedItem() != null) {
+            currentSelection = currencySpinner.getSelectedItem().toString();
+        }
+
+        currencyAdapter.clear();
+
+        for (String currency : currencies) {
+            String trimmedCurrency = currency.trim().toUpperCase();
+            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
+                currencyAdapter.add(trimmedCurrency);
+            }
+        }
+
+        currencyAdapter.notifyDataSetChanged();
+
+        if (currentSelection != null) {
+            for (int i = 0; i < currencyAdapter.getCount(); i++) {
+                if (Objects.equals(currencyAdapter.getItem(i), currentSelection)) {
+                    currencySpinner.setSelection(i);
+                    return;
+                }
+            }
+        }
+
+        if (currencyAdapter.getCount() > 0) {
+            currencySpinner.setSelection(0);
+        }
+    }
+
+    private void resetCurrencySpinner() {
+        currencyAdapter.clear();
+        currencyAdapter.add("EUR");
+        currencyAdapter.add("USD");
+        currencyAdapter.notifyDataSetChanged();
         currencySpinner.setSelection(0);
     }
 
