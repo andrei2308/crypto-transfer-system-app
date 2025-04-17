@@ -38,7 +38,6 @@ public class MintFragment extends Fragment {
     private TextView ethBalanceValue;
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
-    private Button refreshBalanceButton;
     private Observer<TokenRepository.TransactionResult> transactionObserver;
 
     @Override
@@ -67,7 +66,7 @@ public class MintFragment extends Fragment {
         ethBalanceValue = view.findViewById(R.id.ethBalanceValue);
         eurBalanceValue = view.findViewById(R.id.eurBalanceValue);
         usdBalanceValue = view.findViewById(R.id.usdBalanceValue);
-        refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
+        Button refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
 
         setupCurrencySpinner();
 

@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.api.FirestoreService;
 import com.example.crypto_payment_system.api.TokenContractService;
 import com.example.crypto_payment_system.api.Web3Service;
@@ -65,7 +66,7 @@ public class MainViewModel extends AndroidViewModel {
         walletManager = new WalletManager(application);
 
         if (walletManager.getAccounts().isEmpty()) {
-            walletManager.addAccount("Default Account", Constants.PRIVATE_KEY);
+            walletManager.addAccount(application.getString(R.string.default_account), Constants.PRIVATE_KEY);
         }
 
         walletManager.getActiveAccountLiveData().observeForever(account -> {

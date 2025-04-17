@@ -1,5 +1,6 @@
 package com.example.crypto_payment_system.ui.exchange;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,7 +91,7 @@ public class ExchangeFragment extends Fragment {
             if (fromCurrency != null && !amount.isEmpty()) {
                 executeExchange(fromCurrency, amount);
             } else {
-                Toast.makeText(requireContext(), "Please select a currency and enter an amount",
+                Toast.makeText(requireContext(), R.string.please_select_a_currency_and_enter_an_amount,
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -214,7 +215,7 @@ public class ExchangeFragment extends Fragment {
         }
 
         if (validCurrencies.size() <= 1) {
-            disableExchangeFunctionality("Exchange unavailable - only one currency is configured");
+            disableExchangeFunctionality(getString(R.string.exchange_unavailable_only_one_currency_is_configured));
 
             fromCurrencyAdapter.clear();
             toCurrencyAdapter.clear();
@@ -342,9 +343,10 @@ public class ExchangeFragment extends Fragment {
         calculateButton.setEnabled(true);
         exchangeButton.setEnabled(true);
 
-        resultTextView.setText("Exchange transaction results will appear here");
+        resultTextView.setText(R.string.exchange_transaction_results_will_appear_here);
     }
 
+    @SuppressLint("DefaultLocale")
     private void calculateExchangeRate() {
         String fromCurrency = (String) fromCurrencySpinner.getSelectedItem();
         String toCurrency = (String) toCurrencySpinner.getSelectedItem();
@@ -368,21 +370,21 @@ public class ExchangeFragment extends Fragment {
                     estimatedAmountValue.setText(String.format("%.2f %s",
                             estimatedAmount, toCurrency));
                 } catch (NumberFormatException e) {
-                    Toast.makeText(requireContext(), "Please enter a valid amount",
+                    Toast.makeText(requireContext(), R.string.please_enter_a_valid_amount,
                             Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(requireContext(), "Exchange rate not available for selected currencies",
+                Toast.makeText(requireContext(), R.string.exchange_rate_not_available_for_selected_currencies,
                         Toast.LENGTH_SHORT).show();
             }
         } else {
-            Toast.makeText(requireContext(), "Please fill in all fields",
+            Toast.makeText(requireContext(), R.string.please_fill_in_all_fields,
                     Toast.LENGTH_SHORT).show();
         }
     }
 
     private void executeExchange(String fromCurrency, String amount) {
-        resultTextView.setText("Starting exchange for " + amount + " " + fromCurrency + "...");
+        resultTextView.setText(getString(R.string.starting_exchange_for) + amount + " " + fromCurrency + "...");
 
         showLoading(true);
 
@@ -400,7 +402,7 @@ public class ExchangeFragment extends Fragment {
             if (result == null) return;
 
             if (result.isSuccess()) {
-                resultTextView.setText("Exchanged " +
+                resultTextView.setText(getString(R.string.exchanged) +
                         fromAmountEditText.getText().toString().trim() + " " +
                         fromCurrencySpinner.getSelectedItem().toString() +
                         "\nTransaction ID: " + result.getTransactionHash());

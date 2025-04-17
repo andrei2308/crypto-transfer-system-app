@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="176dp"
-    android:background="@color/primary"
+    android:background="@drawable/gradient_background"
     android:gravity="bottom"
     android:orientation="vertical"
     android:padding="16dp"
@@ -17,19 +17,20 @@
         android:src="@drawable/common_full_open_on_phone" />
 
     <TextView
+        style="@style/TextAppearance.App.Headline6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
-        android:text="Crypto Payment System"
-        android:textColor="@color/on_primary"
-        android:textStyle="bold"
-        android:textSize="18sp" />
+        android:text="@string/crypto_payment_system"
+        android:textColor="@color/textWhite"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/walletAddressText"
+        style="@style/TextAppearance.App.Caption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Connect to view wallet address"
-        android:textColor="@color/very_light_green" />
+        android:text="@string/connect_to_view_wallet_address"
+        android:textColor="@color/colorWhite" />
 
 </LinearLayout>

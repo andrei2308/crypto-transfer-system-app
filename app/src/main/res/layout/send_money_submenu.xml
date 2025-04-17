@@ -2,20 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@android:color/background_dark">
+    android:background="@color/colorWhite">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/colorPrimary">
 
         <TextView
             android:id="@+id/submenu_title"
+            style="@style/TextAppearance.App.Subtitle1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SEND MONEY"
-            android:textColor="@android:color/white"
+            android:text="@string/transfer_funds"
+            android:textColor="@color/textWhite"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -25,7 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" />
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="@color/textWhite" />
     </RelativeLayout>
 
     <LinearLayout
@@ -44,16 +48,23 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_send" />
+                android:src="@android:drawable/ic_menu_send"
+                app:tint="@color/colorPrimary" />
 
             <TextView
+                style="@style/Widget.App.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Make a payment"
-                android:textColor="@android:color/white"
+                android:text="@string/make_a_payment"
+                android:textColor="@color/textPrimary"
                 android:textSize="16sp" />
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorGray200" />
 
         <LinearLayout
             android:id="@+id/option_transfer_accounts"
@@ -66,14 +77,16 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_rotate" />
+                android:src="@android:drawable/ic_menu_rotate"
+                app:tint="@color/colorPrimary" />
 
             <TextView
+                style="@style/Widget.App.TextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Transfer between my accounts"
-                android:textColor="@android:color/white"
+                android:text="@string/transfer_between_my_accounts"
+                android:textColor="@color/textPrimary"
                 android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>

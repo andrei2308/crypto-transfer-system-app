@@ -4,15 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/colorOffWhite">
 
     <TextView
         android:id="@+id/sendMoneyTitleTextView"
+        style="@style/Widget.App.TextView.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Send Money"
         android:textSize="20sp"
-        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         android:gravity="center"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,9 +23,10 @@
 
     <TextView
         android:id="@+id/currencyLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Currency:"
+        android:text="@string/currency"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,6 +34,7 @@
 
     <Spinner
         android:id="@+id/currencySpinner"
+        style="@style/Widget.App.Spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -41,6 +45,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/amountInputLayout"
+        style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -52,12 +57,14 @@
             android:id="@+id/amount_teit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amount to send"
+            android:hint="@string/amount_to_send"
+            android:textColor="@color/textPrimary"
             android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/addressInputLayout"
+        style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -69,44 +76,55 @@
             android:id="@+id/address_teit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Address to send money to"
+            android:hint="@string/address_to_send_money_to"
+            android:textColor="@color/textPrimary"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/send_money_btn"
-        android:layout_width="wrap_content"
+        style="@style/Widget.App.Button"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Send Money"
+        android:layout_marginTop="24dp"
+        android:text="@string/send_money"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addressInputLayout" />
 
     <TextView
         android:id="@+id/resultsLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Transaction Status:"
+        android:text="@string/transaction_status"
         android:textStyle="bold"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/send_money_btn" />
 
-    <TextView
-        android:id="@+id/resultTextView"
+    <androidx.cardview.widget.CardView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:background="#F5F5F5"
-        android:padding="12dp"
-        android:scrollbars="vertical"
-        android:text="Transaction details will appear here"
-        android:fontFamily="monospace"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultsLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/resultsLabel">
+
+        <TextView
+            android:id="@+id/resultTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:scrollbars="vertical"
+            android:text="@string/transaction_details_will_appear_here"
+            android:fontFamily="monospace"
+            android:textColor="@color/textPrimary" />
+    </androidx.cardview.widget.CardView>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -114,6 +132,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:indeterminateTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -87,10 +87,10 @@ public class AddLiquidityFragment extends Fragment {
                 if (!amount.isEmpty()) {
                     addLiquidity(selectedCurrency, amount);
                 } else {
-                    Toast.makeText(requireContext(), "Please enter an amount", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), R.string.please_enter_an_amount, Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(requireContext(), "Please select a currency", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.please_select_a_currency, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -175,7 +175,7 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void addLiquidity(String currency, String amount) {
-        resultTextView.setText("Adding liquidity: " + amount + " " + currency + "...");
+        resultTextView.setText(getString(R.string.adding_liquidity) + amount + " " + currency + "...");
 
         showLoading(true);
 
@@ -193,10 +193,10 @@ public class AddLiquidityFragment extends Fragment {
             if (result == null) return;
 
             if (result.isSuccess()) {
-                resultTextView.setText("Added " +
+                resultTextView.setText(getString(R.string.added) +
                         amountEditText.getText().toString().trim() + " " +
                         currencySpinner.getSelectedItem().toString() +
-                        "\nTransaction ID: " + result.getTransactionHash());
+                        getString(R.string.transaction_id) + result.getTransactionHash());
 
                 amountEditText.setText("");
 
