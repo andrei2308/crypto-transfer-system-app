@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

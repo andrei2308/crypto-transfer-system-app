@@ -34,16 +34,6 @@
         app:layout_constraintTop_toBottomOf="@id/titleTextView" />
 
     <TextView
-        android:id="@+id/currentCurrencyText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Preferred Currency: EUR"
-        android:textStyle="italic"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/account_selection_layout" />
-
-    <TextView
         android:id="@+id/connectionLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,6 +53,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/connectionLabel"
         app:layout_constraintBottom_toBottomOf="@+id/connectionLabel" />
+
+    <!-- Post-Connection UI (Only visible after connection) -->
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/post_connection_ui_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="currencyLabel,currencySpinner,operationsLabel,buttonGroup1,resultsLabel,resultTextView" />
+
+    <TextView
+        android:id="@+id/currentCurrencyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Preferred Currency: EUR"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_selection_layout" />
 
     <TextView
         android:id="@+id/currencyLabel"
@@ -137,6 +145,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/resultsLabel" />
+
+    <TextView
+        android:id="@+id/connection_required_message"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:background="#F5F5F5"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Please connect to Ethereum to access all features.\n\nMake sure you have selected an account from the dropdown above."
+        android:textAlignment="center"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/connectButton" />
 
     <ProgressBar
         android:id="@+id/progressBar"
