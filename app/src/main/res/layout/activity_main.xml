@@ -17,14 +17,16 @@
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:background="@color/colorPrimary">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+                android:background="@color/colorPrimary"
+                app:titleTextColor="@color/textWhite"
+                app:subtitleTextColor="@color/textWhite"
+                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -40,8 +42,13 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
+        android:background="@color/colorWhite"
+        app:itemTextColor="@color/textPrimary"
+        app:itemIconTint="@color/colorPrimary"
+        app:itemTextAppearance="@style/TextAppearance.App.Body1"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu">
+
         <FrameLayout
             android:id="@+id/submenu_container"
             android:layout_width="match_parent"

@@ -4,10 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/colorWhite">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/accountNameInputLayout"
+        style="@style/Widget.App.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp">
@@ -16,12 +18,14 @@
             android:id="@+id/accountNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Account Name"
-            android:inputType="text" />
+            android:hint="@string/account_name"
+            android:inputType="text"
+            android:textColor="@color/textPrimary" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/privateKeyInputLayout"
+        style="@style/Widget.App.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -29,8 +33,9 @@
             android:id="@+id/privateKeyEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Private Key"
-            android:inputType="textPassword" />
+            android:hint="@string/private_key"
+            android:inputType="textPassword"
+            android:textColor="@color/textPrimary" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

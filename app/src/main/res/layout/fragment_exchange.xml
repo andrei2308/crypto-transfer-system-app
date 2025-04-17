@@ -6,15 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="@color/colorOffWhite"
     tools:context=".ui.exchange.ExchangeFragment">
 
     <TextView
         android:id="@+id/exchangeTitleTextView"
+        style="@style/Widget.App.TextView.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Exchange Funds"
+        android:text="@string/exchange_funds"
         android:textSize="24sp"
-        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         android:gravity="center"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,8 +28,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/exchangeTitleTextView">
@@ -39,28 +42,33 @@
 
             <TextView
                 android:id="@+id/walletBalanceLabel"
+                style="@style/Widget.App.TextView.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Current Wallet Balance"
+                android:text="@string/current_wallet_balance"
                 android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/eurBalanceLabel"
+                style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EUR:"
+                android:text="@string/eur"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/walletBalanceLabel" />
 
             <TextView
                 android:id="@+id/eurBalanceValue"
+                style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0.00 EUR"
+                android:text="@string/_0_00_eur"
                 android:textStyle="bold"
+                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@id/eurBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -68,29 +76,33 @@
 
             <TextView
                 android:id="@+id/usdBalanceLabel"
+                style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="USD:"
+                android:text="@string/usd"
                 android:layout_marginTop="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/eurBalanceLabel" />
 
             <TextView
                 android:id="@+id/usdBalanceValue"
+                style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0.00 USD"
+                android:text="@string/_0_00_usd"
                 android:textStyle="bold"
+                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@id/usdBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/usdBalanceLabel" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/refreshBalanceButton"
+                style="@style/Widget.App.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Refresh"
+                android:text="@string/refresh"
                 android:textSize="12sp"
                 android:minHeight="36dp"
                 android:layout_marginTop="8dp"
@@ -101,9 +113,10 @@
 
     <TextView
         android:id="@+id/fromCurrencyLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="From Currency:"
+        android:text="@string/from_currency"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -111,6 +124,7 @@
 
     <Spinner
         android:id="@+id/fromCurrencySpinner"
+        style="@style/Widget.App.Spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -121,6 +135,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/fromAmountInputLayout"
+        style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -132,8 +147,9 @@
             android:id="@+id/fromAmountEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amount to Exchange"
-            android:inputType="numberDecimal" />
+            android:hint="@string/amount_to_exchange"
+            android:inputType="numberDecimal"
+            android:textColor="@color/textPrimary" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
@@ -142,15 +158,17 @@
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
         android:src="@android:drawable/arrow_down_float"
+        app:tint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fromAmountInputLayout" />
 
     <TextView
         android:id="@+id/toCurrencyLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="To Currency:"
+        android:text="@string/to_currency"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -158,6 +176,7 @@
 
     <Spinner
         android:id="@+id/toCurrencySpinner"
+        style="@style/Widget.App.Spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -166,93 +185,128 @@
         app:layout_constraintTop_toTopOf="@+id/toCurrencyLabel"
         app:layout_constraintBottom_toBottomOf="@+id/toCurrencyLabel" />
 
-    <TextView
-        android:id="@+id/exchangeRateLabel"
-        android:layout_width="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/rateInfoCardView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Estimated Exchange Rate:"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toCurrencyLabel" />
-
-    <TextView
-        android:id="@+id/exchangeRateValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="--"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/exchangeRateLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/exchangeRateLabel"
-        app:layout_constraintBottom_toBottomOf="@+id/exchangeRateLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/toCurrencyLabel">
 
-    <TextView
-        android:id="@+id/estimatedAmountLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Estimated Amount:"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exchangeRateLabel" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
 
-    <TextView
-        android:id="@+id/estimatedAmountValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="--"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/estimatedAmountLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/estimatedAmountLabel"
-        app:layout_constraintBottom_toBottomOf="@+id/estimatedAmountLabel" />
+            <TextView
+                android:id="@+id/exchangeRateLabel"
+                style="@style/Widget.App.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/estimated_exchange_rate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+            <TextView
+                android:id="@+id/exchangeRateValue"
+                style="@style/Widget.App.TextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/erate"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                app:layout_constraintStart_toEndOf="@+id/exchangeRateLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/exchangeRateLabel"
+                app:layout_constraintBottom_toBottomOf="@+id/exchangeRateLabel" />
+
+            <TextView
+                android:id="@+id/estimatedAmountLabel"
+                style="@style/Widget.App.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/estimated_amount"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/exchangeRateLabel" />
+
+            <TextView
+                android:id="@+id/estimatedAmountValue"
+                style="@style/Widget.App.TextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/erate"
+                android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
+                app:layout_constraintStart_toEndOf="@+id/estimatedAmountLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/estimatedAmountLabel"
+                app:layout_constraintBottom_toBottomOf="@+id/estimatedAmountLabel" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/calculateButton"
+        style="@style/Widget.App.Button.OutlinedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="4dp"
-        android:text="Calculate"
+        android:text="@string/calculate"
         app:layout_constraintEnd_toStartOf="@+id/exchangeButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/estimatedAmountLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/rateInfoCardView" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/exchangeButton"
+        style="@style/Widget.App.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:text="Exchange"
+        android:text="@string/exchange"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/calculateButton"
         app:layout_constraintTop_toTopOf="@+id/calculateButton" />
 
     <TextView
         android:id="@+id/resultsLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Transaction Status:"
+        android:text="@string/transaction_status"
         android:textStyle="bold"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/calculateButton" />
 
-    <TextView
-        android:id="@+id/resultTextView"
+    <androidx.cardview.widget.CardView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:background="#F5F5F5"
-        android:padding="12dp"
-        android:scrollbars="vertical"
-        android:text="Exchange transaction results will appear here"
-        android:fontFamily="monospace"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultsLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/resultsLabel">
+
+        <TextView
+            android:id="@+id/resultTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:scrollbars="vertical"
+            android:text="@string/exchange_transaction_results_will_appear_here"
+            android:fontFamily="monospace"
+            android:textColor="@color/textPrimary" />
+    </androidx.cardview.widget.CardView>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -260,6 +314,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:indeterminateTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

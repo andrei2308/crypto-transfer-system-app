@@ -8,34 +8,44 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/common_full_open_on_phone"
-            android:title="Home" />
+            android:iconTint="@color/colorPrimary"
+            android:title="@string/home" />
         <item
             android:id="@+id/nav_transactions"
             android:icon="@drawable/common_google_signin_btn_icon_dark"
-            android:title="Transactions" />
+            android:iconTint="@color/colorPrimary"
+            android:title="@string/transactions" />
     </group>
 
-    <item android:title="Account">
+    <item android:title="@string/account1">
         <menu>
             <item
                 android:id="@+id/nav_manage_account"
                 android:icon="@drawable/googleg_disabled_color_18"
-                android:title="Manage Account" />
+                android:iconTint="@color/colorPrimary"
+                android:title="@string/manage_account" />
             <item
                 android:id="@+id/nav_send_money"
-                android:title="Send Money" />
+                android:icon="@android:drawable/ic_menu_send"
+                android:iconTint="@color/colorPrimary"
+                android:title="@string/transfer_funds" />
             <item
                 android:id="@+id/nav_mint_tokens"
-                android:title="Mint currency" />
+                android:icon="@android:drawable/ic_menu_add"
+                android:iconTint="@color/colorPrimary"
+                android:title="@string/mint_currency" />
 
             <item
                 android:id="@+id/nav_add_liquidity"
-                android:title="Fund the contract" />
+                android:icon="@android:drawable/ic_menu_upload"
+                android:iconTint="@color/colorPrimary"
+                android:title="@string/fund_the_contract" />
 
             <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/common_google_signin_btn_icon_light_normal"
-                android:title="Disconnect" />
+                android:iconTint="@color/colorPrimary"
+                android:title="@string/disconnect" />
         </menu>
     </item>
 </menu>

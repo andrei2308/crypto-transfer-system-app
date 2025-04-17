@@ -3,7 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/colorWhite">
+
+    <TextView
+        style="@style/Widget.App.TextView.Subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_currency"
+        android:layout_marginBottom="8dp"/>
 
     <RadioGroup
         android:id="@+id/currencyRadioGroup"
@@ -15,15 +23,19 @@
             android:id="@+id/radioEUR"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="EUR"
-            android:padding="8dp" />
+            android:text="@string/eur"
+            android:padding="8dp"
+            android:textColor="@color/textPrimary"
+            android:buttonTint="@color/colorPrimary"/>
 
         <RadioButton
             android:id="@+id/radioUSD"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="USD"
-            android:padding="8dp" />
+            android:text="@string/usd"
+            android:padding="8dp"
+            android:textColor="@color/textPrimary"
+            android:buttonTint="@color/colorPrimary"/>
     </RadioGroup>
 
 </LinearLayout>

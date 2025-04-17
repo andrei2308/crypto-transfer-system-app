@@ -4,50 +4,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/colorOffWhite">
 
     <TextView
+        style="@style/Widget.App.TextView.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Manage Preferred Currencies"
+        android:text="@string/manage_preferred_currencies"
         android:textSize="20sp"
-        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         android:layout_marginBottom="16dp" />
 
     <TextView
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Wallet Address:"
+        android:text="@string/wallet_address"
         android:textStyle="bold"
         android:layout_marginTop="8dp" />
 
     <TextView
         android:id="@+id/wallet_address_text"
+        style="@style/Widget.App.TextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Not connected"
+        android:text="@string/not_connected"
         android:textIsSelectable="true"
         android:fontFamily="monospace"
+        android:textColor="@color/textPrimary"
         android:layout_marginBottom="16dp" />
 
     <TextView
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select your preferred currencies:"
+        android:text="@string/select_your_preferred_currencies"
         android:textStyle="bold"
         android:layout_marginTop="16dp" />
 
     <TextView
+        style="@style/Widget.App.TextView.Caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="You can select multiple currencies. The first selected currency will be considered your primary currency."
+        android:text="@string/you_can_select_multiple_currencies_the_first_selected_currency_will_be_considered_your_primary_currency"
         android:layout_marginBottom="16dp" />
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/colorWhite"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp">
 
@@ -61,15 +69,17 @@
                 android:id="@+id/checkbox_eur"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="EUR - Euro"
+                android:text="@string/eur_euro"
                 android:textSize="16sp"
+                android:textColor="@color/textPrimary"
+                android:buttonTint="@color/colorPrimary"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#EEEEEE"
+                android:background="@color/colorGray200"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp" />
 
@@ -77,26 +87,30 @@
                 android:id="@+id/checkbox_usd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="USD - US Dollar"
+                android:text="@string/usd_us_dollar"
                 android:textSize="16sp"
+                android:textColor="@color/textPrimary"
+                android:buttonTint="@color/colorPrimary"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </androidx.cardview.widget.CardView>
 
     <TextView
+        style="@style/Widget.App.TextView.Caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Note: Your preferred currencies are used to determine which tokens you want to use for transactions. Make sure you have liquidity for these currencies."
+        android:text="@string/note_your_preferred_currencies_are_used_to_determine_which_tokens_you_want_to_use_for_transactions_make_sure_you_have_liquidity_for_these_currencies"
         android:textStyle="italic"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/save_currencies_button"
+        style="@style/Widget.App.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save Preferences"
+        android:text="@string/save_preferences"
         android:layout_marginTop="8dp" />
 
 </LinearLayout>

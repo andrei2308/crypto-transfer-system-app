@@ -6,15 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="@color/colorOffWhite"
     tools:context=".ui.mintFunds.MintFragment">
 
     <TextView
         android:id="@+id/mintTitleTextView"
+        style="@style/Widget.App.TextView.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Mint Tokens"
+        android:text="@string/mint_tokens"
         android:textSize="20sp"
-        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         android:gravity="center"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,8 +28,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/mintTitleTextView">
@@ -39,28 +42,33 @@
 
             <TextView
                 android:id="@+id/walletBalanceLabel"
+                style="@style/Widget.App.TextView.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Current Wallet Balance"
+                android:text="@string/current_wallet_balance"
                 android:textStyle="bold"
+                android:textColor="@color/colorPrimary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/ethBalanceLabel"
+                style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ETH:"
+                android:text="@string/eth"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/walletBalanceLabel" />
 
             <TextView
                 android:id="@+id/ethBalanceValue"
+                style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0.0000 ETH"
+                android:text="@string/_0_0000_eth"
                 android:textStyle="bold"
+                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@id/ethBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -68,19 +76,22 @@
 
             <TextView
                 android:id="@+id/eurBalanceLabel"
+                style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EUR:"
+                android:text="@string/eur"
                 android:layout_marginTop="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ethBalanceLabel" />
 
             <TextView
                 android:id="@+id/eurBalanceValue"
+                style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0.00 EUR"
+                android:text="@string/_0_00_eur"
                 android:textStyle="bold"
+                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@id/eurBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -88,29 +99,33 @@
 
             <TextView
                 android:id="@+id/usdBalanceLabel"
+                style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="USD:"
+                android:text="@string/usd"
                 android:layout_marginTop="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/eurBalanceLabel" />
 
             <TextView
                 android:id="@+id/usdBalanceValue"
+                style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="0.00 USD"
+                android:text="@string/_0_00_usd"
                 android:textStyle="bold"
+                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@id/usdBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/usdBalanceLabel" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/refreshBalanceButton"
+                style="@style/Widget.App.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Refresh"
+                android:text="@string/refresh"
                 android:textSize="12sp"
                 android:minHeight="36dp"
                 android:layout_marginTop="8dp"
@@ -121,9 +136,10 @@
 
     <TextView
         android:id="@+id/mintCurrencyLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Currency:"
+        android:text="@string/currency"
         android:textStyle="bold"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -131,6 +147,7 @@
 
     <Spinner
         android:id="@+id/mintCurrencySpinner"
+        style="@style/Widget.App.Spinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -141,6 +158,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/mintAmountInputLayout"
+        style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -152,15 +170,17 @@
             android:id="@+id/mintAmountEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amount to mint"
-            android:inputType="numberDecimal" />
+            android:hint="@string/amount_to_mint"
+            android:inputType="numberDecimal"
+            android:textColor="@color/textPrimary" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/walletSectionLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Target Wallet"
+        android:text="@string/target_wallet"
         android:textStyle="bold"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -168,6 +188,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/walletAddressInputLayout"
+        style="@style/Widget.App.TextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -179,15 +200,17 @@
             android:id="@+id/walletAddressEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Wallet Address (leave empty for your wallet)"
-            android:inputType="text" />
+            android:hint="@string/wallet_address_leave_empty_for_your_wallet"
+            android:inputType="text"
+            android:textColor="@color/textPrimary" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/mintButton"
+        style="@style/Widget.App.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Mint Token"
+        android:text="@string/mint_token"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -195,28 +218,37 @@
 
     <TextView
         android:id="@+id/mintStatusLabel"
+        style="@style/Widget.App.TextView.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Status:"
+        android:text="@string/status"
         android:textStyle="bold"
         android:layout_marginTop="32dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mintButton" />
 
-    <TextView
-        android:id="@+id/mintStatusTextView"
+    <androidx.cardview.widget.CardView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:background="#F5F5F5"
-        android:padding="12dp"
-        android:scrollbars="vertical"
-        android:text="Transaction result will appear here"
-        android:fontFamily="monospace"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mintStatusLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/mintStatusLabel">
+
+        <TextView
+            android:id="@+id/mintStatusTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:scrollbars="vertical"
+            android:text="@string/transaction_result_will_appear_here"
+            android:fontFamily="monospace"
+            android:textColor="@color/textPrimary" />
+    </androidx.cardview.widget.CardView>
 
     <ProgressBar
         android:id="@+id/mintProgressBar"
@@ -224,6 +256,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:indeterminateTint="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
