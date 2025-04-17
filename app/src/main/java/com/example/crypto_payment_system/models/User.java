@@ -19,6 +19,7 @@ public class User {
     /**
      * Get preferred currency. May contain multiple currencies as comma-separated values.
      * The first currency is considered the primary currency.
+     *
      * @return String of comma-separated currency codes (e.g. "EUR,USD")
      */
     public String getPreferredCurrency() {

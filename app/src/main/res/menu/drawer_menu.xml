@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+    <group android:id="@+id/nav_main_group"/>
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
@@ -20,6 +21,17 @@
                 android:id="@+id/nav_manage_account"
                 android:icon="@drawable/googleg_disabled_color_18"
                 android:title="Manage Account" />
+            <item
+                android:id="@+id/nav_send_money"
+                android:title="Send Money" />
+            <item
+                android:id="@+id/nav_mint_tokens"
+                android:title="Mint currency" />
+
+            <item
+                android:id="@+id/nav_add_liquidity"
+                android:title="Fund the contract" />
+
             <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/common_google_signin_btn_icon_light_normal"

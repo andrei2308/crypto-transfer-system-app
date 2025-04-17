@@ -7,9 +7,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:theme="@style/Theme.GreenWhiteApp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- Title Section -->
     <TextView
         android:id="@+id/titleTextView"
         android:layout_width="0dp"
@@ -23,7 +23,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Account Selection Section (NEW) -->
     <include
         android:id="@+id/account_selection_layout"
         layout="@layout/account_selection"
@@ -34,18 +33,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleTextView" />
 
-    <!-- User Info Section -->
-    <TextView
-        android:id="@+id/currentCurrencyText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Preferred Currency: EUR"
-        android:textStyle="italic"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/account_selection_layout" />
-
-    <!-- Connection Section -->
     <TextView
         android:id="@+id/connectionLabel"
         android:layout_width="wrap_content"
@@ -67,7 +54,24 @@
         app:layout_constraintTop_toTopOf="@+id/connectionLabel"
         app:layout_constraintBottom_toBottomOf="@+id/connectionLabel" />
 
-    <!-- Currency Selection Section -->
+    <!-- Post-Connection UI (Only visible after connection) -->
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/post_connection_ui_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="currencyLabel,currencySpinner,operationsLabel,buttonGroup1,resultsLabel,resultTextView" />
+
+    <TextView
+        android:id="@+id/currentCurrencyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Preferred Currency: EUR"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_selection_layout" />
+
     <TextView
         android:id="@+id/currencyLabel"
         android:layout_width="wrap_content"
@@ -88,7 +92,6 @@
         app:layout_constraintTop_toTopOf="@+id/currencyLabel"
         app:layout_constraintBottom_toBottomOf="@+id/currencyLabel" />
 
-    <!-- Operations Section -->
     <TextView
         android:id="@+id/operationsLabel"
         android:layout_width="wrap_content"
@@ -116,72 +119,8 @@
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
             android:text="Check Balances" />
-
-        <Button
-            android:id="@+id/mintTokenButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:text="Mint Token" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/buttonGroup2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGroup1">
-
-        <Button
-            android:id="@+id/callTransactionMethodButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="4dp"
-            android:text="Add Liquidity" />
-
-        <Button
-            android:id="@+id/exchangeButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:text="Exchange" />
-    </LinearLayout>
-
-    <!-- Send Money Section -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/addressInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonGroup2">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/address_teit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Address to send money to"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/send_money_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Send Money"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addressInputLayout" />
-
-    <!-- Results Section -->
     <TextView
         android:id="@+id/resultsLabel"
         android:layout_width="wrap_content"
@@ -190,7 +129,7 @@
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/send_money_btn" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonGroup1" />
 
     <TextView
         android:id="@+id/resultTextView"
@@ -206,6 +145,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/resultsLabel" />
+
+    <TextView
+        android:id="@+id/connection_required_message"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:background="#F5F5F5"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Please connect to Ethereum to access all features.\n\nMake sure you have selected an account from the dropdown above."
+        android:textAlignment="center"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/connectButton" />
 
     <ProgressBar
         android:id="@+id/progressBar"

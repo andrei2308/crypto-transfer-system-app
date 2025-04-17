@@ -27,6 +27,8 @@ import com.example.crypto_payment_system.repositories.UserRepository;
 import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +49,7 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isNewUser = new MutableLiveData<>(false);
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
+    private final MutableLiveData<String> selectedCurrency = new MutableLiveData<>();
 
     public MainViewModel(Application application) throws JSONException {
         super(application);
@@ -125,6 +128,7 @@ public class MainViewModel extends AndroidViewModel {
 
     /**
      * Add a new Ethereum account
+     *
      * @return true if successful, false if account already exists
      */
     public boolean addAccount(String name, String privateKey) throws JSONException {
@@ -138,12 +142,13 @@ public class MainViewModel extends AndroidViewModel {
     public void switchAccount(String address) throws JSONException {
         isLoading.setValue(true);
         walletManager.switchAccount(address);
+//        checkAllBalances();
         isLoading.setValue(false);
-        // The account change observer will handle reloading user data
     }
 
     /**
      * Remove an account
+     *
      * @return true if successful, false if account not found
      */
     public boolean removeAccount(String address) throws JSONException {
@@ -223,7 +228,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Exchange tokens based on user's preferred currency
      */
-    public void exchangeBasedOnPreference(String currencyToExchange) {
+    public void exchangeBasedOnPreference(String currencyToExchange, String humanReadableAmount) {
         User user = currentUser.getValue();
         if (user == null) {
             transactionResult.setValue(
@@ -232,14 +237,37 @@ public class MainViewModel extends AndroidViewModel {
             return;
         }
 
-        if ("EUR".equals(currencyToExchange)) {
-            exchangeEurToUsd();
-        } else if ("USD".equals(currencyToExchange)){
-            exchangeUsdToEur();
-        } else {
-            transactionResult.setValue(
-                    new TransactionResult(false, null, "Invalid currency")
-            );
+        try {
+            double amount = Double.parseDouble(humanReadableAmount);
+            if (amount <= 0) {
+                transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
+                return;
+            }
+            BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+            BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
+            String tokenAmount = tokenUnits.toBigInteger().toString();
+
+            isLoading.setValue(true);
+
+
+            final String displayAmount = humanReadableAmount;
+            final String displayCurrency = currencyToExchange.equals("USD") ? "USDT" : "EURC";
+
+
+            if ("EUR".equals(currencyToExchange)) {
+                exchangeEurToUsd(tokenAmount);
+            } else if ("USD".equals(currencyToExchange)) {
+                exchangeUsdToEur(tokenAmount);
+            } else {
+                transactionResult.setValue(
+                        new TransactionResult(false, null, "Invalid currency")
+                );
+            }
+
+
+        } catch (NumberFormatException e) {
+            transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
+            isLoading.setValue(false);
         }
     }
 
@@ -264,43 +292,99 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Mint tokens
      */
-    public void mintTokens(String currency) {
+    public void mintTokens(String currency, String humanReadableAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
         }
+        try {
+            double amount = Double.parseDouble(humanReadableAmount);
+            if (amount <= 0) {
+                transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
+                return;
+            }
+            BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+            BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
+            String tokenAmount = tokenUnits.toBigInteger().toString();
 
-        isLoading.setValue(true);
+            isLoading.setValue(true);
 
-        tokenRepository.mintTokens(currency, getActiveCredentials())
-                .thenAccept(result -> {
-                    transactionResult.postValue(result);
-                    isLoading.postValue(false);
-                });
+            final String displayAmount = humanReadableAmount;
+            final String displayCurrency = currency.equals("USD") ? "USDT" : "EURC";
+
+            tokenRepository.mintTokens(currency, getActiveCredentials(), tokenAmount)
+                    .thenAccept(result -> {
+                        if (result.isSuccess()) {
+                            result = new TransactionResult(
+                                    true,
+                                    result.getTransactionHash(),
+                                    "Successfully added " + displayAmount + " " + displayCurrency + " as liquidity"
+                            );
+                        }
+                        transactionResult.postValue(result);
+                        isLoading.postValue(false);
+
+                        if (result.isSuccess()) {
+                            tokenRepository.getAllBalances(getActiveCredentials())
+                                    .thenAccept(balances -> tokenBalances.postValue(balances));
+                        }
+                    });
+        } catch (NumberFormatException e) {
+            transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
+            isLoading.setValue(false);
+        }
     }
 
     /**
-     * Add liquidity
+     * Add liquidity - ViewModel Method
      */
-    public void addLiquidity(String currency) {
+    public void addLiquidity(String currency, String humanReadableAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
         }
+        try {
+            double amount = Double.parseDouble(humanReadableAmount);
+            if (amount <= 0) {
+                transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
+                return;
+            }
+            BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+            BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000)); // 10^6
+            String tokenAmount = tokenUnits.toBigInteger().toString();
 
-        isLoading.setValue(true);
+            isLoading.setValue(true);
 
-        exchangeRepository.addLiquidity(currency, getActiveCredentials())
-                .thenAccept(result -> {
-                    transactionResult.postValue(result);
-                    isLoading.postValue(false);
-                });
+            final String displayAmount = humanReadableAmount;
+            final String displayCurrency = currency.equals("USD") ? "USDT" : "EURC";
+
+            exchangeRepository.addLiquidity(currency, getActiveCredentials(), tokenAmount)
+                    .thenAccept(result -> {
+                        if (result.isSuccess()) {
+                            result = new TransactionResult(
+                                    true,
+                                    result.getTransactionHash(),
+                                    "Successfully added " + displayAmount + " " + displayCurrency + " as liquidity"
+                            );
+                        }
+                        transactionResult.postValue(result);
+                        isLoading.postValue(false);
+
+                        if (result.isSuccess()) {
+                            tokenRepository.getAllBalances(getActiveCredentials())
+                                    .thenAccept(balances -> tokenBalances.postValue(balances));
+                        }
+                    });
+        } catch (NumberFormatException e) {
+            transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
+            isLoading.setValue(false);
+        }
     }
 
     /**
      * Exchange EUR to USD
      */
-    public void exchangeEurToUsd() {
+    public void exchangeEurToUsd(String tokenAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
@@ -308,7 +392,7 @@ public class MainViewModel extends AndroidViewModel {
 
         isLoading.setValue(true);
 
-        exchangeRepository.exchangeEurToUsd(getActiveCredentials())
+        exchangeRepository.exchangeEurToUsd(tokenAmount, getActiveCredentials())
                 .thenAccept(result -> {
                     transactionResult.postValue(result);
                     isLoading.postValue(false);
@@ -318,7 +402,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Exchange USD to EUR
      */
-    public void exchangeUsdToEur() {
+    public void exchangeUsdToEur(String tokenAmount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
@@ -326,7 +410,7 @@ public class MainViewModel extends AndroidViewModel {
 
         isLoading.setValue(true);
 
-        exchangeRepository.exchangeUsdToEur(getActiveCredentials())
+        exchangeRepository.exchangeUsdToEur(tokenAmount, getActiveCredentials())
                 .thenAccept(result -> {
                     transactionResult.postValue(result);
                     isLoading.postValue(false);
@@ -336,7 +420,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Send money to another address
      */
-    public void sendMoney(String recipientAddress, String sendCurrency) {
+    public void sendMoney(String recipientAddress, String sendCurrency, String amount) {
         if (!web3Service.isConnected()) {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first!"));
             return;
@@ -345,6 +429,10 @@ public class MainViewModel extends AndroidViewModel {
         if (TextUtils.isEmpty(recipientAddress)) {
             transactionResult.setValue(new TransactionResult(false, null, "Recipient address cannot be empty"));
             return;
+        }
+
+        if (TextUtils.isEmpty(amount)) {
+            transactionResult.setValue(new TransactionResult(false, null, "Please introduce an amount."));
         }
 
         try {
@@ -364,7 +452,8 @@ public class MainViewModel extends AndroidViewModel {
                             recipientAddress,
                             sendCurrencyCode,
                             receiveCurrencyCode,
-                            getActiveCredentials()))
+                            getActiveCredentials(),
+                            amount))
                     .thenAccept(result -> {
                         transactionResult.postValue(result);
                         isLoading.postValue(false);
@@ -428,5 +517,13 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<WalletAccount> getActiveAccount() {
         return walletManager.getActiveAccountLiveData();
+    }
+
+    public void setSelectedCurrency(String currency) {
+        selectedCurrency.setValue(currency);
+    }
+
+    public LiveData<String> getSelectedCurrency() {
+        return selectedCurrency;
     }
 }

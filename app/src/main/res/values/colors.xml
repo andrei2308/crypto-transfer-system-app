@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Base colors -->
+    <color name="primary">#2E7D32</color>
+    <color name="primary_variant">#1B5E20</color>
+    <color name="secondary">#66BB6A</color>
+    <color name="secondary_variant">#4CAF50</color>
+
+    <!-- Background colors -->
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#F5F5F5</color>
+    <color name="error">#B00020</color>
+
+    <!-- On colors (for text and icons) -->
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_secondary">#000000</color>
+    <color name="on_background">#212121</color>
+    <color name="on_surface">#212121</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <!-- Additional recommended green shades -->
+    <color name="light_green">#81C784</color>
+    <color name="very_light_green">#C8E6C9</color>
+    <color name="dark_green">#1B5E20</color>
 </resources>
