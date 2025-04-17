@@ -51,7 +51,7 @@ public class ManageAccountFragment extends Fragment {
 
     private void updateUI(User user) {
         if (user == null) {
-            walletAddressText.setText("Not connected to wallet");
+            walletAddressText.setText(R.string.not_connected_to_wallet);
             checkBoxEUR.setEnabled(false);
             checkBoxUSD.setEnabled(false);
             saveButton.setEnabled(false);
@@ -83,7 +83,7 @@ public class ManageAccountFragment extends Fragment {
         }
 
         if (selectedCurrencies.isEmpty()) {
-            Toast.makeText(getContext(), "Please select at least one currency", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.please_select_at_least_one_currency, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -91,6 +91,6 @@ public class ManageAccountFragment extends Fragment {
 
         viewModel.updatePreferredCurrency(preferredCurrency);
 
-        Toast.makeText(getContext(), "Preferences saved", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.preferences_saved, Toast.LENGTH_SHORT).show();
     }
 }

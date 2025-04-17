@@ -1,5 +1,6 @@
 package com.example.crypto_payment_system.ui.sendMoney;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,6 @@ public class SendMoneyFragment extends Fragment {
     private MainViewModel viewModel;
     private TextInputEditText addressTeit;
     private TextInputEditText amountTeit;
-    private Button sendMoneyBtn;
     private Spinner currencySpinner;
     private TextView resultTextView;
     private ProgressBar progressBar;
@@ -49,7 +49,7 @@ public class SendMoneyFragment extends Fragment {
 
         addressTeit = root.findViewById(R.id.address_teit);
         amountTeit = root.findViewById(R.id.amount_teit);
-        sendMoneyBtn = root.findViewById(R.id.send_money_btn);
+        Button sendMoneyBtn = root.findViewById(R.id.send_money_btn);
         currencySpinner = root.findViewById(R.id.currencySpinner);
         resultTextView = root.findViewById(R.id.resultTextView);
         progressBar = root.findViewById(R.id.progressBar);
@@ -148,24 +148,25 @@ public class SendMoneyFragment extends Fragment {
 //        }
     }
 
+    @SuppressLint("SetTextI18n")
     private void sendMoney() {
-        String address = addressTeit.getText().toString().trim();
-        String amountStr = amountTeit.getText().toString().trim();
+        String address = Objects.requireNonNull(addressTeit.getText()).toString().trim();
+        String amountStr = Objects.requireNonNull(amountTeit.getText()).toString().trim();
 
         if (address.isEmpty()) {
-            addressTeit.setError("Please enter a valid address");
+            addressTeit.setError(getString(R.string.please_enter_a_valid_address));
             return;
         }
 
         if (amountStr.isEmpty()) {
-            amountTeit.setError("Please enter an amount");
+            amountTeit.setError(getString(R.string.please_enter_an_amount));
             return;
         }
 
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
-                amountTeit.setError("Amount must be greater than zero");
+                amountTeit.setError(getString(R.string.amount_must_be_greater_than_zero));
                 return;
             }
 
@@ -179,7 +180,7 @@ public class SendMoneyFragment extends Fragment {
             String formattedAmount = tokenUnits.toBigInteger().toString();
 
             progressBar.setVisibility(View.VISIBLE);
-            resultTextView.setText("Processing transaction...");
+            resultTextView.setText(getString(R.string.processing_transaction));
 
             if (transactionObserver != null) {
                 viewModel.getTransactionResult().removeObserver(transactionObserver);
@@ -190,7 +191,7 @@ public class SendMoneyFragment extends Fragment {
             transactionObserver = result -> {
                 progressBar.setVisibility(View.GONE);
                 if (result.isSuccess()) {
-                    resultTextView.setText("Transaction successful!\nSent " + finalAmount + " " +
+                    resultTextView.setText(getString(R.string.transaction_successful_sent) + finalAmount + " " +
                             finalCurrency + " to " + address +
                             "\nTransaction ID: " + result.getTransactionHash());
 

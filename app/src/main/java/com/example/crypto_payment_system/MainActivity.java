@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         connectButton.setOnClickListener(v -> {
             String selectedAddress = getSelectedAccountAddress();
             if (selectedAddress == null || selectedAddress.isEmpty()) {
-                Toast.makeText(this, "Please select an account first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.please_select_an_account_first, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -136,10 +136,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 Button connectButton = findViewById(R.id.connectButton);
                 if (isConnected) {
-                    connectButton.setText("Connected");
+                    connectButton.setText(R.string.connected);
                     connectButton.setEnabled(false);
                 } else {
-                    connectButton.setText("Connect to Ethereum");
+                    connectButton.setText(R.string.connect_to_ethereum);
                     connectButton.setEnabled(true);
                 }
             }
@@ -169,11 +169,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         viewModel.getTokenBalances().observe(this, balances -> {
             StringBuilder sb = new StringBuilder();
-            sb.append("YOUR WALLET BALANCES:\n");
+            sb.append(getString(R.string.your_wallet_balances));
 
             balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getFormattedWalletBalance()).append("\n"));
 
-            sb.append("\nCONTRACT BALANCES:\n");
+            sb.append(getString(R.string.contract_balances));
 
             balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getFormattedContractBalance()).append("\n"));
 
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sb.append(result.getMessage()).append("\n");
 
             if (result.getTransactionHash() != null) {
-                sb.append("Hash: ").append(result.getTransactionHash());
+                sb.append(getString(R.string.hash)).append(result.getTransactionHash());
             }
 
             resultTextView.setText(sb.toString());
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (!isConnected && (id == R.id.nav_send_money || id == R.id.nav_transactions || id == R.id.nav_mint_tokens || id == R.id.nav_add_liquidity)) {
-            Toast.makeText(this, "Please connect to Ethereum first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.please_connect_to_ethereum_first, Toast.LENGTH_SHORT).show();
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         }
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (isConnected) {
 //                disconnectFromEthereum();
             } else {
-                Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.nav_send_money) {
             showSubmenu();
@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void navigateToFragment(androidx.fragment.app.Fragment fragment) {
         boolean requiresConnection = fragment instanceof SendMoneyFragment || fragment instanceof ExchangeFragment || fragment instanceof MintFragment || fragment instanceof AddLiquidityFragment;
         if (requiresConnection && !isConnected) {
-            Toast.makeText(this, "Please connect to Ethereum first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.please_connect_to_ethereum_first, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -359,12 +359,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                             viewModel.switchAccount(newAddress);
 
-                            Toast.makeText(MainActivity.this, "Switching to account: " + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
 
                             previouslySelectedAddress[0] = newAddress;
 
                         } catch (JSONException e) {
-                            Toast.makeText(MainActivity.this, "Error switching accounts: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -443,12 +443,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String privateKey = Objects.requireNonNull(privateKeyEditText.getText()).toString().trim();
 
             if (name.isEmpty()) {
-                Toast.makeText(this, "Account name is required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.account_name_is_required, Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (privateKey.isEmpty()) {
-                Toast.makeText(this, "Private key is required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.private_key_is_required, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -459,9 +459,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 throw new RuntimeException(e);
             }
             if (success) {
-                Toast.makeText(this, "Account added successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.account_added_successfully, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Account already exists", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.account_already_exists, Toast.LENGTH_SHORT).show();
             }
         });
 

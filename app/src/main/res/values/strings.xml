@@ -78,6 +78,37 @@
     <string name="mint_currency">Mint currency</string>
     <string name="fund_the_contract">Fund the contract</string>
     <string name="disconnect">Disconnect</string>
+    <string name="connected">Connected</string>
+    <string name="please_select_an_account_first">Please select an account first</string>
+    <string name="your_wallet_balances">YOUR WALLET BALANCES:\n</string>
+    <string name="contract_balances">\nCONTRACT BALANCES:\n</string>
+    <string name="hash">"Hash: "</string>
+    <string name="please_connect_to_ethereum_first">Please connect to Ethereum first</string>
+    <string name="switching_to_account">"Switching to account: "</string>
+    <string name="error_switching_accounts">"Error switching accounts: "</string>
+    <string name="account_name_is_required">Account name is required</string>
+    <string name="private_key_is_required">Private key is required</string>
+    <string name="account_added_successfully">Account added successfully</string>
+    <string name="account_already_exists">Account already exists</string>
+    <string name="default_account">Default Account</string>
+    <string name="please_select_a_currency_and_enter_an_amount">Please select a currency and enter an amount</string>
+    <string name="exchange_unavailable_only_one_currency_is_configured">Exchange unavailable - only one currency is configured</string>
+    <string name="please_enter_a_valid_amount">Please enter a valid amount</string>
+    <string name="exchange_rate_not_available_for_selected_currencies">Exchange rate not available for selected currencies</string>
+    <string name="please_fill_in_all_fields">Please fill in all fields</string>
+    <string name="starting_exchange_for">"Starting exchange for "</string>
+    <string name="exchanged">"Exchanged "</string>
+    <string name="please_enter_an_amount">Please enter an amount</string>
+    <string name="please_select_a_currency">Please select a currency</string>
+    <string name="adding_liquidity">"Adding liquidity: "</string>
+    <string name="added">"Added "</string>
+    <string name="transaction_id">"\nTransaction ID: "</string>
+    <string name="please_enter_a_valid_address">Please enter a valid address</string>
+    <string name="amount_must_be_greater_than_zero">Amount must be greater than zero</string>
+    <string name="transaction_successful_sent">"Transaction successful!\nSent "</string>
+    <string name="not_connected_to_wallet">Not connected to wallet</string>
+    <string name="please_select_at_least_one_currency">Please select at least one currency</string>
+    <string name="preferences_saved">Preferences saved</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
