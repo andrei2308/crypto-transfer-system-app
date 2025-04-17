@@ -19,7 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Currency Selection Section -->
     <TextView
         android:id="@+id/currencyLabel"
         android:layout_width="wrap_content"
@@ -40,7 +39,6 @@
         app:layout_constraintTop_toTopOf="@+id/currencyLabel"
         app:layout_constraintBottom_toBottomOf="@+id/currencyLabel" />
 
-    <!-- Amount Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/amountInputLayout"
         android:layout_width="0dp"
@@ -58,7 +56,6 @@
             android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Address Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/addressInputLayout"
         android:layout_width="0dp"
@@ -86,7 +83,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addressInputLayout" />
 
-    <!-- Results Section -->
     <TextView
         android:id="@+id/resultsLabel"
         android:layout_width="wrap_content"

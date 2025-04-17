@@ -10,7 +10,6 @@
     android:theme="@style/Theme.GreenWhiteApp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- Title Section -->
     <TextView
         android:id="@+id/titleTextView"
         android:layout_width="0dp"
@@ -24,7 +23,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Account Selection Section (NEW) -->
     <include
         android:id="@+id/account_selection_layout"
         layout="@layout/account_selection"
@@ -35,7 +33,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleTextView" />
 
-    <!-- User Info Section -->
     <TextView
         android:id="@+id/currentCurrencyText"
         android:layout_width="wrap_content"
@@ -46,7 +43,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/account_selection_layout" />
 
-    <!-- Connection Section -->
     <TextView
         android:id="@+id/connectionLabel"
         android:layout_width="wrap_content"
@@ -68,7 +64,6 @@
         app:layout_constraintTop_toTopOf="@+id/connectionLabel"
         app:layout_constraintBottom_toBottomOf="@+id/connectionLabel" />
 
-    <!-- Currency Selection Section -->
     <TextView
         android:id="@+id/currencyLabel"
         android:layout_width="wrap_content"
@@ -89,7 +84,6 @@
         app:layout_constraintTop_toTopOf="@+id/currencyLabel"
         app:layout_constraintBottom_toBottomOf="@+id/currencyLabel" />
 
-    <!-- Operations Section -->
     <TextView
         android:id="@+id/operationsLabel"
         android:layout_width="wrap_content"
@@ -119,45 +113,6 @@
             android:text="Check Balances" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/buttonGroup2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGroup1">
-
-        <Button
-            android:id="@+id/callTransactionMethodButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="4dp"
-            android:text="Add Liquidity" />
-
-    </LinearLayout>
-
-    <!-- Amount Input -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/amountInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonGroup2">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/amount_teit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Amount"
-            android:inputType="numberDecimal" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Results Section -->
     <TextView
         android:id="@+id/resultsLabel"
         android:layout_width="wrap_content"
@@ -166,7 +121,7 @@
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/amountInputLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonGroup1" />
 
     <TextView
         android:id="@+id/resultTextView"

@@ -5,7 +5,6 @@
     android:orientation="vertical"
     android:background="@android:color/background_dark">
 
-    <!-- Header with title and close button -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,13 +28,11 @@
             android:src="@android:drawable/ic_menu_close_clear_cancel" />
     </RelativeLayout>
 
-    <!-- Submenu items -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Option 1: Make a payment -->
         <LinearLayout
             android:id="@+id/option_make_payment"
             android:layout_width="match_parent"
@@ -58,7 +55,6 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <!-- Option 2: Transfer between accounts -->
         <LinearLayout
             android:id="@+id/option_transfer_accounts"
             android:layout_width="match_parent"

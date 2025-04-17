@@ -10,7 +10,6 @@
     tools:context=".MainActivity"
     tools:openDrawer="start">
 
-    <!-- Main Content -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -20,7 +19,6 @@
             android:layout_height="wrap_content"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-            <!-- Toolbar positioned correctly at the top -->
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -30,14 +28,12 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- Main content with proper scroll behavior -->
         <include
             android:id="@+id/content_main"
             layout="@layout/content_main" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <!-- Navigation Drawer with fitsSystemWindows for proper display -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"

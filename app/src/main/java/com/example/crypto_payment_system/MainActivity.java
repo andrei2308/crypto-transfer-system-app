@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.models.WalletAccount;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
+import com.example.crypto_payment_system.ui.liquidity.AddLiquidityFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
@@ -49,8 +50,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private TextView walletAddressText;
     private Spinner currencySpinner;
-    private TextInputEditText addressTeit;
-    private TextInputEditText amountTeit;
     private ArrayAdapter<String> currencyAdapter;
     private View submenuView;
     private boolean isSubmenuVisible = false;
@@ -103,9 +102,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currencySpinner = contentView.findViewById(R.id.currencySpinner);
         Button connectButton = contentView.findViewById(R.id.connectButton);
         Button checkAllBalancesButton = contentView.findViewById(R.id.checkAllBalancesButton);
-        Button callTransactionMethodButton = contentView.findViewById(R.id.callTransactionMethodButton);
-        addressTeit = contentView.findViewById(R.id.address_teit);
-        amountTeit = contentView.findViewById(R.id.amount_teit);
 
         View headerView = navigationView.getHeaderView(0);
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
@@ -122,16 +118,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         connectButton.setOnClickListener(v -> viewModel.connectToEthereum());
 
         checkAllBalancesButton.setOnClickListener(v -> viewModel.checkAllBalances());
-
-        callTransactionMethodButton.setOnClickListener(v -> {
-            if (currencySpinner.getSelectedItem() != null) {
-                String selectedCurrency = currencySpinner.getSelectedItem().toString();
-                String amount = Objects.requireNonNull(amountTeit.getText()).toString();
-                viewModel.addLiquidity(selectedCurrency, amount);
-            } else {
-                Toast.makeText(this, "Please select a currency", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         observeViewModel();
 
@@ -250,6 +236,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(this, "Transactions feature coming soon", Toast.LENGTH_SHORT).show(); // maybe???
         } else if (id == R.id.nav_mint_tokens) {
             navigateToFragment(new MintFragment());
+        } else if (id == R.id.nav_add_liquidity) {
+            navigateToFragment(new AddLiquidityFragment());
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

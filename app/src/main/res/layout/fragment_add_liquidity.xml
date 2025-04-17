@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".ui.exchange.ExchangeFragment">
+    tools:context=".ui.liquidity.AddLiquidityFragment">
 
     <TextView
-        android:id="@+id/exchangeTitleTextView"
+        android:id="@+id/liquidityTitleTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Exchange Funds"
+        android:text="Add Liquidity"
         android:textSize="24sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/balanceCardView"
+        android:id="@+id/walletBalanceCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -30,7 +30,7 @@
         app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/exchangeTitleTextView">
+        app:layout_constraintTop_toBottomOf="@id/liquidityTitleTextView">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -41,7 +41,7 @@
                 android:id="@+id/walletBalanceLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Current Wallet Balance"
+                android:text="Wallet Balance"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -85,6 +85,73 @@
                 app:layout_constraintStart_toEndOf="@id/usdBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/usdBalanceLabel" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/contractBalanceCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/walletBalanceCardView">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/contractBalanceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contract Balance"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/contractEurBalanceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EUR:"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/contractBalanceLabel" />
+
+            <TextView
+                android:id="@+id/contractEurBalanceValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="0.00 EUR"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@id/contractEurBalanceLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/contractEurBalanceLabel" />
+
+            <TextView
+                android:id="@+id/contractUsdBalanceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="USD:"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/contractEurBalanceLabel" />
+
+            <TextView
+                android:id="@+id/contractUsdBalanceValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="0.00 USD"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@id/contractUsdBalanceLabel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/contractUsdBalanceLabel" />
 
             <Button
                 android:id="@+id/refreshBalanceButton"
@@ -95,139 +162,56 @@
                 android:minHeight="36dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/usdBalanceLabel" />
+                app:layout_constraintTop_toBottomOf="@id/contractUsdBalanceLabel" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/fromCurrencyLabel"
+        android:id="@+id/currencyLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="From Currency:"
+        android:text="Currency:"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/balanceCardView" />
+        app:layout_constraintTop_toBottomOf="@+id/contractBalanceCardView" />
 
     <Spinner
-        android:id="@+id/fromCurrencySpinner"
+        android:id="@+id/currencySpinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@+id/fromCurrencyLabel"
+        app:layout_constraintStart_toEndOf="@+id/currencyLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/fromCurrencyLabel"
-        app:layout_constraintBottom_toBottomOf="@+id/fromCurrencyLabel" />
+        app:layout_constraintTop_toTopOf="@+id/currencyLabel"
+        app:layout_constraintBottom_toBottomOf="@+id/currencyLabel" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fromAmountInputLayout"
+        android:id="@+id/amountInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fromCurrencyLabel">
+        app:layout_constraintTop_toBottomOf="@id/currencyLabel">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/fromAmountEditText"
+            android:id="@+id/amountEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amount to Exchange"
+            android:hint="Amount to Add"
             android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <ImageView
-        android:id="@+id/exchangeArrowImage"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:src="@android:drawable/arrow_down_float"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fromAmountInputLayout" />
-
-    <TextView
-        android:id="@+id/toCurrencyLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="To Currency:"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exchangeArrowImage" />
-
-    <Spinner
-        android:id="@+id/toCurrencySpinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@+id/toCurrencyLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toCurrencyLabel"
-        app:layout_constraintBottom_toBottomOf="@+id/toCurrencyLabel" />
-
-    <TextView
-        android:id="@+id/exchangeRateLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Estimated Exchange Rate:"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toCurrencyLabel" />
-
-    <TextView
-        android:id="@+id/exchangeRateValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="--"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/exchangeRateLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/exchangeRateLabel"
-        app:layout_constraintBottom_toBottomOf="@+id/exchangeRateLabel" />
-
-    <TextView
-        android:id="@+id/estimatedAmountLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Estimated Amount:"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exchangeRateLabel" />
-
-    <TextView
-        android:id="@+id/estimatedAmountValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="--"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/estimatedAmountLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/estimatedAmountLabel"
-        app:layout_constraintBottom_toBottomOf="@+id/estimatedAmountLabel" />
-
     <Button
-        android:id="@+id/calculateButton"
+        android:id="@+id/addLiquidityButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="4dp"
-        android:text="Calculate"
-        app:layout_constraintEnd_toStartOf="@+id/exchangeButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/estimatedAmountLabel" />
-
-    <Button
-        android:id="@+id/exchangeButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:text="Exchange"
+        android:text="Add Liquidity"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/calculateButton"
-        app:layout_constraintTop_toTopOf="@+id/calculateButton" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/amountInputLayout" />
 
     <TextView
         android:id="@+id/resultsLabel"
@@ -237,7 +221,7 @@
         android:textStyle="bold"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calculateButton" />
+        app:layout_constraintTop_toBottomOf="@+id/addLiquidityButton" />
 
     <TextView
         android:id="@+id/resultTextView"
@@ -247,7 +231,7 @@
         android:background="#F5F5F5"
         android:padding="12dp"
         android:scrollbars="vertical"
-        android:text="Exchange transaction results will appear here"
+        android:text="Transaction results will appear here"
         android:fontFamily="monospace"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

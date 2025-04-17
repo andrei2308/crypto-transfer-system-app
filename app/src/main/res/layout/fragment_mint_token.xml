@@ -8,7 +8,6 @@
     android:padding="16dp"
     tools:context=".ui.mintFunds.MintFragment">
 
-    <!-- Title Section -->
     <TextView
         android:id="@+id/mintTitleTextView"
         android:layout_width="0dp"
@@ -22,7 +21,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Wallet Balance Section -->
     <androidx.cardview.widget.CardView
         android:id="@+id/walletBalanceCard"
         android:layout_width="0dp"
@@ -121,7 +119,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Currency Selection -->
     <TextView
         android:id="@+id/mintCurrencyLabel"
         android:layout_width="wrap_content"
@@ -142,7 +139,6 @@
         app:layout_constraintTop_toTopOf="@+id/mintCurrencyLabel"
         app:layout_constraintBottom_toBottomOf="@+id/mintCurrencyLabel" />
 
-    <!-- Amount Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/mintAmountInputLayout"
         android:layout_width="0dp"
@@ -160,7 +156,6 @@
             android:inputType="numberDecimal" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Optional: Wallet Selection -->
     <TextView
         android:id="@+id/walletSectionLabel"
         android:layout_width="wrap_content"
@@ -188,7 +183,6 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Mint Button -->
     <Button
         android:id="@+id/mintButton"
         android:layout_width="0dp"
@@ -199,7 +193,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/walletAddressInputLayout" />
 
-    <!-- Status Section -->
     <TextView
         android:id="@+id/mintStatusLabel"
         android:layout_width="wrap_content"
@@ -225,7 +218,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mintStatusLabel" />
 
-    <!-- Progress Indicator -->
     <ProgressBar
         android:id="@+id/mintProgressBar"
         style="?android:attr/progressBarStyle"
