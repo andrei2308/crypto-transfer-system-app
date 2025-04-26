@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.viewmodels;
+package com.example.crypto_payment_system.view.viewmodels;
 
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
@@ -11,26 +11,32 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.crypto_payment_system.R;
-import com.example.crypto_payment_system.api.AuthService;
-import com.example.crypto_payment_system.api.FirestoreService;
-import com.example.crypto_payment_system.api.TokenContractService;
-import com.example.crypto_payment_system.api.Web3Service;
+import com.example.crypto_payment_system.service.firebase.auth.AuthService;
+import com.example.crypto_payment_system.service.firebase.auth.AuthServiceImpl;
+import com.example.crypto_payment_system.service.firebase.firestore.FirestoreService;
+import com.example.crypto_payment_system.service.firebase.firestore.FirestoreServiceImpl;
+import com.example.crypto_payment_system.service.token.TokenContractService;
+import com.example.crypto_payment_system.service.token.TokenContractServiceImpl;
+import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
-import com.example.crypto_payment_system.models.TokenBalance;
-import com.example.crypto_payment_system.models.User;
-import com.example.crypto_payment_system.models.WalletAccount;
-import com.example.crypto_payment_system.models.WalletManager;
-import com.example.crypto_payment_system.repositories.ExchangeRepository;
-import com.example.crypto_payment_system.repositories.TokenRepository;
-import com.example.crypto_payment_system.repositories.TokenRepository.TransactionResult;
-import com.example.crypto_payment_system.repositories.UserRepository;
+import com.example.crypto_payment_system.contracts.ExchangeContractImpl;
+import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.domain.account.User;
+import com.example.crypto_payment_system.domain.account.WalletAccount;
+import com.example.crypto_payment_system.domain.account.WalletManager;
+import com.example.crypto_payment_system.repositories.exchange.ExchangeRepository;
+import com.example.crypto_payment_system.repositories.exchange.ExchangeRepositoryImpl;
+import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
+import com.example.crypto_payment_system.repositories.user.UserRepository;
+import com.example.crypto_payment_system.repositories.user.UserRepositoryImpl;
+import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
+import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +45,7 @@ import java.util.Map;
  */
 public class MainViewModel extends AndroidViewModel {
     private final Web3Service web3Service;
-    private final TokenRepository tokenRepository;
+    private final TokenRepositoryImpl tokenRepository;
     private final ExchangeRepository exchangeRepository;
     private final UserRepository userRepository;
     private final WalletManager walletManager;
@@ -56,14 +62,14 @@ public class MainViewModel extends AndroidViewModel {
     public MainViewModel(Application application) throws JSONException {
         super(application);
 
-        web3Service = new Web3Service(application);
-        AuthService authService = new AuthService();
-        FirestoreService firestoreService = new FirestoreService(authService);
-        userRepository = new UserRepository(firestoreService);
-        TokenContractService tokenService = new TokenContractService(web3Service);
-        ExchangeContract exchangeContract = new ExchangeContract(web3Service, tokenService);
-        tokenRepository = new TokenRepository(web3Service, tokenService);
-        exchangeRepository = new ExchangeRepository(web3Service, exchangeContract, tokenRepository,firestoreService);
+        web3Service = new Web3ServiceImpl(application);
+        AuthService authService = new AuthServiceImpl();
+        FirestoreService firestoreService = new FirestoreServiceImpl(authService);
+        userRepository = new UserRepositoryImpl(firestoreService);
+        TokenContractService tokenService = new TokenContractServiceImpl(web3Service);
+        ExchangeContract exchangeContract = new ExchangeContractImpl(web3Service, tokenService);
+        tokenRepository = new TokenRepositoryImpl(web3Service, tokenService);
+        exchangeRepository = new ExchangeRepositoryImpl(web3Service, exchangeContract, tokenRepository,firestoreService);
 
         walletManager = new WalletManager(application);
 

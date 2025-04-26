@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.utils;
+package com.example.crypto_payment_system.utils.web3;
 
 import com.example.crypto_payment_system.config.Constants;
 

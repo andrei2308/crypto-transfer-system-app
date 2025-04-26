@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system;
+package com.example.crypto_payment_system.view.activity;
 
 import android.annotation.SuppressLint;
 import android.graphics.ColorMatrix;
@@ -31,15 +31,16 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.crypto_payment_system.models.User;
-import com.example.crypto_payment_system.models.WalletAccount;
+import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.domain.account.User;
+import com.example.crypto_payment_system.domain.account.WalletAccount;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
 import com.example.crypto_payment_system.ui.liquidity.AddLiquidityFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
-import com.example.crypto_payment_system.utils.AccountAdapter;
-import com.example.crypto_payment_system.viewmodels.MainViewModel;
+import com.example.crypto_payment_system.utils.adapter.AccountAdapter;
+import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 

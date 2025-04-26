@@ -15,8 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
-import com.example.crypto_payment_system.models.User;
-import com.example.crypto_payment_system.viewmodels.MainViewModel;
+import com.example.crypto_payment_system.domain.account.User;
+import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;

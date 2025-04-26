@@ -17,9 +17,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
-import com.example.crypto_payment_system.models.TokenBalance;
-import com.example.crypto_payment_system.repositories.TokenRepository;
-import com.example.crypto_payment_system.viewmodels.MainViewModel;
+import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.utils.web3.TransactionResult;
+import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class MintFragment extends Fragment {
     private TextView ethBalanceValue;
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
-    private Observer<TokenRepository.TransactionResult> transactionObserver;
+    private Observer<TransactionResult> transactionObserver;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

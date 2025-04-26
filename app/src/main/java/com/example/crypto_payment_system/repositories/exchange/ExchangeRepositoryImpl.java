@@ -1,10 +1,10 @@
-package com.example.crypto_payment_system.repositories;
+package com.example.crypto_payment_system.repositories.exchange;
 
-import com.example.crypto_payment_system.api.FirestoreService;
-import com.example.crypto_payment_system.api.Web3Service;
-import com.example.crypto_payment_system.config.Constants;
+import com.example.crypto_payment_system.service.firebase.firestore.FirestoreService;
+import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
-import com.example.crypto_payment_system.repositories.TokenRepository.TransactionResult;
+import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
+import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -15,19 +15,20 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Repository class handling exchange operations
  */
-public class ExchangeRepository {
+public class ExchangeRepositoryImpl implements ExchangeRepository{
     private final Web3Service web3Service;
     private final ExchangeContract exchangeContract;
-    private final TokenRepository tokenRepository;
+    private final TokenRepositoryImpl tokenRepository;
     private final FirestoreService firestoreService;
 
-    public ExchangeRepository(Web3Service web3Service, ExchangeContract exchangeContract, TokenRepository tokenRepository, FirestoreService firestoreService) {
+    public ExchangeRepositoryImpl(Web3Service web3Service, ExchangeContract exchangeContract, TokenRepositoryImpl tokenRepository, FirestoreService firestoreService) {
         this.web3Service = web3Service;
         this.exchangeContract = exchangeContract;
         this.tokenRepository = tokenRepository;
         this.firestoreService = firestoreService;
     }
 
+    @Override
     public CompletableFuture<TransactionResult> addLiquidity(String currency, Credentials credentials, String tokenUnitAmount) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -58,6 +59,7 @@ public class ExchangeRepository {
     /**
      * Exchange EUR to USD
      */
+    @Override
     public CompletableFuture<TransactionResult> exchangeEurToUsd(String tokenAmount, Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -88,6 +90,7 @@ public class ExchangeRepository {
     /**
      * Exchange USD to EUR
      */
+    @Override
     public CompletableFuture<TransactionResult> exchangeUsdToEur(String tokenAmount, Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -112,6 +115,7 @@ public class ExchangeRepository {
         });
     }
 
+    @Override
     public CompletableFuture<TransactionResult> sendTransaction(String address, int sendCurrency, int receiveCurrency, Credentials credentials, String amount) {
         return CompletableFuture.supplyAsync(() -> {
             try {

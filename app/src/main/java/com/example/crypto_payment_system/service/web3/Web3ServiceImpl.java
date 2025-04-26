@@ -1,10 +1,10 @@
-package com.example.crypto_payment_system.api;
+package com.example.crypto_payment_system.service.web3;
 
 import android.content.Context;
 import android.util.Log;
 
 import com.example.crypto_payment_system.config.Constants;
-import com.example.crypto_payment_system.utils.Web3Utils;
+import com.example.crypto_payment_system.utils.web3.Web3Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,25 +17,25 @@ import org.web3j.protocol.http.HttpService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Service class for Web3 basic operations and connection management
  */
-public class Web3Service {
+public class Web3ServiceImpl implements Web3Service {
     private Web3j web3j;
     private String contractAddress;
     private JSONArray contractAbi;
     private final Context context;
 
-    public Web3Service(Context context) {
+    public Web3ServiceImpl(Context context) {
         this.context = context;
     }
 
     /**
      * Initialize Web3 connection and load contract data
      */
+    @Override
     public String connect() throws Exception {
         try {
             web3j = Web3j.build(new HttpService(Constants.LOCALCHAIN_URL));
@@ -100,6 +100,7 @@ public class Web3Service {
     /**
      * Wait for transaction receipt with timeout
      */
+    @Override
     public TransactionReceipt waitForTransactionReceipt(String transactionHash)
             throws Exception {
         return Web3Utils.waitForTransactionReceipt(web3j, transactionHash);
@@ -108,16 +109,19 @@ public class Web3Service {
     /**
      * Clean up resources when no longer needed
      */
+    @Override
     public void shutdown() {
         if (web3j != null) {
             web3j.shutdown();
         }
     }
 
+    @Override
     public Web3j getWeb3j() {
         return web3j;
     }
 
+    @Override
     public String getContractAddress() {
         return contractAddress;
     }
@@ -126,6 +130,7 @@ public class Web3Service {
         return contractAbi;
     }
 
+    @Override
     public boolean isConnected() {
         return web3j != null && contractAddress != null;
     }

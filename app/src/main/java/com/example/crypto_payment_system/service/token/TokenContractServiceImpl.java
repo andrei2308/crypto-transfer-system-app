@@ -1,7 +1,8 @@
-package com.example.crypto_payment_system.api;
+package com.example.crypto_payment_system.service.token;
 
 import static com.example.crypto_payment_system.config.Constants.DEFAULT_APPROVAL;
 
+import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.config.Constants;
 
 import org.web3j.abi.FunctionEncoder;
@@ -29,12 +30,12 @@ import java.util.List;
 /**
  * Service class for token contract interactions
  */
-public class TokenContractService {
+public class TokenContractServiceImpl implements TokenContractService{
     private Web3j web3j;
     private String contractAddress;
     private final Web3Service web3Service;
 
-    public TokenContractService(Web3Service web3Service) {
+    public TokenContractServiceImpl(Web3Service web3Service) {
         this.web3Service = web3Service;
         this.web3j = web3Service.getWeb3j();
         this.contractAddress = web3Service.getContractAddress();
@@ -48,6 +49,7 @@ public class TokenContractService {
     /**
      * Get ERC20 token address from contract
      */
+    @Override
     public String getTokenAddress(String methodName) throws Exception {
         updateReferences();
         if (web3j == null || contractAddress == null) {
@@ -87,6 +89,7 @@ public class TokenContractService {
     /**
      * Get token balance for address
      */
+    @Override
     public BigInteger getTokenBalance(String address, String tokenAddress) throws Exception {
         Function function = new Function(
                 "balanceOf",
@@ -120,6 +123,7 @@ public class TokenContractService {
     /**
      * Get contract token balance
      */
+    @Override
     public BigInteger getContractTokenBalance(String methodName, String tokenAddress) throws Exception {
         Function function = new Function(
                 methodName,
@@ -153,6 +157,7 @@ public class TokenContractService {
     /**
      * Mint tokens
      */
+    @Override
     public String mintTokens(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception {
 
         Function mintFunction = new Function(
@@ -170,6 +175,7 @@ public class TokenContractService {
     /**
      * Check and approve tokens if needed
      */
+    @Override
     public String checkAndApproveIfNeeded(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception {
 
         BigInteger currentAllowance = getAllowance(credentials.getAddress(), tokenAddress);

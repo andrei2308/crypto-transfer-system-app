@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.utils;
+package com.example.crypto_payment_system.utils.adapter;
 
 import android.content.Context;
 import android.view.View;
@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.example.crypto_payment_system.models.WalletAccount;
+import com.example.crypto_payment_system.domain.account.WalletAccount;
 
 import java.util.List;
 

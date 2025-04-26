@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.models;
+package com.example.crypto_payment_system.domain.account;
 
 /**
  * Model class to represent a user and their preferences

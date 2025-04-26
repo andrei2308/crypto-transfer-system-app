@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.api;
+package com.example.crypto_payment_system.service.firebase.auth;
 
 import android.util.Log;
 
@@ -7,11 +7,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.concurrent.CompletableFuture;
 
-public class AuthService {
+public class AuthServiceImpl implements AuthService{
     private static final String TAG = "AuthService";
     private final FirebaseAuth mAuth;
 
-    public AuthService() {
+    public AuthServiceImpl() {
         mAuth = FirebaseAuth.getInstance();
     }
 

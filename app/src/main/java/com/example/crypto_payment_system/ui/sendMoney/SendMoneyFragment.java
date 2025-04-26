@@ -18,15 +18,13 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
-import com.example.crypto_payment_system.models.User;
-import com.example.crypto_payment_system.repositories.TokenRepository;
-import com.example.crypto_payment_system.viewmodels.MainViewModel;
+import com.example.crypto_payment_system.domain.account.User;
+import com.example.crypto_payment_system.utils.web3.TransactionResult;
+import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class SendMoneyFragment extends Fragment {
@@ -38,7 +36,7 @@ public class SendMoneyFragment extends Fragment {
     private TextView resultTextView;
     private ProgressBar progressBar;
     private ArrayAdapter<String> currencyAdapter;
-    private Observer<TokenRepository.TransactionResult> transactionObserver;
+    private Observer<TransactionResult> transactionObserver;
 
     @Nullable
     @Override

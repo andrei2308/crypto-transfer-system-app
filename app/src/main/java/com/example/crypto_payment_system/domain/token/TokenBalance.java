@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.models;
+package com.example.crypto_payment_system.domain.token;
 
 import androidx.annotation.NonNull;
 

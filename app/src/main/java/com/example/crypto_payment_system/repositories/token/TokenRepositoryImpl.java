@@ -1,8 +1,9 @@
-package com.example.crypto_payment_system.repositories;
+package com.example.crypto_payment_system.repositories.token;
 
-import com.example.crypto_payment_system.api.TokenContractService;
-import com.example.crypto_payment_system.api.Web3Service;
-import com.example.crypto_payment_system.models.TokenBalance;
+import com.example.crypto_payment_system.service.token.TokenContractService;
+import com.example.crypto_payment_system.service.web3.Web3Service;
+import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
@@ -18,13 +19,13 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Repository class handling token-related operations
  */
-public class TokenRepository {
+public class TokenRepositoryImpl implements TokenRepository{
     private final Web3Service web3Service;
     private final TokenContractService tokenService;
     private String eurcAddress = "";
     private String usdtAddress = "";
 
-    public TokenRepository(Web3Service web3Service, TokenContractService tokenService) {
+    public TokenRepositoryImpl(Web3Service web3Service, TokenContractService tokenService) {
         this.web3Service = web3Service;
         this.tokenService = tokenService;
     }
@@ -32,6 +33,7 @@ public class TokenRepository {
     /**
      * Initialize token addresses
      */
+    @Override
     public CompletableFuture<Map<String, String>> initializeTokenAddresses() {
         return CompletableFuture.supplyAsync(() -> {
             Map<String, String> addresses = new HashMap<>();
@@ -56,6 +58,7 @@ public class TokenRepository {
     /**
      * Get all token balances
      */
+    @Override
     public CompletableFuture<Map<String, TokenBalance>> getAllBalances(Credentials credentials) {
         return CompletableFuture.supplyAsync(() -> {
             Map<String, TokenBalance> balances = new HashMap<>();
@@ -92,6 +95,7 @@ public class TokenRepository {
     /**
      * Mint tokens
      */
+    @Override
     public CompletableFuture<TransactionResult> mintTokens(String currency, Credentials credentials, String amount) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -120,30 +124,5 @@ public class TokenRepository {
         return usdtAddress;
     }
 
-    /**
-     * Inner class for transaction results
-     */
-    public static class TransactionResult {
-        private final boolean success;
-        private final String transactionHash;
-        private final String message;
 
-        public TransactionResult(boolean success, String transactionHash, String message) {
-            this.success = success;
-            this.transactionHash = transactionHash;
-            this.message = message;
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public String getTransactionHash() {
-            return transactionHash;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
 }

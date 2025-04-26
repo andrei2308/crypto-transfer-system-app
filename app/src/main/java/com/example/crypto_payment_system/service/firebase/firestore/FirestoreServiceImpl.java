@@ -1,13 +1,13 @@
-package com.example.crypto_payment_system.api;
+package com.example.crypto_payment_system.service.firebase.firestore;
 
 import android.util.Log;
 
+import com.example.crypto_payment_system.service.firebase.auth.AuthService;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.rpc.context.AttributeContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,12 +16,12 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Service class for Firestore database operations
  */
-public class FirestoreService {
+public class FirestoreServiceImpl implements FirestoreService{
     private static final String TAG = "FirestoreService";
     private final FirebaseFirestore db;
     private final AuthService authService;
 
-    public FirestoreService(AuthService authService) {
+    public FirestoreServiceImpl(AuthService authService) {
         this.authService = authService;
         // Enable offline persistence
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -46,6 +46,7 @@ public class FirestoreService {
     /**
      * Check if a user exists in the database
      */
+    @Override
     public CompletableFuture<Boolean> checkUserExists(String walletAddress) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
@@ -86,6 +87,7 @@ public class FirestoreService {
     /**
      * Get user data from Firestore
      */
+    @Override
     public CompletableFuture<DocumentSnapshot> getUserData(String walletAddress) {
         CompletableFuture<DocumentSnapshot> future = new CompletableFuture<>();
 
@@ -107,6 +109,7 @@ public class FirestoreService {
     /**
      * Create a new user in Firestore
      */
+    @Override
     public CompletableFuture<Void> createUser(String walletAddress, String preferredCurrency) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -136,6 +139,7 @@ public class FirestoreService {
     /**
      * Update user's last login time
      */
+    @Override
     public CompletableFuture<Void> updateUserLogin(String walletAddress) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -160,6 +164,7 @@ public class FirestoreService {
     /**
      * Update user's preferred currency
      */
+    @Override
     public CompletableFuture<Void> updatePreferredCurrency(String walletAddress, String currency) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -184,6 +189,7 @@ public class FirestoreService {
     /**
      * Save transaction data to Firestore
      */
+    @Override
     public CompletableFuture<String> saveTransaction(String walletAddress, String transactionType,
                                                      String tokenAddress, String amount,
                                                      String transactionHash) {
