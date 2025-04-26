@@ -34,6 +34,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
+import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
 import com.example.crypto_payment_system.ui.liquidity.AddLiquidityFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
@@ -47,12 +48,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private MainViewModel viewModel;
-    private TextView resultTextView;
     private ProgressBar progressBar;
     private DrawerLayout drawerLayout;
     private TextView walletAddressText;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private View connectionRequiredMessage;
     private Group postConnectionUiGroup;
     private boolean isConnected = false;
+    private TextView eurBalanceValue;
+    private TextView usdBalanceValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,10 +95,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateConnectionUi(false);
 
         View contentView = findViewById(R.id.content_main);
-        resultTextView = contentView.findViewById(R.id.resultTextView);
         progressBar = contentView.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
         currencySpinner = contentView.findViewById(R.id.currencySpinner);
+        eurBalanceValue = contentView.findViewById(R.id.eurBalanceValue);
+        usdBalanceValue = contentView.findViewById(R.id.usdBalanceValue);
         Button connectButton = contentView.findViewById(R.id.connectButton);
         connectButton.setOnClickListener(v -> {
             String selectedAddress = getSelectedAccountAddress();
@@ -109,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             viewModel.connectToEthereum();
         });
         connectButton.setOnClickListener(v -> viewModel.connectToEthereum());
-        Button checkAllBalancesButton = contentView.findViewById(R.id.checkAllBalancesButton);
 
         View headerView = navigationView.getHeaderView(0);
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
@@ -119,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currencySpinner.setAdapter(currencyAdapter);
         setupCurrencySpinner();
 
-        checkAllBalancesButton.setOnClickListener(v -> viewModel.checkAllBalances());
-
         observeViewModel();
 
         setupAccountSelection();
@@ -128,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void observeViewModel() {
         viewModel.getConnectionStatus().observe(this, status -> {
-            resultTextView.setText(status);
 
             boolean isNowConnected = status != null && status.contains("Connected") && !status.contains("not");
             if (isNowConnected != isConnected) {
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getFormattedContractBalance()).append("\n"));
 
-            resultTextView.setText(sb.toString());
+            updateWalletBalanceUI(balances);
         });
 
         viewModel.getTransactionResult().observe(this, result -> {
@@ -196,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 sb.append(getString(R.string.hash)).append(result.getTransactionHash());
             }
 
-            resultTextView.setText(sb.toString());
         });
 
         viewModel.getIsLoading().observe(this, isLoading -> progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
@@ -573,6 +572,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         User selectedAccount = (User) accountSpinner.getSelectedItem();
         return selectedAccount.getWalletAddress();
+    }
+
+    private void updateWalletBalanceUI(Map<String, TokenBalance> balances) {
+        if (balances == null) return;
+
+        if (balances.containsKey("EURC")) {
+            eurBalanceValue.setText(balances.get("EURC").getFormattedWalletBalance() + " EUR");
+        }
+
+        if (balances.containsKey("USDT")) {
+            usdBalanceValue.setText(balances.get("USDT").getFormattedWalletBalance() + " USD");
+        }
     }
 
     private void refreshData() {

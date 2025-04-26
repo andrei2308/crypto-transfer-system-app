@@ -106,7 +106,11 @@ public class MainViewModel extends AndroidViewModel {
 
                 tokenRepository.initializeTokenAddresses()
                         .thenAccept(tokenAddresses::postValue);
-
+                tokenRepository.getAllBalances(getActiveCredentials())
+                        .thenAccept(balances -> {
+                            tokenBalances.postValue(balances);
+                            isLoading.postValue(false);
+                        });
             } catch (Exception e) {
                 connectionStatus.postValue("Error: " + e.getMessage());
                 isLoading.postValue(false);
@@ -151,7 +155,7 @@ public class MainViewModel extends AndroidViewModel {
     public void switchAccount(String address) throws JSONException {
         isLoading.setValue(true);
         walletManager.switchAccount(address);
-//        checkAllBalances();
+        checkAllBalances();
         isLoading.setValue(false);
     }
 
