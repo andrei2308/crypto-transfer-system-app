@@ -2,10 +2,12 @@ package com.example.crypto_payment_system.api;
 
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.rpc.context.AttributeContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +19,10 @@ import java.util.concurrent.CompletableFuture;
 public class FirestoreService {
     private static final String TAG = "FirestoreService";
     private final FirebaseFirestore db;
+    private final AuthService authService;
 
-    public FirestoreService() {
+    public FirestoreService(AuthService authService) {
+        this.authService = authService;
         // Enable offline persistence
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
@@ -29,30 +33,51 @@ public class FirestoreService {
     }
 
     /**
+     * Ensure user is authenticated before database operations
+     */
+    private CompletableFuture<FirebaseUser> ensureAuthenticated() {
+        if (authService.isUserSignedIn()) {
+            return CompletableFuture.completedFuture(authService.getCurrentUser());
+        } else {
+            return authService.signInAnonymously();
+        }
+    }
+
+    /**
      * Check if a user exists in the database
      */
     public CompletableFuture<Boolean> checkUserExists(String walletAddress) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        db.collection("users")
-                .document(walletAddress)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    boolean exists = documentSnapshot.exists();
-                    Log.d(TAG, "User exists check for " + walletAddress + ": " + exists);
-                    future.complete(exists);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error checking if user exists", e);
+        ensureAuthenticated().thenCompose(user -> {
+            CompletableFuture<Boolean> dbFuture = new CompletableFuture<>();
 
-                    // When offline, assume user doesn't exist yet
-                    if (e instanceof FirebaseFirestoreException &&
-                            ((FirebaseFirestoreException) e).getCode() == FirebaseFirestoreException.Code.UNAVAILABLE) {
-                        Log.w(TAG, "Device is offline, assuming new user");
-                        future.complete(false);
-                    } else {
-                        future.completeExceptionally(e);
-                    }
+            db.collection("users")
+                    .document(walletAddress)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        boolean exists = documentSnapshot.exists();
+                        Log.d(TAG, "User exists check for " + walletAddress + ": " + exists);
+                        dbFuture.complete(exists);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error checking if user exists", e);
+
+                        // When offline, assume user doesn't exist yet
+                        if (e instanceof FirebaseFirestoreException &&
+                                ((FirebaseFirestoreException) e).getCode() == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                            Log.w(TAG, "Device is offline, assuming new user");
+                            dbFuture.complete(false);
+                        } else {
+                            dbFuture.completeExceptionally(e);
+                        }
+                    });
+            return dbFuture;
+        })
+                .thenAccept(future::complete)
+                .exceptionally(e -> {
+                    future.completeExceptionally(e);
+                    return null;
                 });
 
         return future;
@@ -156,48 +181,48 @@ public class FirestoreService {
         return future;
     }
 
-//    /**
-//     * Save transaction data to Firestore
-//     */
-//    public CompletableFuture<String> saveTransaction(String walletAddress, String transactionType,
-//                                                     String tokenAddress, String amount,
-//                                                     String transactionHash) {
-//        CompletableFuture<String> future = new CompletableFuture<>();
-//
-//        Map<String, Object> transaction = new HashMap<>();
-//        transaction.put("walletAddress", walletAddress);
-//        transaction.put("transactionType", transactionType);
-//        transaction.put("tokenAddress", tokenAddress);
-//        transaction.put("amount", amount);
-//        transaction.put("transactionHash", transactionHash);
-//        transaction.put("timestamp", System.currentTimeMillis());
-//
-//        db.collection("transactions")
-//                .whereEqualTo("transactionHash", transactionHash)
-//                .get()
-//                .addOnSuccessListener(querySnapshot -> {
-//                    if (querySnapshot.isEmpty()) {
-//                        db.collection("transactions")
-//                                .add(transaction)
-//                                .addOnSuccessListener(documentReference -> {
-//                                    Log.d(TAG, "Transaction saved with ID: " + documentReference.getId());
-//                                    future.complete(documentReference.getId());
-//                                })
-//                                .addOnFailureListener(e -> {
-//                                    Log.e(TAG, "Error saving transaction", e);
-//                                    future.completeExceptionally(e);
-//                                });
-//                    } else {
-//                        String docId = querySnapshot.getDocuments().get(0).getId();
-//                        Log.d(TAG, "Transaction already exists with ID: " + docId);
-//                        future.complete(docId);
-//                    }
-//                })
-//                .addOnFailureListener(e -> {
-//                    Log.e(TAG, "Error checking for existing transaction", e);
-//                    future.completeExceptionally(e);
-//                });
-//
-//        return future;
-//    }
+    /**
+     * Save transaction data to Firestore
+     */
+    public CompletableFuture<String> saveTransaction(String walletAddress, String transactionType,
+                                                     String tokenAddress, String amount,
+                                                     String transactionHash) {
+        CompletableFuture<String> future = new CompletableFuture<>();
+
+        Map<String, Object> transaction = new HashMap<>();
+        transaction.put("walletAddress", walletAddress);
+        transaction.put("transactionType", transactionType);
+        transaction.put("tokenAddress", tokenAddress);
+        transaction.put("amount", amount);
+        transaction.put("transactionHash", transactionHash);
+        transaction.put("timestamp", System.currentTimeMillis());
+
+        db.collection("transactions")
+                .whereEqualTo("transactionHash", transactionHash)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        db.collection("transactions")
+                                .add(transaction)
+                                .addOnSuccessListener(documentReference -> {
+                                    Log.d(TAG, "Transaction saved with ID: " + documentReference.getId());
+                                    future.complete(documentReference.getId());
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error saving transaction", e);
+                                    future.completeExceptionally(e);
+                                });
+                    } else {
+                        String docId = querySnapshot.getDocuments().get(0).getId();
+                        Log.d(TAG, "Transaction already exists with ID: " + docId);
+                        future.complete(docId);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error checking for existing transaction", e);
+                    future.completeExceptionally(e);
+                });
+
+        return future;
+    }
 }
