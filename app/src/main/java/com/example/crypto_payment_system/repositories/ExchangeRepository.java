@@ -1,5 +1,6 @@
 package com.example.crypto_payment_system.repositories;
 
+import com.example.crypto_payment_system.api.FirestoreService;
 import com.example.crypto_payment_system.api.Web3Service;
 import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
@@ -18,11 +19,13 @@ public class ExchangeRepository {
     private final Web3Service web3Service;
     private final ExchangeContract exchangeContract;
     private final TokenRepository tokenRepository;
+    private final FirestoreService firestoreService;
 
-    public ExchangeRepository(Web3Service web3Service, ExchangeContract exchangeContract, TokenRepository tokenRepository) {
+    public ExchangeRepository(Web3Service web3Service, ExchangeContract exchangeContract, TokenRepository tokenRepository, FirestoreService firestoreService) {
         this.web3Service = web3Service;
         this.exchangeContract = exchangeContract;
         this.tokenRepository = tokenRepository;
+        this.firestoreService = firestoreService;
     }
 
     public CompletableFuture<TransactionResult> addLiquidity(String currency, Credentials credentials, String tokenUnitAmount) {
@@ -37,6 +40,12 @@ public class ExchangeRepository {
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = receipt.isStatusOK();
+
+                if (success) {
+                    firestoreService.saveTransaction(credentials.getAddress(), "ADD_LIQUIDITY",
+                            tokenAddress, tokenUnitAmount, txHash);
+                }
+
                 return new TransactionResult(success, txHash, success ?
                         "Liquidity added successfully" : "Adding liquidity failed");
 
@@ -53,13 +62,20 @@ public class ExchangeRepository {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 BigInteger amount = new BigInteger(tokenAmount);
+                String tokenAddress = tokenRepository.getEurcAddress();
 
                 String txHash = exchangeContract.exchangeEurToUsd(
-                        tokenRepository.getEurcAddress(), amount, credentials);
+                        tokenAddress, amount, credentials);
 
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = receipt.isStatusOK();
+
+                if (success) {
+                    firestoreService.saveTransaction(credentials.getAddress(), "EUR_TO_USD",
+                            tokenAddress, tokenAmount, txHash);
+                }
+
                 return new TransactionResult(success, txHash, success ?
                         "Exchange completed successfully" : "Exchange failed");
 
@@ -76,10 +92,18 @@ public class ExchangeRepository {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 BigInteger amount = new BigInteger(tokenAmount);
-                String txHash = exchangeContract.exchangeUsdToEur(tokenRepository.getUsdtAddress(), amount, credentials);
+                String tokenAddress = tokenRepository.getUsdtAddress();
+
+                String txHash = exchangeContract.exchangeUsdToEur(tokenAddress, amount, credentials);
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = receipt.isStatusOK();
+
+                if (success) {
+                    firestoreService.saveTransaction(credentials.getAddress(), "USD_TO_EUR",
+                            tokenAddress, tokenAmount, txHash);
+                }
+
                 return new TransactionResult(success, txHash, success ?
                         "Exchange completed successfully" : "Exchange failed");
             } catch (Exception e) {
@@ -92,12 +116,27 @@ public class ExchangeRepository {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 BigInteger amountToSend = new BigInteger(amount);
+                String tokenAddress;
+                String transactionType;
+
+                if (sendCurrency == 2) {
+                    tokenAddress = tokenRepository.getUsdtAddress();
+                    transactionType = receiveCurrency == 1 ? "USD_TO_EUR_TRANSFER" : "USD_TRANSFER";
+                } else {
+                    tokenAddress = tokenRepository.getEurcAddress();
+                    transactionType = receiveCurrency == 2 ? "EUR_TO_USD_TRANSFER" : "EUR_TRANSFER";
+                }
 
                 String txHash = exchangeContract.sendMoney(amountToSend, address, sendCurrency, receiveCurrency, credentials);
-
                 TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = receipt.isStatusOK();
+
+                if (success) {
+                    firestoreService.saveTransaction(credentials.getAddress(), transactionType,
+                            tokenAddress, amount, txHash);
+                }
+
                 return new TransactionResult(success, txHash, success ?
                         "Money sent successfully" : "Exchange failed");
             } catch (Exception e) {

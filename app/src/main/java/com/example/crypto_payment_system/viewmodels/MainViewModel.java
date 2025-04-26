@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.api.AuthService;
 import com.example.crypto_payment_system.api.FirestoreService;
 import com.example.crypto_payment_system.api.TokenContractService;
 import com.example.crypto_payment_system.api.Web3Service;
@@ -56,12 +57,13 @@ public class MainViewModel extends AndroidViewModel {
         super(application);
 
         web3Service = new Web3Service(application);
-        FirestoreService firestoreService = new FirestoreService();
+        AuthService authService = new AuthService();
+        FirestoreService firestoreService = new FirestoreService(authService);
         userRepository = new UserRepository(firestoreService);
         TokenContractService tokenService = new TokenContractService(web3Service);
         ExchangeContract exchangeContract = new ExchangeContract(web3Service, tokenService);
         tokenRepository = new TokenRepository(web3Service, tokenService);
-        exchangeRepository = new ExchangeRepository(web3Service, exchangeContract, tokenRepository);
+        exchangeRepository = new ExchangeRepository(web3Service, exchangeContract, tokenRepository,firestoreService);
 
         walletManager = new WalletManager(application);
 
