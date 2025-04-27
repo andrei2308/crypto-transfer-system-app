@@ -43,6 +43,7 @@ import com.example.crypto_payment_system.ui.liquidity.AddLiquidityFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
+import com.example.crypto_payment_system.ui.transaction.TransactionDetailsDialogFragment;
 import com.example.crypto_payment_system.utils.adapter.account.AccountAdapter;
 import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
@@ -645,6 +646,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onTransactionClick(Transaction transaction) {
-
+        TransactionDetailsDialogFragment dialog = TransactionDetailsDialogFragment.newInstance(transaction);
+        dialog.show(getSupportFragmentManager(),"transaction_details");
     }
 }
