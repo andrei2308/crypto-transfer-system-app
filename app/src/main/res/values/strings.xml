@@ -112,6 +112,14 @@
     <string name="empty_history">Empty history</string>
     <string name="transaction_history">Transaction history</string>
     <string name="transaction_type_icon">Transaction type icon</string>
+    <string name="transaction_hash">Transaction hash</string>
+    <string name="view_on_explorer">View on explorer</string>
+    <string name="token_address">Token address</string>
+    <string name="date_and_time">Date and time</string>
+    <string name="amount">Amount</string>
+    <string name="transaction_type">Transaction type</string>
+    <string name="transaction_details">Transaction details</string>
+    <string name="close">Close</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
