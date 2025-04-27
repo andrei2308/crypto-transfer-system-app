@@ -109,6 +109,9 @@
     <string name="not_connected_to_wallet">Not connected to wallet</string>
     <string name="please_select_at_least_one_currency">Please select at least one currency</string>
     <string name="preferences_saved">Preferences saved</string>
+    <string name="empty_history">Empty history</string>
+    <string name="transaction_history">Transaction history</string>
+    <string name="transaction_type_icon">Transaction type icon</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">

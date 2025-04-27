@@ -190,18 +190,19 @@ public class FirestoreServiceImpl implements FirestoreService{
      * Save transaction data to Firestore
      */
     @Override
-    public CompletableFuture<String> saveTransaction(String walletAddress, String transactionType,
+    public CompletableFuture<String> saveTransaction(String walletAddressFrom, String transactionType,
                                                      String tokenAddress, String amount,
-                                                     String transactionHash) {
+                                                     String transactionHash, String walletAddressTo) {
         CompletableFuture<String> future = new CompletableFuture<>();
 
         Map<String, Object> transaction = new HashMap<>();
-        transaction.put("walletAddress", walletAddress);
+        transaction.put("walletAddressFrom", walletAddressFrom);
         transaction.put("transactionType", transactionType);
         transaction.put("tokenAddress", tokenAddress);
         transaction.put("amount", amount);
         transaction.put("transactionHash", transactionHash);
         transaction.put("timestamp", System.currentTimeMillis());
+        transaction.put("walletAddressTo", walletAddressTo.toLowerCase());
 
         db.collection("transactions")
                 .whereEqualTo("transactionHash", transactionHash)

@@ -25,4 +25,9 @@
     <color name="textHint">#9E9E9E</color>                 <!-- Light Gray -->
     <color name="textWhite">#FFFFFF</color>                <!-- White -->
     <color name="textOnPrimary">#FFFFFF</color>            <!-- White text on primary color -->
+
+    <color name="colorPositive">#4CAF50</color>
+    <color name="colorNegative">#F44336</color>
+    <color name="dividerColor">#EEEEEE</color>
+    <color name="colorLightGrey">#F5F5F5</color>
 </resources>

@@ -5,12 +5,16 @@ import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
 
 import android.app.Application;
 import android.text.TextUtils;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.domain.transaction.Transaction;
+import com.example.crypto_payment_system.repositories.transaction.TransactionRepositoryImpl;
 import com.example.crypto_payment_system.service.firebase.auth.AuthService;
 import com.example.crypto_payment_system.service.firebase.auth.AuthServiceImpl;
 import com.example.crypto_payment_system.service.firebase.firestore.FirestoreService;
@@ -32,13 +36,17 @@ import com.example.crypto_payment_system.repositories.user.UserRepository;
 import com.example.crypto_payment_system.repositories.user.UserRepositoryImpl;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * ViewModel for the main activity to manage UI state and business logic
@@ -47,6 +55,7 @@ public class MainViewModel extends AndroidViewModel {
     private final Web3Service web3Service;
     private final TokenRepositoryImpl tokenRepository;
     private final ExchangeRepository exchangeRepository;
+    private final TransactionRepositoryImpl transactionRepository;
     private final UserRepository userRepository;
     private final WalletManager walletManager;
 
@@ -58,18 +67,21 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> isNewUser = new MutableLiveData<>(false);
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     private final MutableLiveData<String> selectedCurrency = new MutableLiveData<>();
+    private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>(new ArrayList<>());
+    private ListenerRegistration transactionListener;
 
-    public MainViewModel(Application application) throws JSONException {
+    public MainViewModel(@NonNull Application application) throws JSONException {
         super(application);
 
         web3Service = new Web3ServiceImpl(application);
         AuthService authService = new AuthServiceImpl();
         FirestoreService firestoreService = new FirestoreServiceImpl(authService);
+        this.transactionRepository = new TransactionRepositoryImpl(firestoreService);
         userRepository = new UserRepositoryImpl(firestoreService);
         TokenContractService tokenService = new TokenContractServiceImpl(web3Service);
         ExchangeContract exchangeContract = new ExchangeContractImpl(web3Service, tokenService);
         tokenRepository = new TokenRepositoryImpl(web3Service, tokenService);
-        exchangeRepository = new ExchangeRepositoryImpl(web3Service, exchangeContract, tokenRepository,firestoreService);
+        exchangeRepository = new ExchangeRepositoryImpl(web3Service, exchangeContract, tokenRepository, firestoreService);
 
         walletManager = new WalletManager(application);
 
@@ -111,6 +123,7 @@ public class MainViewModel extends AndroidViewModel {
                             tokenBalances.postValue(balances);
                             isLoading.postValue(false);
                         });
+                loadTransactionsForWallet(activeAccount.getAddress());
             } catch (Exception e) {
                 connectionStatus.postValue("Error: " + e.getMessage());
                 isLoading.postValue(false);
@@ -156,7 +169,7 @@ public class MainViewModel extends AndroidViewModel {
         isLoading.setValue(true);
         walletManager.switchAccount(address);
         checkAllBalances();
-        isLoading.setValue(false);
+        loadTransactionsForWallet(address);
     }
 
     /**
@@ -408,7 +421,10 @@ public class MainViewModel extends AndroidViewModel {
         exchangeRepository.exchangeEurToUsd(tokenAmount, getActiveCredentials())
                 .thenAccept(result -> {
                     transactionResult.postValue(result);
-                    isLoading.postValue(false);
+                    if (!result.isSuccess()) {
+                        isLoading.postValue(false);
+                    }
+                    loadTransactionsForWallet(getActiveCredentials().getAddress());
                 });
     }
 
@@ -426,7 +442,10 @@ public class MainViewModel extends AndroidViewModel {
         exchangeRepository.exchangeUsdToEur(tokenAmount, getActiveCredentials())
                 .thenAccept(result -> {
                     transactionResult.postValue(result);
-                    isLoading.postValue(false);
+                    if (!result.isSuccess()) {
+                        isLoading.postValue(false);
+                    }
+                    loadTransactionsForWallet(getActiveCredentials().getAddress());
                 });
     }
 
@@ -446,6 +465,7 @@ public class MainViewModel extends AndroidViewModel {
 
         if (TextUtils.isEmpty(amount)) {
             transactionResult.setValue(new TransactionResult(false, null, "Please introduce an amount."));
+            return;
         }
 
         try {
@@ -469,7 +489,10 @@ public class MainViewModel extends AndroidViewModel {
                             amount))
                     .thenAccept(result -> {
                         transactionResult.postValue(result);
-                        isLoading.postValue(false);
+                        if (!result.isSuccess()) {
+                            isLoading.postValue(false);
+                        }
+                        loadTransactionsForWallet(getActiveCredentials().getAddress());
                     })
                     .exceptionally(e -> {
                         transactionResult.postValue(new TransactionResult(false, null,
@@ -487,56 +510,136 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    /**
-     * Clean up resources
-     */
+    public void loadTransactionsForWallet(String walletAddress) {
+        if (Boolean.FALSE.equals(web3Service.isConnected())) {
+            return;
+        }
+
+        isLoading.postValue(true);
+
+        if (transactionListener != null) {
+            transactionListener.remove();
+            transactionListener = null;
+        }
+
+        AtomicInteger pendingQueries = new AtomicInteger(2);
+
+        List<Transaction> allTransactions = Collections.synchronizedList(new ArrayList<>());
+
+        Runnable checkComplete = () -> {
+            if (pendingQueries.decrementAndGet() == 0) {
+                Collections.sort(allTransactions, (t1, t2) ->
+                        Long.compare(t2.getTimestamp(), t1.getTimestamp()));
+
+                transactions.postValue(allTransactions);
+                isLoading.postValue(false);
+            }
+        };
+
+        ListenerRegistration fromListener = transactionRepository.getTransactionsForWalletFrom(
+                walletAddress,
+                new TransactionRepositoryImpl.TransactionListCallback() {
+                    @Override
+                    public void onTransactionsLoaded(List<Transaction> transactionList) {
+                        if (!transactionList.isEmpty()) {
+                            allTransactions.addAll(transactionList);
+                        }
+
+                        checkComplete.run();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        checkComplete.run();
+                    }
+                }
+        );
+
+        ListenerRegistration toListener = transactionRepository.getTransactionsForWalletTo(
+                walletAddress,
+                new TransactionRepositoryImpl.TransactionListCallback() {
+                    @Override
+                    public void onTransactionsLoaded(List<Transaction> transactionList) {
+                        if (!transactionList.isEmpty()) {
+                            allTransactions.addAll(transactionList);
+                        }
+
+                        checkComplete.run();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        checkComplete.run();
+                    }
+                }
+        );
+
+        transactionListeners = new ArrayList<>();
+        transactionListeners.add(fromListener);
+        transactionListeners.add(toListener);
+    }
+
+    private List<ListenerRegistration> transactionListeners = new ArrayList<>();
+
     @Override
     protected void onCleared() {
         super.onCleared();
-        web3Service.shutdown();
+
+        if (transactionListeners != null) {
+            for (ListenerRegistration listener : transactionListeners) {
+                if (listener != null) {
+                    listener.remove();
+                }
+            }
+            transactionListeners.clear();
+        }
     }
 
-    public LiveData<String> getConnectionStatus() {
-        return connectionStatus;
-    }
+        public LiveData<String> getConnectionStatus () {
+            return connectionStatus;
+        }
 
-    public LiveData<Map<String, String>> getTokenAddresses() {
-        return tokenAddresses;
-    }
+        public LiveData<Map<String, String>> getTokenAddresses () {
+            return tokenAddresses;
+        }
 
-    public LiveData<Map<String, TokenBalance>> getTokenBalances() {
-        return tokenBalances;
-    }
+        public LiveData<Map<String, TokenBalance>> getTokenBalances () {
+            return tokenBalances;
+        }
 
-    public LiveData<TransactionResult> getTransactionResult() {
-        return transactionResult;
-    }
+        public LiveData<TransactionResult> getTransactionResult () {
+            return transactionResult;
+        }
 
-    public LiveData<Boolean> getIsLoading() {
-        return isLoading;
-    }
+        public LiveData<Boolean> getIsLoading () {
+            return isLoading;
+        }
 
-    public LiveData<Boolean> isNewUser() {
-        return isNewUser;
-    }
+        public LiveData<Boolean> isNewUser () {
+            return isNewUser;
+        }
 
-    public LiveData<User> getCurrentUser() {
-        return currentUser;
-    }
+        public LiveData<User> getCurrentUser () {
+            return currentUser;
+        }
 
-    public LiveData<List<WalletAccount>> getAccounts() {
-        return walletManager.getAccountsLiveData();
-    }
+        public LiveData<List<WalletAccount>> getAccounts () {
+            return walletManager.getAccountsLiveData();
+        }
 
-    public LiveData<WalletAccount> getActiveAccount() {
-        return walletManager.getActiveAccountLiveData();
-    }
+        public LiveData<WalletAccount> getActiveAccount () {
+            return walletManager.getActiveAccountLiveData();
+        }
 
-    public void setSelectedCurrency(String currency) {
-        selectedCurrency.setValue(currency);
-    }
+        public void setSelectedCurrency (String currency){
+            selectedCurrency.setValue(currency);
+        }
 
-    public LiveData<String> getSelectedCurrency() {
-        return selectedCurrency;
+        public LiveData<String> getSelectedCurrency () {
+            return selectedCurrency;
+        }
+
+        public LiveData<List<Transaction>> getTransactions () {
+            return transactions;
+        }
     }
-}

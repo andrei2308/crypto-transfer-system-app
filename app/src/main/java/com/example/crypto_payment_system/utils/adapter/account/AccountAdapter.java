@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.utils.adapter;
+package com.example.crypto_payment_system.utils.adapter.account;
 
 import android.content.Context;
 import android.view.View;
