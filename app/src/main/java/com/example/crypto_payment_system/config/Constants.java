@@ -35,4 +35,9 @@ public class Constants {
     // currency codes
     public static final int CURRENCY_EUR = 1;
     public static final int CURRENCY_USD = 2;
+
+    public static final String EUR_TOKEN_CONTRACT_ADDRESS = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
+    public static final String USD_TOKEN_CONTRACT_ADDRESS = "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0";
+
+    public static final String CONTRACT_ADDRESS = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 }

@@ -5,6 +5,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,20 +31,24 @@ import androidx.constraintlayout.widget.Group;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.domain.transaction.Transaction;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
 import com.example.crypto_payment_system.ui.liquidity.AddLiquidityFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
-import com.example.crypto_payment_system.utils.adapter.AccountAdapter;
+import com.example.crypto_payment_system.utils.adapter.account.AccountAdapter;
+import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.example.crypto_payment_system.databinding.ActivityMainBinding;
 
 import org.json.JSONException;
 
@@ -51,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TransactionAdapter.TransactionClickListener {
 
     private MainViewModel viewModel;
     private ProgressBar progressBar;
@@ -66,11 +71,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isConnected = false;
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
+    private ActivityMainBinding binding;
+    private TransactionAdapter transactionAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -125,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         observeViewModel();
 
         setupAccountSelection();
+
+        setupTransactionsList();
     }
 
     private void observeViewModel() {
@@ -196,6 +206,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 sb.append(getString(R.string.hash)).append(result.getTransactionHash());
             }
 
+        });
+
+        viewModel.getTransactions().observe(this, transactions -> {
+            Log.d("MainActivity", "Received " + (transactions != null ? transactions.size() : 0) + " transactions");
+            transactionAdapter.submitList(transactions);
+
+            boolean isEmpty = transactions == null || transactions.isEmpty();
+            binding.contentMain.emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            binding.contentMain.transactionsRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
         });
 
         viewModel.getIsLoading().observe(this, isLoading -> progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
@@ -486,6 +505,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    private void setupTransactionsList() {
+        String currentAddress = "";
+        if (viewModel.getActiveAccount().getValue() != null) {
+            currentAddress = viewModel.getActiveAccount().getValue().getAddress();
+        }
+
+        transactionAdapter = new TransactionAdapter(this, currentAddress);
+        binding.contentMain.transactionsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.contentMain.transactionsRecyclerView.setAdapter(transactionAdapter);
+
+        viewModel.getActiveAccount().observe(this, account -> {
+            if (account != null) {
+                String newAddress = account.getAddress();
+                transactionAdapter = new TransactionAdapter(this, newAddress);
+                binding.contentMain.transactionsRecyclerView.setAdapter(transactionAdapter);
+
+                if (viewModel.getTransactions().getValue() != null) {
+                    transactionAdapter.submitList(viewModel.getTransactions().getValue());
+                }
+            }
+        });
+
+        viewModel.getTransactions().observe(this, transactions -> {
+            if (transactions != null) {
+                transactionAdapter.submitList(transactions);
+                boolean isEmpty = transactions.isEmpty();
+                binding.contentMain.emptyTransactionsMessage.setVisibility(
+                        isEmpty ? View.VISIBLE : View.GONE);
+                binding.contentMain.transactionsRecyclerView.setVisibility(
+                        isEmpty ? View.GONE : View.VISIBLE);
+            }
+        });
+    }
+
     private void showSubmenu() {
         submenuView.setVisibility(View.VISIBLE);
         isSubmenuVisible = true;
@@ -588,5 +641,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void refreshData() {
         viewModel.checkAllBalances();
+    }
+
+    @Override
+    public void onTransactionClick(Transaction transaction) {
+
     }
 }

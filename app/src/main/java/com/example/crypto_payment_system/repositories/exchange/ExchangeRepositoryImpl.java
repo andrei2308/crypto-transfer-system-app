@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.repositories.exchange;
 
+import static com.example.crypto_payment_system.config.Constants.CONTRACT_ADDRESS;
+
 import com.example.crypto_payment_system.service.firebase.firestore.FirestoreService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
@@ -44,7 +46,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "ADD_LIQUIDITY",
-                            tokenAddress, tokenUnitAmount, txHash);
+                            tokenAddress, tokenUnitAmount, txHash, CONTRACT_ADDRESS);
                 }
 
                 return new TransactionResult(success, txHash, success ?
@@ -75,7 +77,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "EUR_TO_USD",
-                            tokenAddress, tokenAmount, txHash);
+                            tokenAddress, tokenAmount, txHash, credentials.getAddress());
                 }
 
                 return new TransactionResult(success, txHash, success ?
@@ -104,7 +106,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "USD_TO_EUR",
-                            tokenAddress, tokenAmount, txHash);
+                            tokenAddress, tokenAmount, txHash, credentials.getAddress());
                 }
 
                 return new TransactionResult(success, txHash, success ?
@@ -138,7 +140,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), transactionType,
-                            tokenAddress, amount, txHash);
+                            tokenAddress, amount, txHash, address);
                 }
 
                 return new TransactionResult(success, txHash, success ?
