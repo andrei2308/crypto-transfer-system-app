@@ -44,6 +44,7 @@ import org.web3j.crypto.Credentials;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -424,7 +425,6 @@ public class MainViewModel extends AndroidViewModel {
                     if (!result.isSuccess()) {
                         isLoading.postValue(false);
                     }
-                    loadTransactionsForWallet(getActiveCredentials().getAddress());
                 });
     }
 
@@ -445,7 +445,6 @@ public class MainViewModel extends AndroidViewModel {
                     if (!result.isSuccess()) {
                         isLoading.postValue(false);
                     }
-                    loadTransactionsForWallet(getActiveCredentials().getAddress());
                 });
     }
 
@@ -492,7 +491,6 @@ public class MainViewModel extends AndroidViewModel {
                         if (!result.isSuccess()) {
                             isLoading.postValue(false);
                         }
-                        loadTransactionsForWallet(getActiveCredentials().getAddress());
                     })
                     .exceptionally(e -> {
                         transactionResult.postValue(new TransactionResult(false, null,
@@ -524,10 +522,11 @@ public class MainViewModel extends AndroidViewModel {
 
         AtomicInteger pendingQueries = new AtomicInteger(2);
 
-        List<Transaction> allTransactions = Collections.synchronizedList(new ArrayList<>());
+        Map<String, Transaction> transactionMap = Collections.synchronizedMap(new HashMap<>());
 
         Runnable checkComplete = () -> {
             if (pendingQueries.decrementAndGet() == 0) {
+                List<Transaction> allTransactions = new ArrayList<>(transactionMap.values());
                 Collections.sort(allTransactions, (t1, t2) ->
                         Long.compare(t2.getTimestamp(), t1.getTimestamp()));
 
@@ -541,8 +540,8 @@ public class MainViewModel extends AndroidViewModel {
                 new TransactionRepositoryImpl.TransactionListCallback() {
                     @Override
                     public void onTransactionsLoaded(List<Transaction> transactionList) {
-                        if (!transactionList.isEmpty()) {
-                            allTransactions.addAll(transactionList);
+                        for (Transaction transaction : transactionList) {
+                            transactionMap.put(transaction.getTransactionHash(), transaction);
                         }
 
                         checkComplete.run();
@@ -560,8 +559,8 @@ public class MainViewModel extends AndroidViewModel {
                 new TransactionRepositoryImpl.TransactionListCallback() {
                     @Override
                     public void onTransactionsLoaded(List<Transaction> transactionList) {
-                        if (!transactionList.isEmpty()) {
-                            allTransactions.addAll(transactionList);
+                        for (Transaction transaction : transactionList) {
+                            transactionMap.put(transaction.getTransactionHash(), transaction);
                         }
 
                         checkComplete.run();

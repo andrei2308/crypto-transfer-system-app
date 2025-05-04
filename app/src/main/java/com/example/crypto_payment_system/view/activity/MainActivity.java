@@ -290,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         if (id == R.id.nav_home) {
+            viewModel.loadTransactionsForWallet(walletAddressText.getText().toString().toLowerCase());
             clearFragmentBackStack();
         } else if (id == R.id.nav_manage_account) {
             navigateToFragment(new ManageAccountFragment());
