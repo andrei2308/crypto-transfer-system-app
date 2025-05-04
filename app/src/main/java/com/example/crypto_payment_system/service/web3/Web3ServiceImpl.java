@@ -3,6 +3,7 @@ package com.example.crypto_payment_system.service.web3;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.utils.web3.Web3Utils;
 
@@ -38,7 +39,7 @@ public class Web3ServiceImpl implements Web3Service {
     @Override
     public String connect() throws Exception {
         try {
-            web3j = Web3j.build(new HttpService(Constants.LOCALCHAIN_URL));
+            web3j = Web3j.build(new HttpService(BuildConfig.ALCHEMY_NODE));
 
             // Test connection with timeout
             Web3ClientVersion clientVersion = web3j.web3ClientVersion()

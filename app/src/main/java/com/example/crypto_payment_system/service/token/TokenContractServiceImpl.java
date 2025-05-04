@@ -2,6 +2,7 @@ package com.example.crypto_payment_system.service.token;
 
 import static com.example.crypto_payment_system.config.Constants.DEFAULT_APPROVAL;
 
+import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.config.Constants;
 
@@ -91,6 +92,7 @@ public class TokenContractServiceImpl implements TokenContractService{
      */
     @Override
     public BigInteger getTokenBalance(String address, String tokenAddress) throws Exception {
+        updateReferences();
         Function function = new Function(
                 "balanceOf",
                 List.of(new Address(address)),
@@ -202,7 +204,7 @@ public class TokenContractServiceImpl implements TokenContractService{
      * Get current token allowance
      */
     private BigInteger getAllowance(String ownerAddress, String tokenAddress) throws Exception {
-        Credentials credentials = Credentials.create(Constants.PRIVATE_KEY);
+        Credentials credentials = Credentials.create(BuildConfig.ETHEREUM_PRIVATE_KEY);
 
         Function allowanceFunction = new Function(
                 "allowance",

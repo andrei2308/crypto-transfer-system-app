@@ -37,7 +37,7 @@ import com.example.crypto_payment_system.repositories.user.UserRepositoryImpl;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.google.firebase.firestore.ListenerRegistration;
-
+import com.example.crypto_payment_system.BuildConfig;
 import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
@@ -70,7 +70,7 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>(new ArrayList<>());
     private ListenerRegistration transactionListener;
 
-    public MainViewModel(@NonNull Application application) throws JSONException {
+    public MainViewModel(@NonNull Application application) throws Exception {
         super(application);
 
         web3Service = new Web3ServiceImpl(application);
@@ -86,7 +86,7 @@ public class MainViewModel extends AndroidViewModel {
         walletManager = new WalletManager(application);
 
         if (walletManager.getAccounts().isEmpty()) {
-            walletManager.addAccount(application.getString(R.string.default_account), Constants.PRIVATE_KEY);
+            walletManager.addAccount(application.getString(R.string.default_account), BuildConfig.ETHEREUM_PRIVATE_KEY);
         }
 
         walletManager.getActiveAccountLiveData().observeForever(account -> {

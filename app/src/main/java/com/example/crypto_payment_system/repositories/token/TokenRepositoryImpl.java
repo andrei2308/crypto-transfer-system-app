@@ -1,5 +1,6 @@
 package com.example.crypto_payment_system.repositories.token;
 
+import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
@@ -38,11 +39,11 @@ public class TokenRepositoryImpl implements TokenRepository{
         return CompletableFuture.supplyAsync(() -> {
             Map<String, String> addresses = new HashMap<>();
             try {
-                eurcAddress = tokenService.getTokenAddress("getEurcAddress");
+                eurcAddress = Constants.EUR_TOKEN_CONTRACT_ADDRESS;
                 addresses.put("EURC", eurcAddress);
 
                 try {
-                    usdtAddress = tokenService.getTokenAddress("getUsdtAddress");
+                    usdtAddress = Constants.USD_TOKEN_CONTRACT_ADDRESS;
                     addresses.put("USDT", usdtAddress);
                 } catch (Exception e) {
                     usdtAddress = "Not available";

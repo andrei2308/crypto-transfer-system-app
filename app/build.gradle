@@ -2,7 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
     id 'com.google.gms.google-services'
 }
-
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
 android {
     namespace 'com.example.crypto_payment_system'
     compileSdk 35
@@ -15,6 +21,12 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def privateKey = localProperties.getProperty('ethereum.privateKey', '')
+        buildConfigField "String", "ETHEREUM_PRIVATE_KEY", "\"${privateKey}\""
+
+        def alchemyNode = localProperties.getProperty('ethereum.apiKey', '')
+        buildConfigField "String", "ALCHEMY_NODE", "\"${alchemyNode}\""
     }
 
     buildTypes {
@@ -27,6 +39,7 @@ android {
     buildFeatures {
         dataBinding true
         viewBinding true
+        buildConfig true
     }
 
     compileOptions {
