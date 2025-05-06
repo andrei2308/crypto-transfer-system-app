@@ -4,6 +4,7 @@ import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.utils.EventParser;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
@@ -104,9 +105,9 @@ public class TokenRepositoryImpl implements TokenRepository{
                 BigInteger mintAmount = new BigInteger(amount);
 
                 String txHash = tokenService.mintTokens(tokenAddress, mintAmount, credentials);
-                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
+                CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
 
-                boolean success = receipt.isStatusOK();
+                boolean success = exchangeInfo.get().getReceipt().isStatusOK();
                 return new TransactionResult(success, txHash, success ?
                         "Tokens minted successfully" : "Token minting failed");
 

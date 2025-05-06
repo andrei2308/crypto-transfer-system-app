@@ -1,11 +1,14 @@
 package com.example.crypto_payment_system.service.web3;
 
+import com.example.crypto_payment_system.utils.EventParser;
+
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+
+import java.util.concurrent.CompletableFuture;
 
 public interface Web3Service {
     public String connect() throws Exception;
-    public TransactionReceipt waitForTransactionReceipt(String transactionHash)
+    public CompletableFuture<EventParser.ExchangeInfo> waitForTransactionReceipt(String transactionHash)
             throws Exception;
     public void shutdown();
     public Web3j getWeb3j();

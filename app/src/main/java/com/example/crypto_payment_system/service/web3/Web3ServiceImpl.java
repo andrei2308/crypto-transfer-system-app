@@ -5,19 +5,20 @@ import android.util.Log;
 
 import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.config.Constants;
+import com.example.crypto_payment_system.utils.EventParser;
 import com.example.crypto_payment_system.utils.web3.Web3Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -99,12 +100,12 @@ public class Web3ServiceImpl implements Web3Service {
     }
 
     /**
-     * Wait for transaction receipt with timeout
+     * Wait for transaction receipt with timeout and extract exchange info
      */
     @Override
-    public TransactionReceipt waitForTransactionReceipt(String transactionHash)
+    public CompletableFuture<EventParser.ExchangeInfo> waitForTransactionReceipt(String transactionHash)
             throws Exception {
-        return Web3Utils.waitForTransactionReceipt(web3j, transactionHash);
+        return Web3Utils.waitForTransactionAndProcessAsync(web3j, transactionHash);
     }
 
     /**

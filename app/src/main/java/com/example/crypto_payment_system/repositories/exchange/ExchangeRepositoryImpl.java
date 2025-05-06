@@ -6,6 +6,7 @@ import com.example.crypto_payment_system.service.firebase.firestore.FirestoreSer
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
+import com.example.crypto_payment_system.utils.EventParser;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
@@ -40,9 +41,9 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 BigInteger amountToAdd = new BigInteger(tokenUnitAmount);
 
                 String txHash = exchangeContract.addLiquidity(tokenAddress, amountToAdd, credentials);
-                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
+                CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
 
-                boolean success = receipt.isStatusOK();
+                boolean success = exchangeInfo.get().getReceipt().isStatusOK();
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "ADD_LIQUIDITY",
@@ -71,9 +72,11 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 String txHash = exchangeContract.exchangeEurToUsd(
                         tokenAddress, amount, credentials);
 
-                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
-
-                boolean success = receipt.isStatusOK();
+                CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
+                System.out.println(exchangeInfo.get().getExchangeRate());
+                System.out.println(exchangeInfo.get().getSendCurrency());
+                System.out.println(exchangeInfo.get().getReceiveCurrency());
+                boolean success = exchangeInfo.get().getReceipt().isStatusOK();
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "EUR_TO_USD",
@@ -100,9 +103,9 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 String tokenAddress = tokenRepository.getUsdtAddress();
 
                 String txHash = exchangeContract.exchangeUsdToEur(tokenAddress, amount, credentials);
-                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
+                CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
 
-                boolean success = receipt.isStatusOK();
+                boolean success = exchangeInfo.get().getReceipt().isStatusOK();
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "USD_TO_EUR",
@@ -134,9 +137,11 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 }
 
                 String txHash = exchangeContract.sendMoney(amountToSend, address, sendCurrency, receiveCurrency, credentials);
-                TransactionReceipt receipt = web3Service.waitForTransactionReceipt(txHash);
-
-                boolean success = receipt.isStatusOK();
+                CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
+                System.out.println(exchangeInfo.get().getExchangeRate());
+                System.out.println(exchangeInfo.get().getSendCurrency());
+                System.out.println(exchangeInfo.get().getReceiveCurrency());
+                boolean success = exchangeInfo.get().getReceipt().isStatusOK();
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), transactionType,
