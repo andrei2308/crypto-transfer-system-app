@@ -47,7 +47,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "ADD_LIQUIDITY",
-                            tokenAddress, tokenUnitAmount, txHash, CONTRACT_ADDRESS);
+                            tokenAddress, tokenUnitAmount, txHash, CONTRACT_ADDRESS, exchangeInfo.get().getExchangeRate(), exchangeInfo.get().getSendCurrency(), exchangeInfo.get().getReceiveCurrency());
                 }
 
                 return new TransactionResult(success, txHash, success ?
@@ -80,7 +80,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "EUR_TO_USD",
-                            tokenAddress, tokenAmount, txHash, credentials.getAddress());
+                            tokenAddress, tokenAmount, txHash, CONTRACT_ADDRESS, exchangeInfo.get().getExchangeRate(), exchangeInfo.get().getSendCurrency(), exchangeInfo.get().getReceiveCurrency());
                 }
 
                 return new TransactionResult(success, txHash, success ?
@@ -109,7 +109,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "USD_TO_EUR",
-                            tokenAddress, tokenAmount, txHash, credentials.getAddress());
+                            tokenAddress, tokenAmount, txHash, CONTRACT_ADDRESS, exchangeInfo.get().getExchangeRate(), exchangeInfo.get().getSendCurrency(), exchangeInfo.get().getReceiveCurrency());
                 }
 
                 return new TransactionResult(success, txHash, success ?
@@ -145,7 +145,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), transactionType,
-                            tokenAddress, amount, txHash, address);
+                            tokenAddress, amount, txHash, CONTRACT_ADDRESS, exchangeInfo.get().getExchangeRate(), exchangeInfo.get().getSendCurrency(), exchangeInfo.get().getReceiveCurrency());
                 }
 
                 return new TransactionResult(success, txHash, success ?

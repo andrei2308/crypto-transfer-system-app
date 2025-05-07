@@ -610,6 +610,10 @@ public class MainViewModel extends AndroidViewModel {
             return transactionResult;
         }
 
+        public void resetTransactionResult() {
+            transactionResult.setValue(null);
+        }
+
         public LiveData<Boolean> getIsLoading () {
             return isLoading;
         }

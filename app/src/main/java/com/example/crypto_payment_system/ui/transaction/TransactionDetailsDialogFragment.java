@@ -38,6 +38,9 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         args.putString("transactionType", transaction.getTransactionType());
         args.putString("walletAddress", transaction.getWalletAddress());
         args.putString("walletAddressTo",transaction.getWalletAddressTo());
+        args.putString("exchangeRate", transaction.getExchangeRate());
+        args.putInt("sentCurrency", transaction.getSentCurrency());
+        args.putInt("receivedCurrency", transaction.getReceivedCurrency());
 
         fragment.setArguments(args);
         return fragment;
@@ -55,9 +58,12 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
             String transactionType = getArguments().getString("transactionType", "");
             String walletAddress = getArguments().getString("walletAddress", "");
             String walletaddressTo = getArguments().getString("walletAddressTo","");
+            String exchangeRate = getArguments().getString("exchangeRate","");
+            int sentCurrency = getArguments().getInt("sentCurrency");
+            int receivedCurrency = getArguments().getInt("receivedCurrency");
 
             transaction = new Transaction(
-                    amount, timestamp, tokenAddress, transactionHash, transactionType, walletAddress,walletaddressTo
+                    amount, timestamp, tokenAddress, transactionHash, transactionType, walletAddress,exchangeRate,sentCurrency,receivedCurrency,walletaddressTo
             );
         }
     }
