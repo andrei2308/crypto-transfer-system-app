@@ -70,7 +70,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                 if (docWalletAddress == null) docWalletAddress = "";
 
                                 String walletAddressTo = document.getString("walletAddressTo");
-                                if (walletAddressTo != null) {
+                                if (walletAddressTo == null) {
                                     walletAddressTo="";
                                 }
 
@@ -147,7 +147,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                 if (docWalletAddress == null) docWalletAddress = "";
 
                                 String walletAddressTo = document.getString("walletAddressTo");
-                                if (walletAddressTo != null) {
+                                if (walletAddressTo == null) {
                                     walletAddressTo="";
                                 }
 
@@ -156,9 +156,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                     exchangeRate = "";
                                 }
 
-                                int sentCurrency = Integer.parseInt(Objects.requireNonNull(document.getString("sentCurrency")));
+                                int sentCurrency = Objects.requireNonNull(document.getLong("sentCurrency")).intValue();
 
-                                int receivedCurrency = Integer.parseInt(Objects.requireNonNull(document.getString("receivedCurrency")));
+                                int receivedCurrency = Objects.requireNonNull(document.getLong("receivedCurrency")).intValue();
 
                                 Transaction transaction = new Transaction(
                                         amount,

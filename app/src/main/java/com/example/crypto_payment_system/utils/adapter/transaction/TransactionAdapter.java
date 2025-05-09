@@ -20,12 +20,15 @@ import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdapter.TransactionViewHolder> {
 
     private final TransactionClickListener transactionClickListener;
     private final String currentUserAddress;
+    private List<String> prefferedCurrencies = new ArrayList<>();
 
     public interface TransactionClickListener {
         void onTransactionClick(Transaction transaction);
@@ -37,12 +40,16 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         this.currentUserAddress = currentUserAddress;
     }
 
+    public void setPrefferedCurrencies(List<String> prefferedCurrencies) {
+        this.prefferedCurrencies = prefferedCurrencies;
+    }
+
     @NonNull
     @Override
     public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_transaction, parent, false);
-        return new TransactionViewHolder(view, transactionClickListener, currentUserAddress);
+        return new TransactionViewHolder(view, transactionClickListener, currentUserAddress, prefferedCurrencies);
     }
 
     @Override
@@ -58,8 +65,9 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         private final TextView timestampText;
         private final TransactionClickListener listener;
         private final String currentUserAddress;
+        private List<String> prefferedCurrencies = new ArrayList<>();
 
-        public TransactionViewHolder(@NonNull View itemView, TransactionClickListener listener, String currentUserAddress) {
+        public TransactionViewHolder(@NonNull View itemView, TransactionClickListener listener, String currentUserAddress, List<String> prefferedCurrencies) {
             super(itemView);
             this.listener = listener;
             typeIcon = itemView.findViewById(R.id.transactionTypeIcon);
@@ -68,6 +76,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             amountText = itemView.findViewById(R.id.transactionAmount);
             timestampText = itemView.findViewById(R.id.transactionTimestamp);
             this.currentUserAddress = currentUserAddress;
+            this.prefferedCurrencies = prefferedCurrencies;
         }
 
         public void bind(final Transaction transaction) {
@@ -89,12 +98,25 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
 
             hashText.setText(shortenHash(transaction.getTransactionHash()));
 
-            String amount = formatAmount(transaction, transaction.getAmount());
-            if (transaction.getTokenAddress().equals(EUR_TOKEN_CONTRACT_ADDRESS)) {
-                amount += " EUR";
-            } else if (transaction.getTokenAddress().equals(USD_TOKEN_CONTRACT_ADDRESS)) {
-                amount += " USD";
+            String currency = "";
+            String exchangeRate = "100000000"; // exchange rate with 8 decimals for blockchain
+            if (transaction.getSentCurrency() == 1 && transaction.getWalletAddress().equals(currentUserAddress)) {
+                currency += " EUR";
+            } else if (transaction.getSentCurrency() == 2 && transaction.getWalletAddress().equals(currentUserAddress)) {
+                currency += " USD";
+            } else if (transaction.getReceivedCurrency() == 1 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
+                currency += " EUR";
+                if(!prefferedCurrencies.contains("EUR")){
+                    exchangeRate = transaction.getExchangeRate();
+                }
+            } else if (transaction.getReceivedCurrency() == 2 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
+                currency += " USD";
+                if(!prefferedCurrencies.contains("USD")){
+                    exchangeRate = transaction.getExchangeRate();
+                }
             }
+            String amount = formatAmount(transaction, transaction.getAmount(), exchangeRate);
+            amount += currency;
             amountText.setText(amount);
 
             boolean isOutgoing = transaction.getWalletAddress().equalsIgnoreCase(currentUserAddress);
@@ -130,11 +152,15 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             }
         }
 
-        private String formatAmount(Transaction transaction, String amountStr) {
+        private String formatAmount(Transaction transaction, String amountStr, String exchangeRateStr) {
             BigDecimal amount;
+            BigDecimal exchangeRate;
             try {
                 amount = new BigDecimal(amountStr)
                         .divide(new BigDecimal("1000000"));
+                exchangeRate = new BigDecimal(exchangeRateStr)
+                        .divide(new BigDecimal("100000000"));
+                amount = amount.multiply(exchangeRate);
             } catch (Exception e) {
                 amount = BigDecimal.ZERO;
             }

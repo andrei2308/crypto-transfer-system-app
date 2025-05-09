@@ -4,8 +4,9 @@ import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -13,6 +14,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.databinding.ActivityMainBinding;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
 import com.example.crypto_payment_system.repositories.transaction.TransactionRepositoryImpl;
 import com.example.crypto_payment_system.service.firebase.auth.AuthService;
@@ -22,7 +24,6 @@ import com.example.crypto_payment_system.service.firebase.firestore.FirestoreSer
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.token.TokenContractServiceImpl;
 import com.example.crypto_payment_system.service.web3.Web3Service;
-import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.contracts.ExchangeContractImpl;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
@@ -35,6 +36,7 @@ import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
 import com.example.crypto_payment_system.repositories.user.UserRepository;
 import com.example.crypto_payment_system.repositories.user.UserRepositoryImpl;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
+import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.example.crypto_payment_system.BuildConfig;
@@ -43,10 +45,12 @@ import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -70,7 +74,8 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<String> selectedCurrency = new MutableLiveData<>();
     private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>(new ArrayList<>());
     private ListenerRegistration transactionListener;
-
+    private ActivityMainBinding binding;
+    private TransactionAdapter transactionAdapter;
     public MainViewModel(@NonNull Application application) throws Exception {
         super(application);
 
@@ -111,25 +116,34 @@ public class MainViewModel extends AndroidViewModel {
                 WalletAccount activeAccount = walletManager.getActiveAccount();
                 if (activeAccount != null) {
                     loadUserData(activeAccount.getAddress());
+
+                    tokenRepository.initializeTokenAddresses()
+                            .thenCompose(addresses -> {
+                                tokenAddresses.postValue(addresses);
+                                return tokenRepository.getAllBalances(getActiveCredentials());
+                            })
+                            .thenAccept(balances -> {
+                                tokenBalances.postValue(balances);
+                                loadTransactionsForWallet(activeAccount.getAddress());
+                                updateTransactionAdapter();
+                            });
                 } else {
                     connectionStatus.postValue("Error: No active account");
                     isLoading.postValue(false);
                     return;
                 }
-
-                tokenRepository.initializeTokenAddresses()
-                        .thenAccept(tokenAddresses::postValue);
-                tokenRepository.getAllBalances(getActiveCredentials())
-                        .thenAccept(balances -> {
-                            tokenBalances.postValue(balances);
-                            isLoading.postValue(false);
-                        });
-                loadTransactionsForWallet(activeAccount.getAddress());
             } catch (Exception e) {
                 connectionStatus.postValue("Error: " + e.getMessage());
                 isLoading.postValue(false);
             }
         }).start();
+    }
+
+    private void updateTransactionAdapter() {
+        transactionAdapter = (TransactionAdapter) binding.contentMain.transactionsRecyclerView.getAdapter();
+        String preferredCurrencies = Objects.requireNonNull(currentUser.getValue()).getPreferredCurrency();
+        List<String> currencyList = Arrays.asList(preferredCurrencies.split(","));
+        transactionAdapter.setPrefferedCurrencies(currencyList);
     }
 
     /**
@@ -171,6 +185,7 @@ public class MainViewModel extends AndroidViewModel {
         walletManager.switchAccount(address);
         checkAllBalances();
         loadTransactionsForWallet(address);
+        updateTransactionAdapter();
     }
 
     /**
@@ -644,5 +659,13 @@ public class MainViewModel extends AndroidViewModel {
 
         public LiveData<List<Transaction>> getTransactions () {
             return transactions;
+        }
+
+        public void setActivityMainBinding(ActivityMainBinding activityMainBinding) {
+            binding = activityMainBinding;
+        }
+
+        public ActivityMainBinding getBinding(){
+            return binding;
         }
     }
