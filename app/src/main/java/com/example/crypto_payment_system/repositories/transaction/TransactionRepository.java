@@ -69,5 +69,6 @@ public interface TransactionRepository {
      */
     CompletableFuture<String> saveTransaction(String walletAddressFrom, String transactionType,
                                               String tokenAddress, String amount,
-                                              String transactionHash, String walletAddressTo);
+                                              String transactionHash, String walletAddressTo,
+                                              String exchangeRate, int sentCurrency, int receivedCurrency);
 }

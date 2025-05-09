@@ -54,6 +54,8 @@ import com.example.crypto_payment_system.databinding.ActivityMainBinding;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(binding.getRoot());
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-
+        viewModel.setActivityMainBinding(binding);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -94,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         setupSubmenu();
+
+        observeViewModel();
 
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -130,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         currencySpinner.setAdapter(currencyAdapter);
         setupCurrencySpinner();
-
-        observeViewModel();
 
         setupAccountSelection();
 

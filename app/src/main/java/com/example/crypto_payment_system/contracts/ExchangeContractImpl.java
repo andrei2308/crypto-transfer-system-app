@@ -3,6 +3,7 @@ package com.example.crypto_payment_system.contracts;
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.config.Constants;
+import com.example.crypto_payment_system.utils.EventParser;
 
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
@@ -23,6 +24,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Class that handles interactions with the exchange contract
@@ -51,8 +53,8 @@ public class ExchangeContractImpl implements ExchangeContract{
     public String addLiquidity(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception {
         String approvalTxHash = tokenService.checkAndApproveIfNeeded(tokenAddress, amount, credentials);
         if (approvalTxHash != null) {
-            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
-            if (!receipt.isStatusOK()) {
+            CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if (!exchangeInfo.get().getReceipt().isStatusOK()) {
                 throw new Exception("Token approval failed");
             }
         }
@@ -76,8 +78,8 @@ public class ExchangeContractImpl implements ExchangeContract{
     public String exchangeEurToUsd(String eurcAddress, BigInteger amount, Credentials credentials) throws Exception {
         String approvalTxHash = tokenService.checkAndApproveIfNeeded(eurcAddress, amount, credentials);
         if (approvalTxHash != null) {
-            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
-            if (!receipt.isStatusOK()) {
+            CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if (!exchangeInfo.get().getReceipt().isStatusOK()) {
                 throw new Exception("Token approval failed");
             }
         }
@@ -99,8 +101,8 @@ public class ExchangeContractImpl implements ExchangeContract{
     public String exchangeUsdToEur(String usdtAddress, BigInteger amount, Credentials credentials) throws Exception {
         String approvalTxHash = tokenService.checkAndApproveIfNeeded(usdtAddress, amount, credentials);
         if (approvalTxHash != null) {
-            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
-            if (!receipt.isStatusOK()) {
+            CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if (!exchangeInfo.get().getReceipt().isStatusOK()) {
                 throw new Exception("Token approval failed");
             }
         }
@@ -119,8 +121,8 @@ public class ExchangeContractImpl implements ExchangeContract{
     public String sendMoney(BigInteger amount, String address, int sendCurrency, int receiveCurrency, Credentials credentials) throws Exception {
         String approvalTxHash = tokenService.checkAndApproveIfNeeded(address, amount, credentials);
         if (approvalTxHash != null) {
-            TransactionReceipt receipt = web3Service.waitForTransactionReceipt(approvalTxHash);
-            if (!receipt.isStatusOK()) {
+            CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(approvalTxHash);
+            if (!exchangeInfo.get().getReceipt().isStatusOK()) {
                 throw new Exception("Token approval failed");
             }
         }

@@ -192,7 +192,8 @@ public class FirestoreServiceImpl implements FirestoreService{
     @Override
     public CompletableFuture<String> saveTransaction(String walletAddressFrom, String transactionType,
                                                      String tokenAddress, String amount,
-                                                     String transactionHash, String walletAddressTo) {
+                                                     String transactionHash, String walletAddressTo,
+                                                     String exchangeRate, int sentCurrency, int receivedCurrency) {
         CompletableFuture<String> future = new CompletableFuture<>();
 
         Map<String, Object> transaction = new HashMap<>();
@@ -203,6 +204,9 @@ public class FirestoreServiceImpl implements FirestoreService{
         transaction.put("transactionHash", transactionHash);
         transaction.put("timestamp", System.currentTimeMillis());
         transaction.put("walletAddressTo", walletAddressTo.toLowerCase());
+        transaction.put("exchangeRate", exchangeRate);
+        transaction.put("sentCurrency", sentCurrency);
+        transaction.put("receivedCurrency", receivedCurrency);
 
         db.collection("transactions")
                 .whereEqualTo("transactionHash", transactionHash)

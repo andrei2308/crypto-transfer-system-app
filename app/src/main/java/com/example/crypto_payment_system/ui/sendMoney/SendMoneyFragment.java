@@ -184,10 +184,15 @@ public class SendMoneyFragment extends Fragment {
                 viewModel.getTransactionResult().removeObserver(transactionObserver);
             }
 
+            viewModel.resetTransactionResult();
+
             final double finalAmount = amount;
             final String finalCurrency = currency;
             transactionObserver = result -> {
                 progressBar.setVisibility(View.GONE);
+                if (result == null) {
+                    return;
+                }
                 if (result.isSuccess()) {
                     resultTextView.setText(getString(R.string.transaction_successful_sent) + finalAmount + " " +
                             finalCurrency + " to " + address +

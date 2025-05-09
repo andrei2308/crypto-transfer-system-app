@@ -13,6 +13,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -69,9 +70,18 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                 if (docWalletAddress == null) docWalletAddress = "";
 
                                 String walletAddressTo = document.getString("walletAddressTo");
-                                if (walletAddressTo != null) {
+                                if (walletAddressTo == null) {
                                     walletAddressTo="";
                                 }
+
+                                String exchangeRate = document.getString("exchangeRate");
+                                if(exchangeRate == null){
+                                    exchangeRate = "";
+                                }
+
+                                int sentCurrency = Objects.requireNonNull(document.getLong("sentCurrency")).intValue();
+
+                                int receivedCurrency = Objects.requireNonNull(document.getLong("receivedCurrency")).intValue();
 
                                 Transaction transaction = new Transaction(
                                         amount,
@@ -80,6 +90,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                         transactionHash,
                                         transactionType,
                                         docWalletAddress,
+                                        exchangeRate,
+                                        sentCurrency,
+                                        receivedCurrency,
                                         walletAddressTo
                                 );
 
@@ -134,9 +147,18 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                 if (docWalletAddress == null) docWalletAddress = "";
 
                                 String walletAddressTo = document.getString("walletAddressTo");
-                                if (walletAddressTo != null) {
+                                if (walletAddressTo == null) {
                                     walletAddressTo="";
                                 }
+
+                                String exchangeRate = document.getString("exchangeRate");
+                                if(exchangeRate == null){
+                                    exchangeRate = "";
+                                }
+
+                                int sentCurrency = Objects.requireNonNull(document.getLong("sentCurrency")).intValue();
+
+                                int receivedCurrency = Objects.requireNonNull(document.getLong("receivedCurrency")).intValue();
 
                                 Transaction transaction = new Transaction(
                                         amount,
@@ -145,6 +167,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                         transactionHash,
                                         transactionType,
                                         docWalletAddress,
+                                        exchangeRate,
+                                        sentCurrency,
+                                        receivedCurrency,
                                         walletAddressTo
                                 );
 
@@ -198,13 +223,25 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                             walletAddressTo="";
                         }
 
+                        String exchangeRate = doc.getString("exchangeRate");
+                        if(exchangeRate == null){
+                            exchangeRate = "";
+                        }
+
+                        int sentCurrency = Integer.parseInt(Objects.requireNonNull(doc.getString("sentCurrency")));
+
+                        int receivedCurrency = Integer.parseInt(Objects.requireNonNull(doc.getString("receivedCurrency")));
+
                         Transaction transaction = new Transaction(
                                 amount,
                                 timestamp,
                                 tokenAddress,
-                                docTransactionHash,
+                                transactionHash,
                                 transactionType,
                                 walletAddress,
+                                exchangeRate,
+                                sentCurrency,
+                                receivedCurrency,
                                 walletAddressTo
                         );
 
@@ -261,6 +298,15 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                 walletAddressTo="";
                             }
 
+                            String exchangeRate = document.getString("exchangeRate");
+                            if(exchangeRate == null){
+                                exchangeRate = "";
+                            }
+
+                            int sentCurrency = Integer.parseInt(Objects.requireNonNull(document.getString("sentCurrency")));
+
+                            int receivedCurrency = Integer.parseInt(Objects.requireNonNull(document.getString("receivedCurrency")));
+
                             Transaction transaction = new Transaction(
                                     amount,
                                     timestamp,
@@ -268,6 +314,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                                     transactionHash,
                                     transactionType,
                                     docWalletAddress,
+                                    exchangeRate,
+                                    sentCurrency,
+                                    receivedCurrency,
                                     walletAddressTo
                             );
 
@@ -285,7 +334,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     @Override
     public CompletableFuture<String> saveTransaction(String walletAddressFrom, String transactionType,
                                                      String tokenAddress, String amount,
-                                                     String transactionHash, String walletAddressTo) {
+                                                     String transactionHash, String walletAddressTo,
+                                                     String exchangeRate, int sentCurrency, int receivedCurrency) {
         Log.d(TAG, "Saving transaction with hash: " + transactionHash);
 
         return firestoreService.saveTransaction(
@@ -294,7 +344,10 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                 tokenAddress,
                 amount,
                 transactionHash,
-                walletAddressTo
+                walletAddressTo,
+                exchangeRate,
+                sentCurrency,
+                receivedCurrency
         );
     }
 }
