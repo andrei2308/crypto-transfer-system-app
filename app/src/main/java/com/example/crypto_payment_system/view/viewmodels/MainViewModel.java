@@ -4,8 +4,6 @@ import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
 
 import android.app.Application;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -13,10 +11,22 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.contracts.ExchangeContract;
+import com.example.crypto_payment_system.contracts.ExchangeContractImpl;
 import com.example.crypto_payment_system.databinding.ActivityMainBinding;
+import com.example.crypto_payment_system.domain.account.User;
+import com.example.crypto_payment_system.domain.account.WalletAccount;
+import com.example.crypto_payment_system.domain.account.WalletManager;
+import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
+import com.example.crypto_payment_system.repositories.exchange.ExchangeRepository;
+import com.example.crypto_payment_system.repositories.exchange.ExchangeRepositoryImpl;
+import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
 import com.example.crypto_payment_system.repositories.transaction.TransactionRepositoryImpl;
+import com.example.crypto_payment_system.repositories.user.UserRepository;
+import com.example.crypto_payment_system.repositories.user.UserRepositoryImpl;
 import com.example.crypto_payment_system.service.firebase.auth.AuthService;
 import com.example.crypto_payment_system.service.firebase.auth.AuthServiceImpl;
 import com.example.crypto_payment_system.service.firebase.firestore.FirestoreService;
@@ -24,22 +34,11 @@ import com.example.crypto_payment_system.service.firebase.firestore.FirestoreSer
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.token.TokenContractServiceImpl;
 import com.example.crypto_payment_system.service.web3.Web3Service;
-import com.example.crypto_payment_system.contracts.ExchangeContract;
-import com.example.crypto_payment_system.contracts.ExchangeContractImpl;
-import com.example.crypto_payment_system.domain.token.TokenBalance;
-import com.example.crypto_payment_system.domain.account.User;
-import com.example.crypto_payment_system.domain.account.WalletAccount;
-import com.example.crypto_payment_system.domain.account.WalletManager;
-import com.example.crypto_payment_system.repositories.exchange.ExchangeRepository;
-import com.example.crypto_payment_system.repositories.exchange.ExchangeRepositoryImpl;
-import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
-import com.example.crypto_payment_system.repositories.user.UserRepository;
-import com.example.crypto_payment_system.repositories.user.UserRepositoryImpl;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
 import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.example.crypto_payment_system.BuildConfig;
+
 import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
@@ -73,9 +72,11 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
     private final MutableLiveData<String> selectedCurrency = new MutableLiveData<>();
     private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<Transaction>> filteredTransactions = new MutableLiveData<>(new ArrayList<>());
     private ListenerRegistration transactionListener;
     private ActivityMainBinding binding;
     private TransactionAdapter transactionAdapter;
+
     public MainViewModel(@NonNull Application application) throws Exception {
         super(application);
 
@@ -588,9 +589,46 @@ public class MainViewModel extends AndroidViewModel {
                 }
         );
 
+        String currentCurrency = selectedCurrency.getValue();
+        if (currentCurrency != null) {
+            updateFilteredTransactions(currentCurrency);
+        }
+
         transactionListeners = new ArrayList<>();
         transactionListeners.add(fromListener);
         transactionListeners.add(toListener);
+    }
+
+    public void updateFilteredTransactions(String currency) {
+        List<Transaction> allTransactions = transactions.getValue();
+        if (allTransactions == null || allTransactions.isEmpty()) {
+            filteredTransactions.setValue(new ArrayList<>());
+            return;
+        }
+
+        List<Transaction> filtered = new ArrayList<>();
+
+        for (Transaction transaction : allTransactions) {
+            String type = transaction.getTransactionType();
+
+            boolean include = false;
+
+            if ("EUR".equals(currency)) {
+                if (type.equals("EUR_TRANSFER") || type.equals("EUR_TO_USD")) {
+                    include = true;
+                }
+            } else if ("USD".equals(currency)) {
+                if (type.equals("USD_TRANSFER") || type.equals("USD_TO_EUR_TRANSFER")) {
+                    include = true;
+                }
+            }
+
+            if (include) {
+                filtered.add(transaction);
+            }
+        }
+
+        filteredTransactions.setValue(filtered);
     }
 
     private List<ListenerRegistration> transactionListeners = new ArrayList<>();
@@ -609,63 +647,71 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-        public LiveData<String> getConnectionStatus () {
-            return connectionStatus;
-        }
-
-        public LiveData<Map<String, String>> getTokenAddresses () {
-            return tokenAddresses;
-        }
-
-        public LiveData<Map<String, TokenBalance>> getTokenBalances () {
-            return tokenBalances;
-        }
-
-        public LiveData<TransactionResult> getTransactionResult () {
-            return transactionResult;
-        }
-
-        public void resetTransactionResult() {
-            transactionResult.setValue(null);
-        }
-
-        public LiveData<Boolean> getIsLoading () {
-            return isLoading;
-        }
-
-        public LiveData<Boolean> isNewUser () {
-            return isNewUser;
-        }
-
-        public LiveData<User> getCurrentUser () {
-            return currentUser;
-        }
-
-        public LiveData<List<WalletAccount>> getAccounts () {
-            return walletManager.getAccountsLiveData();
-        }
-
-        public LiveData<WalletAccount> getActiveAccount () {
-            return walletManager.getActiveAccountLiveData();
-        }
-
-        public void setSelectedCurrency (String currency){
-            selectedCurrency.setValue(currency);
-        }
-
-        public LiveData<String> getSelectedCurrency () {
-            return selectedCurrency;
-        }
-
-        public LiveData<List<Transaction>> getTransactions () {
-            return transactions;
-        }
-
-        public void setActivityMainBinding(ActivityMainBinding activityMainBinding) {
-            binding = activityMainBinding;
-        }
-
-        public ActivityMainBinding getBinding(){
-            return binding;
-        }
+    public LiveData<String> getConnectionStatus() {
+        return connectionStatus;
     }
+
+    public LiveData<Map<String, String>> getTokenAddresses() {
+        return tokenAddresses;
+    }
+
+    public LiveData<Map<String, TokenBalance>> getTokenBalances() {
+        return tokenBalances;
+    }
+
+    public LiveData<TransactionResult> getTransactionResult() {
+        return transactionResult;
+    }
+
+    public void resetTransactionResult() {
+        transactionResult.setValue(null);
+    }
+
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
+    public LiveData<Boolean> isNewUser() {
+        return isNewUser;
+    }
+
+    public LiveData<User> getCurrentUser() {
+        return currentUser;
+    }
+
+    public LiveData<List<WalletAccount>> getAccounts() {
+        return walletManager.getAccountsLiveData();
+    }
+
+    public LiveData<WalletAccount> getActiveAccount() {
+        return walletManager.getActiveAccountLiveData();
+    }
+
+    public void setSelectedCurrency(String currency) {
+        selectedCurrency.setValue(currency);
+        updateFilteredTransactions(currency);
+    }
+
+    public LiveData<String> getSelectedCurrency() {
+        return selectedCurrency;
+    }
+
+    public LiveData<List<Transaction>> getTransactions() {
+        return transactions;
+    }
+
+    public void setActivityMainBinding(ActivityMainBinding activityMainBinding) {
+        binding = activityMainBinding;
+    }
+
+    public ActivityMainBinding getBinding() {
+        return binding;
+    }
+
+    /**
+     * Get filtered transactions LiveData
+     */
+    public LiveData<List<Transaction>> getFilteredTransactions() {
+        return filteredTransactions;
+    }
+}
