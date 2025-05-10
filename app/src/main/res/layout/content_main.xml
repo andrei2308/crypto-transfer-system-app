@@ -54,94 +54,28 @@
         app:layout_constraintTop_toTopOf="@+id/connectionLabel"
         app:layout_constraintBottom_toBottomOf="@+id/connectionLabel" />
 
-    <!-- Wallet Balance Card from first layout -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/walletBalanceCard"
+    <!-- Swipeable Balance Cards -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/balanceViewPager"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/connectButton">
+        app:layout_constraintTop_toBottomOf="@id/connectButton" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp">
-
-            <TextView
-                android:id="@+id/walletBalanceLabel"
-                style="@style/Widget.App.TextView.Subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/current_wallet_balance"
-                android:textStyle="bold"
-                android:textColor="@color/colorPrimary"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/eurBalanceLabel"
-                style="@style/Widget.App.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/eur"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/walletBalanceLabel" />
-
-            <TextView
-                android:id="@+id/eurBalanceValue"
-                style="@style/Widget.App.TextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/_0_00_eur"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
-                android:layout_marginStart="8dp"
-                app:layout_constraintStart_toEndOf="@id/eurBalanceLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/eurBalanceLabel" />
-
-            <TextView
-                android:id="@+id/usdBalanceLabel"
-                style="@style/Widget.App.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/usd"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/eurBalanceLabel" />
-
-            <TextView
-                android:id="@+id/usdBalanceValue"
-                style="@style/Widget.App.TextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/_0_00_usd"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
-                android:layout_marginStart="8dp"
-                app:layout_constraintStart_toEndOf="@id/usdBalanceLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/usdBalanceLabel" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/refreshBalanceButton"
-                style="@style/Widget.App.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/refresh"
-                android:textSize="12sp"
-                android:minHeight="36dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/usdBalanceLabel" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    <!-- Page Indicator -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/balanceTabLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:tabBackground="@drawable/tab_selector"
+        app:tabGravity="center"
+        app:tabIndicatorHeight="0dp"
+        app:layout_constraintTop_toBottomOf="@id/balanceViewPager"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Post-Connection UI (Only visible after connection) -->
     <androidx.constraintlayout.widget.Group
@@ -149,7 +83,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="walletBalanceCard,currencyLabel,currencySpinner" />
+        app:constraint_referenced_ids="balanceViewPager,balanceTabLayout" />
 
     <TextView
         android:id="@+id/currentCurrencyText"
@@ -161,25 +95,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/account_selection_layout" />
 
-    <TextView
-        android:id="@+id/currencyLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/currency"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/walletBalanceCard" />
-
-    <Spinner
-        android:id="@+id/currencySpinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:layout_constraintStart_toEndOf="@+id/currencyLabel"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/currencyLabel"
-        app:layout_constraintBottom_toBottomOf="@+id/currencyLabel" />
     <androidx.cardview.widget.CardView
         android:id="@+id/transactionHistoryCard"
         android:layout_width="0dp"
@@ -190,7 +105,7 @@
         app:cardBackgroundColor="@color/colorWhite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/currencySpinner"
+        app:layout_constraintTop_toBottomOf="@id/balanceTabLayout"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout

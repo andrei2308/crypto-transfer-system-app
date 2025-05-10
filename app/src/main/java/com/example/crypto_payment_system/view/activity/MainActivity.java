@@ -32,6 +32,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.account.User;
@@ -45,9 +46,12 @@ import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
 import com.example.crypto_payment_system.ui.transaction.TransactionDetailsDialogFragment;
 import com.example.crypto_payment_system.utils.adapter.account.AccountAdapter;
+import com.example.crypto_payment_system.utils.adapter.balancePager.BalancePagerAdapter;
 import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.example.crypto_payment_system.databinding.ActivityMainBinding;
 
@@ -76,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView usdBalanceValue;
     private ActivityMainBinding binding;
     private TransactionAdapter transactionAdapter;
+    private ViewPager2 balanceViewPager;
+    private TabLayout balanceTabLayout;
+    private BalancePagerAdapter balancePagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,18 +108,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navigationView.setNavigationItemSelectedListener(this);
 
-
         connectionRequiredMessage = findViewById(R.id.connection_required_message);
         postConnectionUiGroup = findViewById(R.id.post_connection_ui_group);
 
-        updateConnectionUi(false);
+        updateConnectionUi(isConnected);
 
         View contentView = findViewById(R.id.content_main);
         progressBar = contentView.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
-        currencySpinner = contentView.findViewById(R.id.currencySpinner);
+
+        balanceViewPager = contentView.findViewById(R.id.balanceViewPager);
+        balanceTabLayout = contentView.findViewById(R.id.balanceTabLayout);
+
         eurBalanceValue = contentView.findViewById(R.id.eurBalanceValue);
         usdBalanceValue = contentView.findViewById(R.id.usdBalanceValue);
+
         Button connectButton = contentView.findViewById(R.id.connectButton);
         connectButton.setOnClickListener(v -> {
             String selectedAddress = getSelectedAccountAddress();
@@ -125,15 +135,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             viewModel.connectToEthereum();
         });
-        connectButton.setOnClickListener(v -> viewModel.connectToEthereum());
 
         View headerView = navigationView.getHeaderView(0);
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
-
-        currencyAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
-        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        currencySpinner.setAdapter(currencyAdapter);
-        setupCurrencySpinner();
 
         setupAccountSelection();
 
@@ -171,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 String preferredCurrencies = user.getPreferredCurrency();
                 if (preferredCurrencies != null && !preferredCurrencies.isEmpty()) {
-                    updateCurrencySpinner(preferredCurrencies);
+                    updateBalanceViewPager(preferredCurrencies);
 
                     String primaryCurrency = preferredCurrencies.split(",")[0];
                 }
@@ -211,16 +215,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         });
 
-        viewModel.getTransactions().observe(this, transactions -> {
-            Log.d("MainActivity", "Received " + (transactions != null ? transactions.size() : 0) + " transactions");
+        viewModel.getFilteredTransactions().observe(this, transactions -> {
             transactionAdapter.submitList(transactions);
+        });
 
-            boolean isEmpty = transactions == null || transactions.isEmpty();
-            binding.contentMain.emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-            binding.contentMain.transactionsRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        viewModel.getSelectedCurrency().observe(this, currency -> {
+            viewModel.updateFilteredTransactions(currency);
+        });
+
+        viewModel.getTransactions().observe(this, allTransactions -> {
+            String currentCurrency = viewModel.getSelectedCurrency().getValue();
+            if (currentCurrency != null) {
+                viewModel.updateFilteredTransactions(currentCurrency);
+            }
         });
 
         viewModel.getIsLoading().observe(this, isLoading -> progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
+
+        viewModel.getCurrentUser().observe(this, user -> {
+            if (user != null && balanceViewPager.getAdapter() != null) {
+                List<String> preferredCurrencies = getPreferredCurrencies(user);
+
+                balancePagerAdapter = new BalancePagerAdapter(
+                        this,
+                        position -> viewModel.checkAllBalances(),
+                        preferredCurrencies
+                );
+
+                balanceViewPager.setAdapter(balancePagerAdapter);
+
+                if (preferredCurrencies.size() > 1) {
+                    balanceTabLayout.setVisibility(View.VISIBLE);
+                    new TabLayoutMediator(balanceTabLayout, balanceViewPager, (tab, position) -> {
+                    }).attach();
+                } else {
+                    balanceTabLayout.setVisibility(View.GONE);
+                }
+            }
+        });
+
+    }
+
+    @NonNull
+    private static List<String> getPreferredCurrencies(User user) {
+        String preferredCurrenciesStr = user.getPreferredCurrency();
+        List<String> preferredCurrencies = new ArrayList<>();
+
+        if (preferredCurrenciesStr != null && !preferredCurrenciesStr.isEmpty()) {
+            String[] currencies = preferredCurrenciesStr.split(",");
+            for (String currency : currencies) {
+                String trimmedCurrency = currency.trim().toUpperCase();
+                if ("EUR".equals(trimmedCurrency) || "USD".equals(trimmedCurrency)) {
+                    preferredCurrencies.add(trimmedCurrency);
+                }
+            }
+        }
+
+        if (preferredCurrencies.isEmpty()) {
+            preferredCurrencies.add("EUR");
+            preferredCurrencies.add("USD");
+        }
+        return preferredCurrencies;
     }
 
     private void setupSubmenu() {
@@ -244,30 +299,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigateToFragment(new ExchangeFragment());
             drawerLayout.closeDrawer(GravityCompat.START);
         });
-    }
-
-    /**
-     * Updates the currency spinner to only show the user's preferred currencies
-     *
-     * @param preferredCurrencies Comma-separated list of currencies
-     */
-    private void updateCurrencySpinner(String preferredCurrencies) {
-        String[] currencies = preferredCurrencies.split(",");
-
-        currencyAdapter.clear();
-
-        for (String currency : currencies) {
-            String trimmedCurrency = currency.trim().toUpperCase();
-            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
-                currencyAdapter.add(trimmedCurrency);
-            }
-        }
-
-        currencyAdapter.notifyDataSetChanged();
-
-        if (currencyAdapter.getCount() > 0) {
-            currencySpinner.setSelection(0);
-        }
     }
 
     /**
@@ -374,16 +405,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (selectedAccount != null) {
                     String newAddress = selectedAccount.getAddress();
 
+                    boolean isConnected = viewModel.getConnectionStatus().getValue() != null &&
+                            !viewModel.getConnectionStatus().getValue().startsWith("Error");
+
+                    if (!isConnected) {
+                        walletAddressText.setText(newAddress);
+                        previouslySelectedAddress[0] = newAddress;
+                        return;
+                    }
+
                     if (!newAddress.equals(previouslySelectedAddress[0])) {
                         try {
                             progressBar.setVisibility(View.VISIBLE);
-
                             walletAddressText.setText(newAddress);
 
                             viewModel.switchAccount(newAddress);
 
                             Toast.makeText(MainActivity.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
-
                             previouslySelectedAddress[0] = newAddress;
 
                         } catch (JSONException e) {
@@ -399,53 +437,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        addAccountButton.setOnClickListener(v -> showAccountDialog());
-
         viewModel.getAccounts().observe(this, accounts -> {
-            int currentPosition = accountsSpinner.getSelectedItemPosition();
-            String currentAddress = null;
-
-            if (currentPosition >= 0 && currentPosition < accountArrayAdapter.getCount()) {
-                WalletAccount currentAccount = accountArrayAdapter.getItem(currentPosition);
-                if (currentAccount != null) {
-                    currentAddress = currentAccount.getAddress();
-                }
-            }
-
             accountArrayAdapter.clear();
             accountArrayAdapter.addAll(accounts);
             accountArrayAdapter.notifyDataSetChanged();
 
-            if (currentAddress != null) {
+            WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
+            if (activeAccount != null) {
                 for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
                     WalletAccount account = accountArrayAdapter.getItem(i);
-                    if (account != null && account.getAddress().equals(currentAddress)) {
+                    if (account != null && account.getAddress().equals(activeAccount.getAddress())) {
                         accountsSpinner.setSelection(i);
+                        previouslySelectedAddress[0] = activeAccount.getAddress();
                         break;
                     }
                 }
             }
         });
 
-        viewModel.getActiveAccount().observe(this, account -> {
-            if (account != null) {
-                String activeAddress = account.getAddress();
-
-                walletAddressText.setText(activeAddress);
-
-                previouslySelectedAddress[0] = activeAddress;
-
-                for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
-                    WalletAccount adapterAccount = accountArrayAdapter.getItem(i);
-                    if (adapterAccount != null && adapterAccount.getAddress().equals(activeAddress)) {
-                        if (accountsSpinner.getSelectedItemPosition() != i) {
-                            accountsSpinner.setSelection(i);
-                        }
-                        break;
-                    }
-                }
-            }
-        });
+        if (addAccountButton != null) {
+            addAccountButton.setOnClickListener(v -> {
+                showAccountDialog();
+            });
+        }
     }
 
     /**
@@ -574,6 +588,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (connected) {
             connectionRequiredMessage.setVisibility(View.GONE);
 
+            if (viewModel.getActiveAccount().getValue() != null &&
+                    balanceViewPager.getAdapter() == null) {
+                setupBalanceViewPager();
+            }
+
             int[] referencedIds = postConnectionUiGroup.getReferencedIds();
             for (int id : referencedIds) {
                 View view = findViewById(id);
@@ -584,6 +603,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             enableConnectedMenuItems(true);
         } else {
             connectionRequiredMessage.setVisibility(View.VISIBLE);
+
             int[] referencedIds = postConnectionUiGroup.getReferencedIds();
             for (int id : referencedIds) {
                 View view = findViewById(id);
@@ -627,20 +647,99 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Spinner accountSpinner = findViewById(R.id.accountsSpinner);
         if (accountSpinner.getSelectedItem() == null) return null;
 
-        User selectedAccount = (User) accountSpinner.getSelectedItem();
-        return selectedAccount.getWalletAddress();
+        WalletAccount selectedAccount = (WalletAccount) accountSpinner.getSelectedItem();
+        return selectedAccount.getAddress();
     }
 
     private void updateWalletBalanceUI(Map<String, TokenBalance> balances) {
         if (balances == null) return;
 
-        if (balances.containsKey("EURC")) {
-            eurBalanceValue.setText(balances.get("EURC").getFormattedWalletBalance() + " EUR");
+        String eurBalance = balances.containsKey("EURC")
+                ? balances.get("EURC").getFormattedWalletBalance()
+                : "0.00";
+
+        String usdBalance = balances.containsKey("USDT")
+                ? balances.get("USDT").getFormattedWalletBalance()
+                : "0.00";
+    }
+
+    private void setupBalanceViewPager() {
+        if (balanceViewPager.getAdapter() != null) {
+            return;
         }
 
-        if (balances.containsKey("USDT")) {
-            usdBalanceValue.setText(balances.get("USDT").getFormattedWalletBalance() + " USD");
+        User currentUser = viewModel.getCurrentUser().getValue();
+        List<String> preferredCurrencies = new ArrayList<>();
+
+        if (currentUser != null && currentUser.getPreferredCurrency() != null) {
+            String[] currencies = currentUser.getPreferredCurrency().split(",");
+            for (String currency : currencies) {
+                String trimmedCurrency = currency.trim().toUpperCase();
+                if ("EUR".equals(trimmedCurrency) || "USD".equals(trimmedCurrency)) {
+                    preferredCurrencies.add(trimmedCurrency);
+                }
+            }
         }
+
+        if (preferredCurrencies.isEmpty()) {
+            preferredCurrencies.add("EUR");
+            preferredCurrencies.add("USD");
+        }
+
+        balancePagerAdapter = new BalancePagerAdapter(
+                this,
+                position -> viewModel.checkAllBalances(),
+                preferredCurrencies
+        );
+
+        balanceViewPager.setAdapter(balancePagerAdapter);
+
+        if (preferredCurrencies.size() > 1) {
+            balanceTabLayout.setVisibility(View.VISIBLE);
+            new TabLayoutMediator(balanceTabLayout, balanceViewPager, (tab, position) -> {
+            }).attach();
+        } else {
+            balanceTabLayout.setVisibility(View.GONE);
+        }
+
+        balanceViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                String selectedCurrency = position == 0 ? "EUR" : "USD";
+                viewModel.setSelectedCurrency(selectedCurrency);
+            }
+        });
+    }
+
+    /**
+     * Updates the UI to show either EUR or USD balance card based on preferred currencies
+     *
+     * @param preferredCurrencies Comma-separated list of currencies
+     */
+    private void updateBalanceViewPager(String preferredCurrencies) {
+        String[] currencies = preferredCurrencies.split(",");
+        List<String> preferredCurrencyList = new ArrayList<>();
+
+        for (String currency : currencies) {
+            String trimmedCurrency = currency.trim().toUpperCase();
+            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
+                preferredCurrencyList.add(trimmedCurrency);
+            }
+        }
+
+        if (preferredCurrencyList.contains("EUR")) {
+            balanceViewPager.setCurrentItem(0, false);
+        } else if (preferredCurrencyList.contains("USD")) {
+            balanceViewPager.setCurrentItem(1, false);
+        }
+    }
+
+    /**
+     * Sets the ViewPager to show EUR balance by default
+     */
+    private void resetBalanceViewPager() {
+        balanceViewPager.setCurrentItem(0, false);
     }
 
     private void refreshData() {
@@ -650,6 +749,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onTransactionClick(Transaction transaction) {
         TransactionDetailsDialogFragment dialog = TransactionDetailsDialogFragment.newInstance(transaction);
-        dialog.show(getSupportFragmentManager(),"transaction_details");
+        dialog.show(getSupportFragmentManager(), "transaction_details");
+    }
+
+    public MainViewModel getViewModel() {
+        return viewModel;
     }
 }

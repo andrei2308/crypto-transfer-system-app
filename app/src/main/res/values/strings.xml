@@ -120,6 +120,8 @@
     <string name="transaction_type">Transaction type</string>
     <string name="transaction_details">Transaction details</string>
     <string name="close">Close</string>
+    <string name="swipe_for_usd">swipe for usd</string>
+    <string name="swipe_for_eur">swipe for eur</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">

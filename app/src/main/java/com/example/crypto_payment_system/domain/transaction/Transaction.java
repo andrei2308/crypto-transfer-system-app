@@ -124,4 +124,26 @@ public class Transaction {
     public int hashCode() {
         return Objects.hash(amount, timestamp, tokenAddress, transactionHash, transactionType, walletAddress);
     }
+
+    /**
+     * Checks if this transaction involves the specified currency
+     * @param currencyCode The currency code to check (CURRENCY_EUR or CURRENCY_USD)
+     * @return true if the transaction involves the specified currency
+     */
+    public boolean involvesCurrency(int currencyCode) {
+        return sentCurrency == currencyCode || receivedCurrency == currencyCode;
+    }
+
+    /**
+     * Get the display currency for this transaction
+     * This determines which currency to show in the transaction list
+     * @return The display currency code (CURRENCY_EUR or CURRENCY_USD)
+     */
+    public int getDisplayCurrency() {
+        if (sentCurrency == receivedCurrency) {
+            return sentCurrency;
+        }
+
+        return receivedCurrency;
+    }
 }
