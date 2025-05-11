@@ -6,11 +6,10 @@ import com.example.crypto_payment_system.service.firebase.firestore.FirestoreSer
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
-import com.example.crypto_payment_system.utils.EventParser;
+import com.example.crypto_payment_system.utils.events.EventParser;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;

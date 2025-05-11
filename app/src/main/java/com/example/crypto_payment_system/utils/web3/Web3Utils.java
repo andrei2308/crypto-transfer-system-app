@@ -1,7 +1,7 @@
 package com.example.crypto_payment_system.utils.web3;
 
 import com.example.crypto_payment_system.config.Constants;
-import com.example.crypto_payment_system.utils.EventParser;
+import com.example.crypto_payment_system.utils.events.EventParser;
 
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;

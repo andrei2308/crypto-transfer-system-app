@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.config.Constants;
-import com.example.crypto_payment_system.utils.EventParser;
+import com.example.crypto_payment_system.utils.events.EventParser;
 import com.example.crypto_payment_system.utils.web3.Web3Utils;
 
 import org.json.JSONArray;

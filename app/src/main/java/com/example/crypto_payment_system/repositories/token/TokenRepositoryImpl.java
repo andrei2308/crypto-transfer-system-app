@@ -4,14 +4,13 @@ import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
-import com.example.crypto_payment_system.utils.EventParser;
+import com.example.crypto_payment_system.utils.events.EventParser;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.math.BigInteger;
 import java.util.HashMap;

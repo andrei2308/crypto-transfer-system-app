@@ -5,7 +5,8 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,62 +28,60 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.Group;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.crypto_payment_system.R;
-import com.example.crypto_payment_system.domain.account.User;
+import com.example.crypto_payment_system.databinding.ActivityMainBinding;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
-import com.example.crypto_payment_system.domain.token.TokenBalance;
-import com.example.crypto_payment_system.domain.transaction.Transaction;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
+import com.example.crypto_payment_system.ui.home.HomeFragment;
 import com.example.crypto_payment_system.ui.liquidity.AddLiquidityFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
-import com.example.crypto_payment_system.ui.transaction.TransactionDetailsDialogFragment;
 import com.example.crypto_payment_system.utils.adapter.account.AccountAdapter;
-import com.example.crypto_payment_system.utils.adapter.balancePager.BalancePagerAdapter;
-import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.android.material.textfield.TextInputEditText;
-import com.example.crypto_payment_system.databinding.ActivityMainBinding;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TransactionAdapter.TransactionClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private MainViewModel viewModel;
     private ProgressBar progressBar;
+    private ProgressBar connectionProgressBar;
     private DrawerLayout drawerLayout;
     private TextView walletAddressText;
-    private Spinner currencySpinner;
-    private ArrayAdapter<String> currencyAdapter;
     private View submenuView;
     private boolean isSubmenuVisible = false;
-    private View connectionRequiredMessage;
-    private Group postConnectionUiGroup;
+    private CardView connectionCard;
+    private ConstraintLayout mainContentLayout;
     private boolean isConnected = false;
-    private TextView eurBalanceValue;
-    private TextView usdBalanceValue;
     private ActivityMainBinding binding;
-    private TransactionAdapter transactionAdapter;
-    private ViewPager2 balanceViewPager;
-    private TabLayout balanceTabLayout;
-    private BalancePagerAdapter balancePagerAdapter;
+    private ActionBarDrawerToggle drawerToggle;
+    private Toolbar toolbar;
+    private View loadingOverlay;
+    private TextView loadingText;
+    Button connectButton;
+    private Handler loadingDelayHandler = new Handler(Looper.getMainLooper());
+    private static final int MIN_LOADING_DURATION_MS = 2000;
+    private long loadingStartTime;
+
+    private boolean initialDataLoaded = false;
+    private boolean isInitialConnection = true;
+    private boolean isDataLoading = false;
+    private AtomicInteger dataLoadingCounter = new AtomicInteger(0);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,39 +90,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(binding.getRoot());
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        viewModel.setActivityMainBinding(binding);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        drawerToggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+        );
+
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
 
         setupSubmenu();
 
-        observeViewModel();
-
         navigationView.setNavigationItemSelectedListener(this);
 
-        connectionRequiredMessage = findViewById(R.id.connection_required_message);
-        postConnectionUiGroup = findViewById(R.id.post_connection_ui_group);
+        connectionCard = findViewById(R.id.connectionCard);
+        mainContentLayout = findViewById(R.id.mainContentLayout);
+        progressBar = findViewById(R.id.progressBar);
+        connectionProgressBar = findViewById(R.id.connectionProgressBar);
+
+        loadingOverlay = findViewById(R.id.loading_overlay);
+        loadingText = findViewById(R.id.loading_text);
 
         updateConnectionUi(isConnected);
 
-        View contentView = findViewById(R.id.content_main);
-        progressBar = contentView.findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.VISIBLE);
-
-        balanceViewPager = contentView.findViewById(R.id.balanceViewPager);
-        balanceTabLayout = contentView.findViewById(R.id.balanceTabLayout);
-
-        eurBalanceValue = contentView.findViewById(R.id.eurBalanceValue);
-        usdBalanceValue = contentView.findViewById(R.id.usdBalanceValue);
-
-        Button connectButton = contentView.findViewById(R.id.connectButton);
+        connectButton = findViewById(R.id.connectButton);
         connectButton.setOnClickListener(v -> {
             String selectedAddress = getSelectedAccountAddress();
             if (selectedAddress == null || selectedAddress.isEmpty()) {
@@ -131,7 +128,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
 
-            progressBar.setVisibility(View.VISIBLE);
+            connectButton.setEnabled(false);
+            connectionProgressBar.setVisibility(View.VISIBLE);
+
+            isDataLoading = true;
+            dataLoadingCounter.set(3);
+            isInitialConnection = true;
+
+            showLoadingOverlay("Connecting to Ethereum...");
 
             viewModel.connectToEthereum();
         });
@@ -140,31 +144,82 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         walletAddressText = headerView.findViewById(R.id.walletAddressText);
 
         setupAccountSelection();
+        observeViewModel();
 
-        setupTransactionsList();
+        if (savedInstanceState != null) {
+            initialDataLoaded = savedInstanceState.getBoolean("initialDataLoaded", false);
+            isDataLoading = savedInstanceState.getBoolean("isDataLoading", false);
+            loadingStartTime = savedInstanceState.getLong("loadingStartTime", 0);
+
+            if (savedInstanceState.getBoolean("isLoadingVisible", false) && loadingOverlay != null) {
+                loadingOverlay.setVisibility(View.VISIBLE);
+
+                long currentTime = System.currentTimeMillis();
+                long elapsed = currentTime - loadingStartTime;
+                long remainingTime = Math.max(MIN_LOADING_DURATION_MS - elapsed, 0);
+
+                if (remainingTime > 0) {
+                    loadingDelayHandler.postDelayed(() -> {
+                        if (loadingOverlay != null) {
+                            loadingOverlay.setVisibility(View.GONE);
+                        }
+                    }, remainingTime);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("initialDataLoaded", initialDataLoaded);
+        outState.putBoolean("isDataLoading", isDataLoading);
+        outState.putLong("loadingStartTime", loadingStartTime);
+        outState.putBoolean("isLoadingVisible", loadingOverlay != null && loadingOverlay.getVisibility() == View.VISIBLE);
     }
 
     private void observeViewModel() {
         viewModel.getConnectionStatus().observe(this, status -> {
-
             boolean isNowConnected = status != null && status.contains("Connected") && !status.contains("not");
+
             if (isNowConnected != isConnected) {
                 isConnected = isNowConnected;
-                updateConnectionUi(isConnected);
 
-                Button connectButton = findViewById(R.id.connectButton);
                 if (isConnected) {
+                    Button connectButton = findViewById(R.id.connectButton);
+                    connectionProgressBar.setVisibility(View.GONE);
                     connectButton.setText(R.string.connected);
                     connectButton.setEnabled(false);
+
+                    connectionCard.setVisibility(View.GONE);
+                    mainContentLayout.setVisibility(View.VISIBLE);
+
+                    enableDrawer(true);
+
+                    if (loadingText != null) {
+                        loadingText.setText("Loading your wallet data...");
+                    }
+
+                    navigateToHomeFragment();
+
+                    viewModel.checkAllBalances();
+                    enableConnectedMenuItems(true);
                 } else {
+                    Button connectButton = findViewById(R.id.connectButton);
                     connectButton.setText(R.string.connect_to_ethereum);
                     connectButton.setEnabled(true);
+                    connectionProgressBar.setVisibility(View.GONE);
+
+                    hideLoadingOverlay();
+                    isInitialConnection = true;
+                    updateConnectionUi(false);
                 }
             }
         });
 
         viewModel.isNewUser().observe(this, isNew -> {
             if (isNew) {
+                hideLoadingOverlay();
                 navigateToFragment(new ManageAccountFragment());
             }
         });
@@ -172,55 +227,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         viewModel.getCurrentUser().observe(this, user -> {
             if (user != null) {
                 walletAddressText.setText(user.getWalletAddress());
-
-                String preferredCurrencies = user.getPreferredCurrency();
-                if (preferredCurrencies != null && !preferredCurrencies.isEmpty()) {
-                    updateBalanceViewPager(preferredCurrencies);
-
-                    String primaryCurrency = preferredCurrencies.split(",")[0];
-                }
+                completeDataLoadingTask();
             } else {
                 walletAddressText.setText(R.string.connect_to_view_wallet_address);
-                resetCurrencySpinner();
             }
         });
 
         viewModel.getTokenBalances().observe(this, balances -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(getString(R.string.your_wallet_balances));
-
-            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getFormattedWalletBalance()).append("\n"));
-
-            sb.append(getString(R.string.contract_balances));
-
-            balances.forEach((symbol, balance) -> sb.append(symbol).append(": ").append(balance.getFormattedContractBalance()).append("\n"));
-
-            updateWalletBalanceUI(balances);
-        });
-
-        viewModel.getTransactionResult().observe(this, result -> {
-            if (result == null) return;
-
-            if (!result.isSuccess() && result.getTransactionHash() == null) {
-                Toast.makeText(this, result.getMessage(), Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            StringBuilder sb = new StringBuilder();
-            sb.append(result.getMessage()).append("\n");
-
-            if (result.getTransactionHash() != null) {
-                sb.append(getString(R.string.hash)).append(result.getTransactionHash());
-            }
-
-        });
-
-        viewModel.getFilteredTransactions().observe(this, transactions -> {
-            transactionAdapter.submitList(transactions);
-        });
-
-        viewModel.getSelectedCurrency().observe(this, currency -> {
-            viewModel.updateFilteredTransactions(currency);
+            completeDataLoadingTask();
         });
 
         viewModel.getTransactions().observe(this, allTransactions -> {
@@ -228,54 +242,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (currentCurrency != null) {
                 viewModel.updateFilteredTransactions(currentCurrency);
             }
+            completeDataLoadingTask();
         });
 
-        viewModel.getIsLoading().observe(this, isLoading -> progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE));
-
-        viewModel.getCurrentUser().observe(this, user -> {
-            if (user != null && balanceViewPager.getAdapter() != null) {
-                List<String> preferredCurrencies = getPreferredCurrencies(user);
-
-                balancePagerAdapter = new BalancePagerAdapter(
-                        this,
-                        position -> viewModel.checkAllBalances(),
-                        preferredCurrencies
-                );
-
-                balanceViewPager.setAdapter(balancePagerAdapter);
-
-                if (preferredCurrencies.size() > 1) {
-                    balanceTabLayout.setVisibility(View.VISIBLE);
-                    new TabLayoutMediator(balanceTabLayout, balanceViewPager, (tab, position) -> {
-                    }).attach();
-                } else {
-                    balanceTabLayout.setVisibility(View.GONE);
-                }
+        viewModel.getFilteredTransactions().observe(this, transactions -> {
+            if (isDataLoading && transactions != null) {
+                completeDataLoadingTask();
             }
         });
 
-    }
-
-    @NonNull
-    private static List<String> getPreferredCurrencies(User user) {
-        String preferredCurrenciesStr = user.getPreferredCurrency();
-        List<String> preferredCurrencies = new ArrayList<>();
-
-        if (preferredCurrenciesStr != null && !preferredCurrenciesStr.isEmpty()) {
-            String[] currencies = preferredCurrenciesStr.split(",");
-            for (String currency : currencies) {
-                String trimmedCurrency = currency.trim().toUpperCase();
-                if ("EUR".equals(trimmedCurrency) || "USD".equals(trimmedCurrency)) {
-                    preferredCurrencies.add(trimmedCurrency);
-                }
-            }
-        }
-
-        if (preferredCurrencies.isEmpty()) {
-            preferredCurrencies.add("EUR");
-            preferredCurrencies.add("USD");
-        }
-        return preferredCurrencies;
+        viewModel.getIsLoading().observe(this, isLoading -> {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
     }
 
     private void setupSubmenu() {
@@ -301,17 +279,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    /**
-     * Resets the spinner to default options
-     */
-    private void resetCurrencySpinner() {
-        currencyAdapter.clear();
-        currencyAdapter.add("EUR");
-        currencyAdapter.add("USD");
-        currencyAdapter.notifyDataSetChanged();
-        currencySpinner.setSelection(0);
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -323,13 +290,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         if (id == R.id.nav_home) {
-            viewModel.loadTransactionsForWallet(walletAddressText.getText().toString().toLowerCase());
-            clearFragmentBackStack();
+            if (isConnected) {
+                showLoadingOverlay("Loading transactions...");
+                isDataLoading = true;
+                dataLoadingCounter.set(1);
+                isInitialConnection = false;
+
+                navigateToHomeFragment();
+            }
         } else if (id == R.id.nav_manage_account) {
             navigateToFragment(new ManageAccountFragment());
         } else if (id == R.id.nav_logout) {
             if (isConnected) {
-//                disconnectFromEthereum();
+                isConnected = false;
+                updateConnectionUi(false);
+
+                Button connectButton = findViewById(R.id.connectButton);
+                connectButton.setText(R.string.connect_to_ethereum);
+                connectButton.setEnabled(true);
+
+                isInitialConnection = true;
             } else {
                 Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
             }
@@ -348,6 +328,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    private void navigateToHomeFragment() {
+        clearFragmentBackStack();
+        mainContentLayout.setVisibility(View.VISIBLE);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        HomeFragment homeFragment = HomeFragment.newInstance();
+
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_main, homeFragment)
+                .commit();
+    }
+
     private void navigateToFragment(androidx.fragment.app.Fragment fragment) {
         boolean requiresConnection = fragment instanceof SendMoneyFragment || fragment instanceof ExchangeFragment || fragment instanceof MintFragment || fragment instanceof AddLiquidityFragment;
         if (requiresConnection && !isConnected) {
@@ -355,19 +347,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
 
+        hideLoadingOverlay();
+        isDataLoading = false;
+
         View contentView = findViewById(R.id.content_main);
 
         if (contentView instanceof ViewGroup) {
-            ((ViewGroup) contentView).removeAllViews();
-
-            getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
     private void clearFragmentBackStack() {
         getSupportFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-        recreate();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -436,7 +430,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Do nothing
             }
         });
-
         viewModel.getAccounts().observe(this, accounts -> {
             accountArrayAdapter.clear();
             accountArrayAdapter.addAll(accounts);
@@ -508,55 +501,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dialog.show();
     }
 
-    private void setupCurrencySpinner() {
-        currencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedCurrency = parent.getItemAtPosition(position).toString();
-                viewModel.setSelectedCurrency(selectedCurrency);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-    }
-
-    private void setupTransactionsList() {
-        String currentAddress = "";
-        if (viewModel.getActiveAccount().getValue() != null) {
-            currentAddress = viewModel.getActiveAccount().getValue().getAddress();
-        }
-
-        transactionAdapter = new TransactionAdapter(this, currentAddress);
-        binding.contentMain.transactionsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.contentMain.transactionsRecyclerView.setAdapter(transactionAdapter);
-
-        viewModel.getActiveAccount().observe(this, account -> {
-            if (account != null) {
-                String newAddress = account.getAddress();
-                transactionAdapter = new TransactionAdapter(this, newAddress);
-                binding.contentMain.transactionsRecyclerView.setAdapter(transactionAdapter);
-
-                if (viewModel.getTransactions().getValue() != null) {
-                    transactionAdapter.submitList(viewModel.getTransactions().getValue());
-                }
-            }
-        });
-
-        viewModel.getTransactions().observe(this, transactions -> {
-            if (transactions != null) {
-                transactionAdapter.submitList(transactions);
-                boolean isEmpty = transactions.isEmpty();
-                binding.contentMain.emptyTransactionsMessage.setVisibility(
-                        isEmpty ? View.VISIBLE : View.GONE);
-                binding.contentMain.transactionsRecyclerView.setVisibility(
-                        isEmpty ? View.GONE : View.VISIBLE);
-            }
-        });
-    }
-
     private void showSubmenu() {
         submenuView.setVisibility(View.VISIBLE);
         isSubmenuVisible = true;
@@ -571,6 +515,83 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().setGroupVisible(R.id.nav_main_group, true);
     }
 
+    /**
+     * Update the UI based on connection status
+     *
+     * @param connected true if connected, false otherwise
+     */
+    private void updateConnectionUi(boolean connected) {
+        if (connected) {
+            connectionCard.setVisibility(View.GONE);
+            mainContentLayout.setVisibility(View.VISIBLE);
+
+            enableDrawer(true);
+            enableConnectedMenuItems(true);
+
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_main);
+            if (!(currentFragment instanceof HomeFragment)) {
+                navigateToHomeFragment();
+            }
+        } else {
+            connectionCard.setVisibility(View.VISIBLE);
+            mainContentLayout.setVisibility(View.GONE);
+
+            clearFragmentContainer();
+
+            enableDrawer(false);
+            enableConnectedMenuItems(false);
+        }
+    }
+
+    /**
+     * Clear any fragments from the container when disconnecting
+     */
+    private void clearFragmentContainer() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_main);
+        if (currentFragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(currentFragment)
+                    .commitNow();
+        }
+    }
+
+    /**
+     * Enable or disable the drawer navigation
+     *
+     * @param enable True to enable drawer, false to disable
+     */
+    private void enableDrawer(boolean enable) {
+        if (enable) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+            drawerToggle.setDrawerIndicatorEnabled(true);
+            drawerToggle.syncState();
+        } else {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+            drawerToggle.setDrawerIndicatorEnabled(false);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            }
+            drawerToggle.syncState();
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -580,38 +601,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 drawerLayout.closeDrawer(GravityCompat.START);
             }
         } else {
-            super.onBackPressed();
-        }
-    }
-
-    private void updateConnectionUi(boolean connected) {
-        if (connected) {
-            connectionRequiredMessage.setVisibility(View.GONE);
-
-            if (viewModel.getActiveAccount().getValue() != null &&
-                    balanceViewPager.getAdapter() == null) {
-                setupBalanceViewPager();
+            if (!isConnected && connectionCard.getVisibility() == View.VISIBLE) {
+                finish();
+            } else {
+                super.onBackPressed();
             }
-
-            int[] referencedIds = postConnectionUiGroup.getReferencedIds();
-            for (int id : referencedIds) {
-                View view = findViewById(id);
-                if (view != null) {
-                    view.setVisibility(View.VISIBLE);
-                }
-            }
-            enableConnectedMenuItems(true);
-        } else {
-            connectionRequiredMessage.setVisibility(View.VISIBLE);
-
-            int[] referencedIds = postConnectionUiGroup.getReferencedIds();
-            for (int id : referencedIds) {
-                View view = findViewById(id);
-                if (view != null) {
-                    view.setVisibility(View.GONE);
-                }
-            }
-            enableConnectedMenuItems(false);
         }
     }
 
@@ -645,111 +639,99 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String getSelectedAccountAddress() {
         Spinner accountSpinner = findViewById(R.id.accountsSpinner);
-        if (accountSpinner.getSelectedItem() == null) return null;
+        if (accountSpinner == null || accountSpinner.getSelectedItem() == null) return null;
 
         WalletAccount selectedAccount = (WalletAccount) accountSpinner.getSelectedItem();
         return selectedAccount.getAddress();
     }
 
-    private void updateWalletBalanceUI(Map<String, TokenBalance> balances) {
-        if (balances == null) return;
+    /**
+     * Show loading overlay with full white background
+     *
+     * @param message Message to display
+     */
+    private void showLoadingOverlay(String message) {
+        loadingStartTime = System.currentTimeMillis();
 
-        String eurBalance = balances.containsKey("EURC")
-                ? balances.get("EURC").getFormattedWalletBalance()
-                : "0.00";
+        runOnUiThread(() -> {
+            if (loadingText != null) {
+                loadingText.setText(message);
+            }
 
-        String usdBalance = balances.containsKey("USDT")
-                ? balances.get("USDT").getFormattedWalletBalance()
-                : "0.00";
-    }
+            if (loadingOverlay != null) {
+                loadingOverlay.setVisibility(View.VISIBLE);
 
-    private void setupBalanceViewPager() {
-        if (balanceViewPager.getAdapter() != null) {
-            return;
-        }
-
-        User currentUser = viewModel.getCurrentUser().getValue();
-        List<String> preferredCurrencies = new ArrayList<>();
-
-        if (currentUser != null && currentUser.getPreferredCurrency() != null) {
-            String[] currencies = currentUser.getPreferredCurrency().split(",");
-            for (String currency : currencies) {
-                String trimmedCurrency = currency.trim().toUpperCase();
-                if ("EUR".equals(trimmedCurrency) || "USD".equals(trimmedCurrency)) {
-                    preferredCurrencies.add(trimmedCurrency);
+                if (loadingOverlay.getParent() instanceof ViewGroup) {
+                    ViewGroup parent = (ViewGroup) loadingOverlay.getParent();
+                    parent.bringChildToFront(loadingOverlay);
                 }
             }
-        }
 
-        if (preferredCurrencies.isEmpty()) {
-            preferredCurrencies.add("EUR");
-            preferredCurrencies.add("USD");
-        }
-
-        balancePagerAdapter = new BalancePagerAdapter(
-                this,
-                position -> viewModel.checkAllBalances(),
-                preferredCurrencies
-        );
-
-        balanceViewPager.setAdapter(balancePagerAdapter);
-
-        if (preferredCurrencies.size() > 1) {
-            balanceTabLayout.setVisibility(View.VISIBLE);
-            new TabLayoutMediator(balanceTabLayout, balanceViewPager, (tab, position) -> {
-            }).attach();
-        } else {
-            balanceTabLayout.setVisibility(View.GONE);
-        }
-
-        balanceViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                String selectedCurrency = position == 0 ? "EUR" : "USD";
-                viewModel.setSelectedCurrency(selectedCurrency);
-            }
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         });
     }
 
     /**
-     * Updates the UI to show either EUR or USD balance card based on preferred currencies
-     *
-     * @param preferredCurrencies Comma-separated list of currencies
+     * Hide loading overlay with a minimum delay to ensure it's visible for at least 2 seconds
      */
-    private void updateBalanceViewPager(String preferredCurrencies) {
-        String[] currencies = preferredCurrencies.split(",");
-        List<String> preferredCurrencyList = new ArrayList<>();
-
-        for (String currency : currencies) {
-            String trimmedCurrency = currency.trim().toUpperCase();
-            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
-                preferredCurrencyList.add(trimmedCurrency);
-            }
+    private void hideLoadingOverlay() {
+        if (loadingOverlay == null) {
+            return;
         }
 
-        if (preferredCurrencyList.contains("EUR")) {
-            balanceViewPager.setCurrentItem(0, false);
-        } else if (preferredCurrencyList.contains("USD")) {
-            balanceViewPager.setCurrentItem(1, false);
+        if (loadingOverlay.getVisibility() != View.VISIBLE) {
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        long timeElapsed = currentTime - loadingStartTime;
+
+        if (timeElapsed >= MIN_LOADING_DURATION_MS) {
+            loadingOverlay.setVisibility(View.GONE);
+        } else {
+            long remainingDelay = MIN_LOADING_DURATION_MS - timeElapsed;
+
+            loadingDelayHandler.postDelayed(() -> {
+                if (loadingOverlay != null) {
+                    loadingOverlay.setVisibility(View.GONE);
+                }
+            }, remainingDelay);
         }
     }
 
     /**
-     * Sets the ViewPager to show EUR balance by default
+     * Register a data loading task
+     *
+     * @return A unique ID for the task
      */
-    private void resetBalanceViewPager() {
-        balanceViewPager.setCurrentItem(0, false);
+    private int registerDataLoadingTask() {
+        return dataLoadingCounter.incrementAndGet();
     }
 
-    private void refreshData() {
-        viewModel.checkAllBalances();
+    /**
+     * Complete a data loading task and check if all tasks are complete
+     */
+    private void completeDataLoadingTask() {
+        int remainingTasks = dataLoadingCounter.decrementAndGet();
+
+        if (remainingTasks <= 0 && isDataLoading) {
+            isDataLoading = false;
+            initialDataLoaded = true;
+
+            runOnUiThread(() -> {
+                hideLoadingOverlay();
+            });
+        }
     }
 
     @Override
-    public void onTransactionClick(Transaction transaction) {
-        TransactionDetailsDialogFragment dialog = TransactionDetailsDialogFragment.newInstance(transaction);
-        dialog.show(getSupportFragmentManager(), "transaction_details");
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (loadingDelayHandler != null) {
+            loadingDelayHandler.removeCallbacksAndMessages(null);
+            loadingDelayHandler = null;
+        }
     }
 
     public MainViewModel getViewModel() {
