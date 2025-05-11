@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.utils;
+package com.example.crypto_payment_system.utils.events;
 
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;

@@ -15,7 +15,6 @@ import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.contracts.ExchangeContractImpl;
-import com.example.crypto_payment_system.databinding.ActivityMainBinding;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
 import com.example.crypto_payment_system.domain.account.WalletManager;
@@ -35,7 +34,6 @@ import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.token.TokenContractServiceImpl;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
-import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -49,7 +47,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -74,8 +71,6 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<Transaction>> filteredTransactions = new MutableLiveData<>(new ArrayList<>());
     private ListenerRegistration transactionListener;
-    private ActivityMainBinding binding;
-    private TransactionAdapter transactionAdapter;
 
     public MainViewModel(@NonNull Application application) throws Exception {
         super(application);
@@ -126,7 +121,6 @@ public class MainViewModel extends AndroidViewModel {
                             .thenAccept(balances -> {
                                 tokenBalances.postValue(balances);
                                 loadTransactionsForWallet(activeAccount.getAddress());
-                                updateTransactionAdapter();
                             });
                 } else {
                     connectionStatus.postValue("Error: No active account");
@@ -138,13 +132,6 @@ public class MainViewModel extends AndroidViewModel {
                 isLoading.postValue(false);
             }
         }).start();
-    }
-
-    private void updateTransactionAdapter() {
-        transactionAdapter = (TransactionAdapter) binding.contentMain.transactionsRecyclerView.getAdapter();
-        String preferredCurrencies = Objects.requireNonNull(currentUser.getValue()).getPreferredCurrency();
-        List<String> currencyList = Arrays.asList(preferredCurrencies.split(","));
-        transactionAdapter.setPrefferedCurrencies(currencyList);
     }
 
     /**
@@ -186,7 +173,6 @@ public class MainViewModel extends AndroidViewModel {
         walletManager.switchAccount(address);
         checkAllBalances();
         loadTransactionsForWallet(address);
-        updateTransactionAdapter();
     }
 
     /**
@@ -700,18 +686,22 @@ public class MainViewModel extends AndroidViewModel {
         return transactions;
     }
 
-    public void setActivityMainBinding(ActivityMainBinding activityMainBinding) {
-        binding = activityMainBinding;
-    }
-
-    public ActivityMainBinding getBinding() {
-        return binding;
-    }
-
     /**
      * Get filtered transactions LiveData
      */
     public LiveData<List<Transaction>> getFilteredTransactions() {
         return filteredTransactions;
+    }
+
+    /**
+     * Get user's preferred currencies as a list
+     * This will be used by the HomeFragment to update its adapter
+     */
+    public List<String> getPreferredCurrencyList() {
+        User user = currentUser.getValue();
+        if (user != null && user.getPreferredCurrency() != null) {
+            return Arrays.asList(user.getPreferredCurrency().split(","));
+        }
+        return new ArrayList<>();
     }
 }

@@ -1,6 +1,6 @@
 package com.example.crypto_payment_system.service.web3;
 
-import com.example.crypto_payment_system.utils.EventParser;
+import com.example.crypto_payment_system.utils.events.EventParser;
 
 import org.web3j.protocol.Web3j;
 
