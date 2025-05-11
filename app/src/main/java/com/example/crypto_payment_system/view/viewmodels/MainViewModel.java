@@ -602,9 +602,13 @@ public class MainViewModel extends AndroidViewModel {
             if ("EUR".equals(currency)) {
                 if (type.equals("EUR_TRANSFER") || type.equals("EUR_TO_USD")) {
                     include = true;
+                } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 1) {
+                    include = true;
                 }
             } else if ("USD".equals(currency)) {
                 if (type.equals("USD_TRANSFER") || type.equals("USD_TO_EUR_TRANSFER")) {
+                    include = true;
+                } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 2) {
                     include = true;
                 }
             }

@@ -37,6 +37,8 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 String tokenAddress = currency.equals("USD") ?
                         tokenRepository.getUsdtAddress() : tokenRepository.getEurcAddress();
 
+                int currencyCode = currency.equals("USD") ? 2 : 1;
+
                 BigInteger amountToAdd = new BigInteger(tokenUnitAmount);
 
                 String txHash = exchangeContract.addLiquidity(tokenAddress, amountToAdd, credentials);
@@ -46,7 +48,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (success) {
                     firestoreService.saveTransaction(credentials.getAddress(), "ADD_LIQUIDITY",
-                            tokenAddress, tokenUnitAmount, txHash, CONTRACT_ADDRESS, exchangeInfo.get().getExchangeRate(), exchangeInfo.get().getSendCurrency(), exchangeInfo.get().getReceiveCurrency());
+                            tokenAddress, tokenUnitAmount, txHash, CONTRACT_ADDRESS, exchangeInfo.get().getExchangeRate(), currencyCode, currencyCode);
                 }
 
                 return new TransactionResult(success, txHash, success ?
