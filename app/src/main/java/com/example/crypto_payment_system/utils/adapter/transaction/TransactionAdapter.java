@@ -1,8 +1,5 @@
 package com.example.crypto_payment_system.utils.adapter.transaction;
 
-import static com.example.crypto_payment_system.config.Constants.EUR_TOKEN_CONTRACT_ADDRESS;
-import static com.example.crypto_payment_system.config.Constants.USD_TOKEN_CONTRACT_ADDRESS;
-
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +27,8 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
     private final String currentUserAddress;
     private List<String> prefferedCurrencies = new ArrayList<>();
 
+    private String currentSelectedCurrency = "EUR";
+
     public interface TransactionClickListener {
         void onTransactionClick(Transaction transaction);
     }
@@ -54,7 +53,13 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
 
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
+        holder.setCurrentSelectedCurrency(currentSelectedCurrency);
         holder.bind(getItem(position));
+    }
+
+    public void setCurrentSelectedCurrency(String currency) {
+        this.currentSelectedCurrency = currency;
+        notifyDataSetChanged();
     }
 
     static class TransactionViewHolder extends RecyclerView.ViewHolder {
@@ -66,6 +71,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         private final TransactionClickListener listener;
         private final String currentUserAddress;
         private List<String> prefferedCurrencies = new ArrayList<>();
+        private String currentSelectedCurrency = "EUR";
 
         public TransactionViewHolder(@NonNull View itemView, TransactionClickListener listener, String currentUserAddress, List<String> prefferedCurrencies) {
             super(itemView);
@@ -77,6 +83,10 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             timestampText = itemView.findViewById(R.id.transactionTimestamp);
             this.currentUserAddress = currentUserAddress;
             this.prefferedCurrencies = prefferedCurrencies;
+        }
+
+        public void setCurrentSelectedCurrency(String currency) {
+            this.currentSelectedCurrency = currency;
         }
 
         public void bind(final Transaction transaction) {
@@ -100,26 +110,41 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
 
             String currency = "";
             String exchangeRate = "100000000"; // exchange rate with 8 decimals for blockchain
-            if (transaction.getSentCurrency() == 1 && transaction.getWalletAddress().equals(currentUserAddress)) {
-                currency += " EUR";
-            } else if (transaction.getSentCurrency() == 2 && transaction.getWalletAddress().equals(currentUserAddress)) {
-                currency += " USD";
-            } else if (transaction.getReceivedCurrency() == 1 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
-                currency += " EUR";
-                if(!prefferedCurrencies.contains("EUR")){
-                    exchangeRate = transaction.getExchangeRate();
+            boolean isOutgoing = transaction.getWalletAddress().equalsIgnoreCase(currentUserAddress);
+            if (!transaction.getWalletAddressTo().equals(transaction.getWalletAddress())) {
+                if (transaction.getSentCurrency() == 1 && transaction.getWalletAddress().equals(currentUserAddress)) {
+                    currency += " EUR";
+                } else if (transaction.getSentCurrency() == 2 && transaction.getWalletAddress().equals(currentUserAddress)) {
+                    currency += " USD";
+                } else if (transaction.getReceivedCurrency() == 1 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
+                    currency += " EUR";
+                    if (!prefferedCurrencies.contains("EUR")) {
+                        exchangeRate = transaction.getExchangeRate();
+                    }
+                } else if (transaction.getReceivedCurrency() == 2 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
+                    currency += " USD";
+                    if (!prefferedCurrencies.contains("USD")) {
+                        exchangeRate = transaction.getExchangeRate();
+                    }
                 }
-            } else if (transaction.getReceivedCurrency() == 2 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
-                currency += " USD";
-                if(!prefferedCurrencies.contains("USD")){
+            } else {
+                if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("EUR")) {
+                    currency += " EUR";
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("USD")) {
+                    currency += " USD";
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("EUR")) {
+                    currency += "EUR";
+                    isOutgoing = false;
+                    exchangeRate = transaction.getExchangeRate();
+                } else if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("USD")) {
+                    currency += "USD";
+                    isOutgoing = false;
                     exchangeRate = transaction.getExchangeRate();
                 }
             }
             String amount = formatAmount(transaction, transaction.getAmount(), exchangeRate);
             amount += currency;
             amountText.setText(amount);
-
-            boolean isOutgoing = transaction.getWalletAddress().equalsIgnoreCase(currentUserAddress);
 
             int amountColor;
 
@@ -168,10 +193,24 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             String currentUserAddress = getCurrentUserAddress();
 
             String sign;
-            if (transaction.getWalletAddress().equals(currentUserAddress)) {
-                sign = "-";
+            if (!transaction.getWalletAddressTo().equals(transaction.getWalletAddress())) {
+                if (transaction.getWalletAddress().equals(currentUserAddress)) {
+                    sign = "-";
+                } else {
+                    sign = "+";
+                }
             } else {
-                sign = "+";
+                if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("EUR")) {
+                    sign = "-";
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("USD")) {
+                    sign = "-";
+                } else if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("USD")) {
+                    sign = "+";
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("EUR")) {
+                    sign = "+";
+                } else {
+                    sign = "";
+                }
             }
 
             return sign + amount.abs().toPlainString();
