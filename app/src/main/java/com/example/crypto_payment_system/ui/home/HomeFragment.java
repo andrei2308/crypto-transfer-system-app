@@ -75,7 +75,6 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     private void setupObservers() {
         viewModel.getFilteredTransactions().observe(getViewLifecycleOwner(), transactions -> {
             transactionAdapter.submitList(transactions);
-
             if (transactions != null) {
                 boolean isEmpty = transactions.isEmpty();
                 binding.emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
@@ -156,6 +155,10 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                 super.onPageSelected(position);
                 String selectedCurrency = position == 0 ? "EUR" : "USD";
                 viewModel.setSelectedCurrency(selectedCurrency);
+
+                if (transactionAdapter != null) {
+                    transactionAdapter.setCurrentSelectedCurrency(selectedCurrency);
+                }
             }
         });
     }

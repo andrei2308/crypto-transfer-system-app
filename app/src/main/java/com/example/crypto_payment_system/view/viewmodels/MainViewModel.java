@@ -35,6 +35,7 @@ import com.example.crypto_payment_system.service.token.TokenContractServiceImpl;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
+import com.google.api.JwtLocation;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import org.json.JSONException;
@@ -602,9 +603,17 @@ public class MainViewModel extends AndroidViewModel {
             if ("EUR".equals(currency)) {
                 if (type.equals("EUR_TRANSFER") || type.equals("EUR_TO_USD")) {
                     include = true;
+                } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 1) {
+                    include = true;
+                } else if (type.equals("USD_TO_EUR") || (type.equals("USD_TO_EUR_TRANSFER") && transaction.getWalletAddressTo().equals(getActiveAccount().getValue().getAddress()))){
+                    include = true;
                 }
             } else if ("USD".equals(currency)) {
                 if (type.equals("USD_TRANSFER") || type.equals("USD_TO_EUR_TRANSFER")) {
+                    include = true;
+                } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 2) {
+                    include = true;
+                } else if (type.equals("EUR_TO_USD") || (type.equals("EUR_TO_USD_TRANSFER") && transaction.getWalletAddressTo().equals(getActiveAccount().getValue().getAddress()))){
                     include = true;
                 }
             }
