@@ -4,15 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorSurface"
     tools:context=".ui.home.HomeFragment">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/balanceCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@color/colorSurface"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -27,17 +30,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="visible"
-                app:tabBackground="@color/colorWhite"
-                app:tabTextColor="@color/colorPrimary"
+                android:background="@color/colorSurface"
+                app:tabBackground="@color/colorSurface"
+                app:tabTextColor="@color/textSecondary"
                 app:tabSelectedTextColor="@color/colorPrimary"
-                app:tabIndicatorColor="@color/colorPrimary" />
+                app:tabIndicatorColor="@color/colorPrimary"
+                app:tabIndicatorHeight="3dp"
+                app:tabTextAppearance="@style/TextAppearance.MaterialComponents.Button"
+                app:tabPaddingStart="16dp"
+                app:tabPaddingEnd="16dp"
+                app:tabGravity="fill" />
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/balanceViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:padding="16dp" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/transactionsHeader"
@@ -46,7 +56,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
         android:text="@string/recent_transactions"
+        android:textSize="20sp"
+        android:textStyle="bold"
         android:textColor="@color/textPrimary"
+        android:fontFamily="sans-serif-medium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/balanceCard" />
 
@@ -54,10 +67,10 @@
         android:id="@+id/emptyTransactionsMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="24dp"
         android:gravity="center"
         android:text="@string/no_transactions_found"
-        android:textAppearance="@style/TextAppearance.App.Body1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         android:textColor="@color/textSecondary"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/transactionsHeader"
@@ -68,9 +81,10 @@
         android:id="@+id/transactionsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:paddingBottom="8dp"
+        android:layout_marginTop="16dp"
+        android:paddingBottom="16dp"
         android:clipToPadding="false"
+        android:overScrollMode="never"
         app:layout_constraintTop_toBottomOf="@id/transactionsHeader"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_transaction" />

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -20,12 +19,16 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
+import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,8 +44,8 @@ public class ExchangeFragment extends Fragment {
     private ProgressBar progressBar;
     private Button calculateButton;
     private Button exchangeButton;
-    private ArrayAdapter<String> fromCurrencyAdapter;
-    private ArrayAdapter<String> toCurrencyAdapter;
+    private CurrencyAdapter fromCurrencyAdapter;
+    private CurrencyAdapter toCurrencyAdapter;
 
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
@@ -63,6 +66,9 @@ public class ExchangeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+
+        // Initialize CurrencyManager if not already initialized
+        CurrencyManager.initialize(requireContext());
 
         fromCurrencySpinner = view.findViewById(R.id.fromCurrencySpinner);
         toCurrencySpinner = view.findViewById(R.id.toCurrencySpinner);
@@ -85,11 +91,11 @@ public class ExchangeFragment extends Fragment {
         calculateButton.setOnClickListener(v -> calculateExchangeRate());
 
         exchangeButton.setOnClickListener(v -> {
-            String fromCurrency = (String) fromCurrencySpinner.getSelectedItem();
+            Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
             String amount = Objects.requireNonNull(fromAmountEditText.getText()).toString();
 
             if (fromCurrency != null && !amount.isEmpty()) {
-                executeExchange(fromCurrency, amount);
+                executeExchange(fromCurrency.getCode(), amount);
             } else {
                 Toast.makeText(requireContext(), R.string.please_select_a_currency_and_enter_an_amount,
                         Toast.LENGTH_SHORT).show();
@@ -102,20 +108,12 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void setupCurrencySpinners() {
-        fromCurrencyAdapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                new ArrayList<>()
-        );
-        fromCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Create adapters with all available currencies
+        List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
+        fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        
         fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
-
-        toCurrencyAdapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                new ArrayList<>()
-        );
-        toCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
         fromCurrencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -125,12 +123,15 @@ public class ExchangeFragment extends Fragment {
 
                 isSelectionInProgress = true;
 
-                String selectedCurrency = (String) parent.getItemAtPosition(position);
+                Currency selectedCurrency = fromCurrencyAdapter.getItem(position);
+                fromCurrencyAdapter.setSelectedCurrency(selectedCurrency.getCode());
 
+                // Select the other currency in the to-spinner
                 for (int i = 0; i < toCurrencyAdapter.getCount(); i++) {
-                    String currency = toCurrencyAdapter.getItem(i);
-                    if (currency != null && !currency.equals(selectedCurrency)) {
+                    Currency currency = toCurrencyAdapter.getItem(i);
+                    if (currency != null && !currency.getCode().equals(selectedCurrency.getCode())) {
                         toCurrencySpinner.setSelection(i);
+                        toCurrencyAdapter.setSelectedCurrency(currency.getCode());
                         break;
                     }
                 }
@@ -151,12 +152,15 @@ public class ExchangeFragment extends Fragment {
 
                 isSelectionInProgress = true;
 
-                String selectedCurrency = (String) parent.getItemAtPosition(position);
+                Currency selectedCurrency = toCurrencyAdapter.getItem(position);
+                toCurrencyAdapter.setSelectedCurrency(selectedCurrency.getCode());
 
+                // Select the other currency in the from-spinner
                 for (int i = 0; i < fromCurrencyAdapter.getCount(); i++) {
-                    String currency = fromCurrencyAdapter.getItem(i);
-                    if (currency != null && !currency.equals(selectedCurrency)) {
+                    Currency currency = fromCurrencyAdapter.getItem(i);
+                    if (currency != null && !currency.getCode().equals(selectedCurrency.getCode())) {
                         fromCurrencySpinner.setSelection(i);
+                        fromCurrencyAdapter.setSelectedCurrency(currency.getCode());
                         break;
                     }
                 }
@@ -185,51 +189,47 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateCurrencySpinners() {
-        fromCurrencyAdapter.clear();
-        fromCurrencyAdapter.add("EUR");
-        fromCurrencyAdapter.add("USD");
-        fromCurrencyAdapter.notifyDataSetChanged();
+        // Get all available currencies
+        List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
+        
+        // Create new adapters
+        fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        
+        // Set adapters
+        fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
+        toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
-        toCurrencyAdapter.clear();
-        toCurrencyAdapter.add("EUR");
-        toCurrencyAdapter.add("USD");
-        toCurrencyAdapter.notifyDataSetChanged();
-
-        fromCurrencySpinner.setSelection(0);
-        if (toCurrencyAdapter.getCount() > 1) {
-            toCurrencySpinner.setSelection(1);
+        // Default selection: From = EUR, To = USD if available
+        if (currencies.size() > 0) {
+            // Select first currency (EUR) for 'from'
+            fromCurrencySpinner.setSelection(0);
+            
+            if (currencies.size() > 1) {
+                // Select second currency (USD) for 'to'
+                toCurrencySpinner.setSelection(1);
+            }
         }
 
         enableExchangeFunctionality();
     }
 
     private void updateCurrencySpinners(String preferredCurrencies) {
-        String[] currencies = preferredCurrencies.split(",");
+        String[] currencyCodes = preferredCurrencies.split(",");
+        List<Currency> currencies = CurrencyManager.getCurrenciesByCodes(currencyCodes);
 
-        ArrayList<String> validCurrencies = new ArrayList<>();
-        for (String currency : currencies) {
-            String trimmedCurrency = currency.trim().toUpperCase();
-            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
-                validCurrencies.add(trimmedCurrency);
-            }
-        }
-
-        if (validCurrencies.size() <= 1) {
+        if (currencies.size() <= 1) {
             disableExchangeFunctionality(getString(R.string.exchange_unavailable_only_one_currency_is_configured));
 
-            fromCurrencyAdapter.clear();
-            toCurrencyAdapter.clear();
+            // Create adapters with the limited currencies
+            fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+            toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+            
+            // Set adapters
+            fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
+            toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
-            if (validCurrencies.size() == 1) {
-                String currency = validCurrencies.get(0);
-                fromCurrencyAdapter.add(currency);
-                toCurrencyAdapter.add(currency);
-            }
-
-            fromCurrencyAdapter.notifyDataSetChanged();
-            toCurrencyAdapter.notifyDataSetChanged();
-
-            if (fromCurrencyAdapter.getCount() > 0) {
+            if (currencies.size() == 1) {
                 fromCurrencySpinner.setSelection(0);
                 toCurrencySpinner.setSelection(0);
             }
@@ -239,31 +239,32 @@ public class ExchangeFragment extends Fragment {
 
         enableExchangeFunctionality();
 
-        String currentFromSelection = null;
-        String currentToSelection = null;
+        // Remember current selections if any
+        Currency currentFromSelection = null;
+        Currency currentToSelection = null;
 
-        if (fromCurrencySpinner.getSelectedItem() != null) {
-            currentFromSelection = fromCurrencySpinner.getSelectedItem().toString();
+        if (fromCurrencyAdapter != null && fromCurrencyAdapter.getSelectedCurrency() != null) {
+            currentFromSelection = fromCurrencyAdapter.getSelectedCurrency();
         }
-        if (toCurrencySpinner.getSelectedItem() != null) {
-            currentToSelection = toCurrencySpinner.getSelectedItem().toString();
-        }
-
-        fromCurrencyAdapter.clear();
-        toCurrencyAdapter.clear();
-
-        for (String currency : validCurrencies) {
-            fromCurrencyAdapter.add(currency);
-            toCurrencyAdapter.add(currency);
+        
+        if (toCurrencyAdapter != null && toCurrencyAdapter.getSelectedCurrency() != null) {
+            currentToSelection = toCurrencyAdapter.getSelectedCurrency();
         }
 
-        fromCurrencyAdapter.notifyDataSetChanged();
-        toCurrencyAdapter.notifyDataSetChanged();
+        // Create new adapters with preferred currencies
+        fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        
+        // Set adapters
+        fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
+        toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
+        // Try to restore previous selections
         boolean fromSelectionRestored = false;
         if (currentFromSelection != null) {
             for (int i = 0; i < fromCurrencyAdapter.getCount(); i++) {
-                if (Objects.equals(fromCurrencyAdapter.getItem(i), currentFromSelection)) {
+                Currency currency = fromCurrencyAdapter.getItem(i);
+                if (currency != null && currency.getCode().equals(currentFromSelection.getCode())) {
                     fromCurrencySpinner.setSelection(i);
                     fromSelectionRestored = true;
                     break;
@@ -274,7 +275,8 @@ public class ExchangeFragment extends Fragment {
         boolean toSelectionRestored = false;
         if (currentToSelection != null) {
             for (int i = 0; i < toCurrencyAdapter.getCount(); i++) {
-                if (Objects.equals(toCurrencyAdapter.getItem(i), currentToSelection)) {
+                Currency currency = toCurrencyAdapter.getItem(i);
+                if (currency != null && currency.getCode().equals(currentToSelection.getCode())) {
                     toCurrencySpinner.setSelection(i);
                     toSelectionRestored = true;
                     break;
@@ -282,173 +284,178 @@ public class ExchangeFragment extends Fragment {
             }
         }
 
-        if (!fromSelectionRestored && fromCurrencyAdapter.getCount() > 0) {
+        // Default selections if not restored
+        if (!fromSelectionRestored && currencies.size() > 0) {
             fromCurrencySpinner.setSelection(0);
         }
 
-        if (!toSelectionRestored) {
-            if (toCurrencyAdapter.getCount() > 1 && fromCurrencySpinner.getSelectedItem() != null) {
-                String fromCurrency = fromCurrencySpinner.getSelectedItem().toString();
-                for (int i = 0; i < toCurrencyAdapter.getCount(); i++) {
-                    if (!Objects.equals(toCurrencyAdapter.getItem(i), fromCurrency)) {
-                        toCurrencySpinner.setSelection(i);
-                        return;
-                    }
-                }
-            }
-
-            if (toCurrencyAdapter.getCount() > 0) {
-                toCurrencySpinner.setSelection(0);
-            }
+        if (!toSelectionRestored && currencies.size() > 1) {
+            toCurrencySpinner.setSelection(1);
         }
     }
 
     private void resetCurrencySpinners() {
-        fromCurrencyAdapter.clear();
-        fromCurrencyAdapter.add("EUR");
-        fromCurrencyAdapter.add("USD");
-        fromCurrencyAdapter.notifyDataSetChanged();
+        // Get all available currencies
+        List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
+        
+        // Create new adapters
+        fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        
+        // Set adapters
+        fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
+        toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
-        toCurrencyAdapter.clear();
-        toCurrencyAdapter.add("EUR");
-        toCurrencyAdapter.add("USD");
-        toCurrencyAdapter.notifyDataSetChanged();
-
-        fromCurrencySpinner.setSelection(0);
-        if (toCurrencyAdapter.getCount() > 1) {
-            toCurrencySpinner.setSelection(1);
-        } else {
-            toCurrencySpinner.setSelection(0);
+        // Default selections
+        if (currencies.size() > 0) {
+            fromCurrencySpinner.setSelection(0);
+            
+            if (currencies.size() > 1) {
+                toCurrencySpinner.setSelection(1);
+            }
         }
-
-        enableExchangeFunctionality();
     }
 
     private void disableExchangeFunctionality(String message) {
-        fromCurrencySpinner.setEnabled(false);
-        toCurrencySpinner.setEnabled(false);
         fromAmountEditText.setEnabled(false);
         calculateButton.setEnabled(false);
         exchangeButton.setEnabled(false);
-
-        resultTextView.setText(message);
         exchangeRateValue.setText("--");
         estimatedAmountValue.setText("--");
+        resultTextView.setText(message);
     }
 
     private void enableExchangeFunctionality() {
-        fromCurrencySpinner.setEnabled(true);
-        toCurrencySpinner.setEnabled(true);
         fromAmountEditText.setEnabled(true);
         calculateButton.setEnabled(true);
         exchangeButton.setEnabled(true);
-
         resultTextView.setText(R.string.exchange_transaction_results_will_appear_here);
     }
 
     @SuppressLint("DefaultLocale")
     private void calculateExchangeRate() {
-        String fromCurrency = (String) fromCurrencySpinner.getSelectedItem();
-        String toCurrency = (String) toCurrencySpinner.getSelectedItem();
-        String amount = Objects.requireNonNull(fromAmountEditText.getText()).toString();
-
-        if (fromCurrency != null && toCurrency != null && !amount.isEmpty()) {
-            double rate = 0;
-            if ("EUR".equals(fromCurrency) && "USD".equals(toCurrency)) {
-                rate = 1.09;
-            } else if ("USD".equals(fromCurrency) && "EUR".equals(toCurrency)) {
-                rate = 0.92;
-            }
-
-            if (rate > 0) {
-                try {
-                    double amountValue = Double.parseDouble(amount);
-                    double estimatedAmount = amountValue * rate;
-
-                    exchangeRateValue.setText(String.format("1 %s = %.2f %s",
-                            fromCurrency, rate, toCurrency));
-                    estimatedAmountValue.setText(String.format("%.2f %s",
-                            estimatedAmount, toCurrency));
-                } catch (NumberFormatException e) {
-                    Toast.makeText(requireContext(), R.string.please_enter_a_valid_amount,
-                            Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(requireContext(), R.string.exchange_rate_not_available_for_selected_currencies,
-                        Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(requireContext(), R.string.please_fill_in_all_fields,
-                    Toast.LENGTH_SHORT).show();
-        }
+//        String amount = Objects.requireNonNull(fromAmountEditText.getText()).toString();
+//        if (amount.isEmpty()) {
+//            fromAmountEditText.setError(getString(R.string.please_enter_a_valid_amount));
+//            return;
+//        }
+//
+//        Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
+//        Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
+//
+//        if (fromCurrency == null || toCurrency == null) {
+//            Toast.makeText(requireContext(), R.string.please_select_a_currency, Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//
+//        String fromCode = fromCurrency.getCode();
+//        String toCode = toCurrency.getCode();
+//
+//        progressBar.setVisibility(View.VISIBLE);
+//        viewModel.getExchangeRate(fromCode, toCode, amount).thenAccept(rate -> {
+//            requireActivity().runOnUiThread(() -> {
+//                progressBar.setVisibility(View.GONE);
+//
+//                if (rate > 0) {
+//                    double estimatedAmount = Double.parseDouble(amount) * rate;
+//                    exchangeRateValue.setText(String.format("1 %s = %.4f %s", fromCode, rate, toCode));
+//                    estimatedAmountValue.setText(String.format("%.2f %s", estimatedAmount, toCode));
+//                    exchangeButton.setEnabled(true);
+//                } else {
+//                    exchangeRateValue.setText(R.string.exchange_rate_not_available_for_selected_currencies);
+//                    estimatedAmountValue.setText("--");
+//                    exchangeButton.setEnabled(false);
+//                }
+//            });
+//        });
     }
 
     private void executeExchange(String fromCurrency, String amount) {
-        resultTextView.setText(getString(R.string.starting_exchange_for) + amount + " " + fromCurrency + "...");
+        if (fromAmountEditText.getText() == null || fromAmountEditText.getText().toString().isEmpty()) {
+            Toast.makeText(requireContext(), R.string.please_fill_in_all_fields, Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        showLoading(true);
+        resultTextView.setText(getString(R.string.starting_exchange_for) + amount + " " + fromCurrency);
+        progressBar.setVisibility(View.VISIBLE);
+        exchangeButton.setEnabled(false);
 
         viewModel.exchangeBasedOnPreference(fromCurrency, amount);
     }
 
     private void observeViewModel() {
+        // Remove existing observer if any
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
 
+        // Create a new observer
         transactionObserver = result -> {
-            showLoading(false);
+            progressBar.setVisibility(View.GONE);
+            exchangeButton.setEnabled(true);
 
             if (result == null) return;
 
             if (result.isSuccess()) {
+                Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
+                Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
+                String amount = fromAmountEditText.getText().toString();
+
                 resultTextView.setText(getString(R.string.exchanged) +
-                        fromAmountEditText.getText().toString().trim() + " " +
-                        fromCurrencySpinner.getSelectedItem().toString() +
+                        amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???") +
+                        " to " + (toCurrency != null ? toCurrency.getCode() : "???") +
                         "\nTransaction ID: " + result.getTransactionHash());
 
+                // Clear input
                 fromAmountEditText.setText("");
-
                 exchangeRateValue.setText("--");
                 estimatedAmountValue.setText("--");
 
+                // Refresh balances
                 refreshBalances();
             } else {
                 resultTextView.setText(getString(R.string.transaction_failed) + result.getMessage());
             }
         };
 
+        // Register the observer
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
 
+        // Observe token balances
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateBalanceUI);
     }
 
     private void refreshBalances() {
+        progressBar.setVisibility(View.VISIBLE);
         viewModel.checkAllBalances();
     }
 
     private void updateBalanceUI(Map<String, TokenBalance> balances) {
-        if (balances == null) return;
+        progressBar.setVisibility(View.GONE);
 
         if (balances.containsKey("EURC")) {
             eurBalanceValue.setText(balances.get("EURC").getFormattedWalletBalance() + " EUR");
+        } else {
+            eurBalanceValue.setText("0 EUR");
         }
+
         if (balances.containsKey("USDT")) {
             usdBalanceValue.setText(balances.get("USDT").getFormattedWalletBalance() + " USD");
+        } else {
+            usdBalanceValue.setText("0 USD");
         }
     }
 
     private void showLoading(boolean isLoading) {
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         exchangeButton.setEnabled(!isLoading);
-        calculateButton.setEnabled(!isLoading);
     }
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
+        super.onDestroyView();
     }
 }

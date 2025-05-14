@@ -127,6 +127,15 @@
     <string name="loading_data">Loading data ...</string>
     <string name="no_transactions_found">No transactions found</string>
     <string name="recent_transactions">Recent transactions</string>
+    <string name="wallet_icon">Wallet icon</string>
+    <string name="add_account">Add account</string>
+    <string name="technical_details">Technical details</string>
+    <string name="cancel">Cancel</string>
+    <string name="select">Select</string>
+    <string name="currency_flag">Currency flag</string>
+    <string name="selected">Selected</string>
+    <string name="euro">Euro</string>
+    <string name="us_dollar">US Dollar</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">

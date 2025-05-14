@@ -8,17 +8,18 @@
     android:visibility="gone"
     android:clickable="true"
     android:focusable="true"
-    android:background="#FFFFFF"
+    android:background="#CCFFFFFF"
     android:layout_marginStart="0dp"
     android:layout_marginEnd="0dp"
-    android:elevation="5dp">
+    android:elevation="100dp">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp"
         app:cardBackgroundColor="@color/colorWhite">
 
         <LinearLayout
@@ -26,21 +27,26 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="24dp">
+            android:padding="32dp">
 
-            <ProgressBar
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:indeterminateTint="@color/colorPrimary"/>
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:indeterminate="true"
+                app:indicatorColor="@color/colorPrimary"
+                app:trackColor="@color/colorPrimaryLight"
+                app:indicatorSize="48dp"
+                app:trackThickness="4dp"/>
 
             <TextView
                 android:id="@+id/loading_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/loading_data"
                 android:textSize="16sp"
-                android:textColor="@color/colorPrimary"/>
+                android:textColor="@color/textPrimary"
+                android:fontFamily="sans-serif-medium"/>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </FrameLayout>

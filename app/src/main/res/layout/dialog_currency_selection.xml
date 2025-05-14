@@ -1,41 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/colorWhite">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    android:layout_margin="16dp">
 
-    <TextView
-        style="@style/Widget.App.TextView.Subtitle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/select_currency"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/colorSurface">
 
-    <RadioGroup
-        android:id="@+id/currencyRadioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <RadioButton
-            android:id="@+id/radioEUR"
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Headline6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/eur"
-            android:padding="8dp"
-            android:textColor="@color/textPrimary"
-            android:buttonTint="@color/colorPrimary"/>
+            android:text="@string/select_currency"
+            android:layout_marginBottom="16dp"
+            android:textAlignment="center"/>
 
-        <RadioButton
-            android:id="@+id/radioUSD"
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            app:dividerColor="@color/dividerColor"
+            android:layout_marginBottom="16dp"/>
+
+        <RadioGroup
+            android:id="@+id/currencyRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/usd"
-            android:padding="8dp"
-            android:textColor="@color/textPrimary"
-            android:buttonTint="@color/colorPrimary"/>
-    </RadioGroup>
+            android:orientation="vertical">
 
-</LinearLayout>
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/radioEUR"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/eur"
+                android:padding="12dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:buttonTint="@color/colorPrimary"/>
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/radioUSD"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/usd"
+                android:padding="12dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:buttonTint="@color/colorPrimary"/>
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancelButton"
+                style="@style/Widget.App.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/cancel" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/selectButton"
+                style="@style/Widget.App.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
