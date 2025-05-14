@@ -1,116 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/colorOffWhite">
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="6dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/colorWhite"
+    android:layout_margin="16dp">
 
-    <TextView
-        style="@style/Widget.App.TextView.Title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/manage_preferred_currencies"
-        android:textSize="20sp"
-        android:textColor="@color/colorPrimaryDark"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="@android:color/transparent">
 
-    <TextView
-        style="@style/Widget.App.TextView.Subtitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/wallet_address"
-        android:textStyle="bold"
-        android:layout_marginTop="8dp" />
-
-    <TextView
-        android:id="@+id/wallet_address_text"
-        style="@style/Widget.App.TextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/not_connected"
-        android:textIsSelectable="true"
-        android:fontFamily="monospace"
-        android:textColor="@color/textPrimary"
-        android:layout_marginBottom="16dp" />
-
-    <TextView
-        style="@style/Widget.App.TextView.Subtitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/select_your_preferred_currencies"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp" />
-
-    <TextView
-        style="@style/Widget.App.TextView.Caption"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/you_can_select_multiple_currencies_the_first_selected_currency_will_be_considered_your_primary_currency"
-        android:layout_marginBottom="16dp" />
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/colorWhite"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
+        <TextView
+            style="@style/Widget.App.TextView.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_preferred_currencies"
+            android:textSize="22sp"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginBottom="20dp"
+            android:fontFamily="sans-serif-medium" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
-            <CheckBox
-                android:id="@+id/checkbox_eur"
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_wallet"
+                app:tint="@color/colorPrimary"
+                android:contentDescription="@string/wallet_icon" />
+
+            <TextView
+                style="@style/Widget.App.TextView.Subtitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/eur_euro"
-                android:textSize="16sp"
-                android:textColor="@color/textPrimary"
-                android:buttonTint="@color/colorPrimary"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorGray200"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
-
-            <CheckBox
-                android:id="@+id/checkbox_usd"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/usd_us_dollar"
-                android:textSize="16sp"
-                android:textColor="@color/textPrimary"
-                android:buttonTint="@color/colorPrimary"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp" />
+                android:text="@string/wallet_address"
+                android:textStyle="bold"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/textPrimary" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <TextView
-        style="@style/Widget.App.TextView.Caption"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/note_your_preferred_currencies_are_used_to_determine_which_tokens_you_want_to_use_for_transactions_make_sure_you_have_liquidity_for_these_currencies"
-        android:textStyle="italic"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
+        <TextView
+            android:id="@+id/wallet_address_text"
+            style="@style/Widget.App.TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/not_connected"
+            android:textIsSelectable="true"
+            android:fontFamily="monospace"
+            android:textColor="@color/textPrimary"
+            android:layout_marginBottom="18dp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/save_currencies_button"
-        style="@style/Widget.App.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/save_preferences"
-        android:layout_marginTop="8dp" />
+        <TextView
+            style="@style/Widget.App.TextView.Subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/select_your_preferred_currencies"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/textPrimary" />
 
-</LinearLayout>
+        <TextView
+            style="@style/Widget.App.TextView.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/you_can_select_multiple_currencies_the_first_selected_currency_will_be_considered_your_primary_currency"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/textSecondary" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/dividerColor"
+            android:alpha="0.2"
+            android:layout_marginBottom="12dp" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox_eur"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/eur_euro"
+            android:textSize="16sp"
+            android:textColor="@color/textPrimary"
+            app:buttonTint="@color/colorPrimary"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/dividerColor"
+            android:alpha="0.2"
+            android:layout_marginVertical="8dp" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox_usd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/usd_us_dollar"
+            android:textSize="16sp"
+            android:textColor="@color/textPrimary"
+            app:buttonTint="@color/colorPrimary"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+
+        <TextView
+            style="@style/Widget.App.TextView.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/note_your_preferred_currencies_are_used_to_determine_which_tokens_you_want_to_use_for_transactions_make_sure_you_have_liquidity_for_these_currencies"
+            android:textStyle="italic"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="18dp"
+            android:textColor="@color/textSecondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save_currencies_button"
+            style="@style/Widget.App.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/save_preferences"
+            android:textSize="16sp"
+            android:icon="@drawable/ic_wallet"
+            android:iconTint="@color/textOnPrimary"
+            android:layout_marginTop="8dp"
+            app:cornerRadius="16dp" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

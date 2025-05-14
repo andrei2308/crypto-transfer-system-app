@@ -97,6 +97,18 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
                 iconResId = R.drawable.ic_transaction_add;
             } else if ("REMOVE_LIQUIDITY".equals(type)) {
                 iconResId = R.drawable.ic_transaction_remove;
+            } else if ("EUR_TO_USD".equals(type)) {
+                iconResId = R.drawable.ic_transaction_eur_to_usd;
+            } else if ("USD_TO_EUR".equals(type)) {
+                iconResId = R.drawable.ic_transaction_usd_to_eur;
+            } else if ("EUR_TRANSFER".equals(type)) {
+                iconResId = R.drawable.ic_transaction_eur_transfer;
+            } else if ("USD_TRANSFER".equals(type)) {
+                iconResId = R.drawable.ic_transaction_usd_transfer;
+            } else if ("EUR_TO_USD_TRANSFER".equals(type)) {
+                iconResId = R.drawable.ic_transaction_eur_to_usd_transfer;
+            } else if ("USD_TO_EUR_TRANSFER".equals(type)) {
+                iconResId = R.drawable.ic_transaction_usd_to_eur_transfer;
             } else if (("EUR TRANSFER".equals(type) || "USD TRANSFER".equals(type)) && transaction.getWalletAddress().equals(transaction.getWalletAddressTo())) {
                 iconResId = R.drawable.ic_transaction_swap;
             } else {

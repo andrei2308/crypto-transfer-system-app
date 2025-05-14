@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="176dp"
     android:background="@drawable/gradient_background"
@@ -9,28 +10,43 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.MaterialComponents.Dark">
 
-    <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:contentDescription="@string/gcm_defaultSenderId"
-        android:paddingTop="8dp"
-        android:src="@drawable/common_full_open_on_phone" />
-
-    <TextView
-        style="@style/TextAppearance.App.Headline6"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@string/crypto_payment_system"
+            android:src="@drawable/ic_crypto_logo" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="wallet"
+            android:src="@drawable/ic_wallet_outlined" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/crypto_payment_system"
         android:textColor="@color/textWhite"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/walletAddressText"
-        style="@style/TextAppearance.App.Caption"
+        style="@style/TextAppearance.MaterialComponents.Caption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="@string/connect_to_view_wallet_address"
-        android:textColor="@color/colorWhite" />
+        android:textColor="@color/textWhite"
+        android:alpha="0.8" />
 
 </LinearLayout>

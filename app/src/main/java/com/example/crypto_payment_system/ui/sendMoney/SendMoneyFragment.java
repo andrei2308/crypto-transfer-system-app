@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -19,12 +18,16 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.account.User;
+import com.example.crypto_payment_system.domain.currency.Currency;
+import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
+import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class SendMoneyFragment extends Fragment {
@@ -35,7 +38,7 @@ public class SendMoneyFragment extends Fragment {
     private Spinner currencySpinner;
     private TextView resultTextView;
     private ProgressBar progressBar;
-    private ArrayAdapter<String> currencyAdapter;
+    private CurrencyAdapter currencyAdapter;
     private Observer<TransactionResult> transactionObserver;
 
     @Nullable
@@ -44,6 +47,9 @@ public class SendMoneyFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_send_money, container, false);
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+
+        // Initialize CurrencyManager if not already initialized
+        CurrencyManager.initialize(requireContext());
 
         addressTeit = root.findViewById(R.id.address_teit);
         amountTeit = root.findViewById(R.id.amount_teit);
@@ -62,15 +68,31 @@ public class SendMoneyFragment extends Fragment {
     }
 
     private void setupCurrencySpinner() {
-        currencyAdapter = new ArrayAdapter<>(
+        // Create adapter with all available currencies
+        currencyAdapter = new CurrencyAdapter(
                 requireContext(),
-                android.R.layout.simple_spinner_item,
-                new ArrayList<>()
+                new ArrayList<>(CurrencyManager.getAvailableCurrencies())
         );
-        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         currencySpinner.setAdapter(currencyAdapter);
 
+        // Setup default currencies
         updateCurrencySpinner();
+        
+        // Add item selection listener to handle currency changes
+        currencySpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                Currency selectedCurrency = currencyAdapter.getItem(position);
+                if (selectedCurrency != null) {
+                    currencyAdapter.setSelectedCurrency(selectedCurrency.getCode());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
 
         viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
@@ -85,51 +107,68 @@ public class SendMoneyFragment extends Fragment {
     }
 
     private void updateCurrencySpinner() {
-        currencyAdapter.clear();
-        currencyAdapter.add("EUR");
-        currencyAdapter.add("USD");
-        currencyAdapter.notifyDataSetChanged();
+        // Default to showing all available currencies
+        List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
+        currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        currencySpinner.setAdapter(currencyAdapter);
+        
+        // Select EUR by default
+        for (int i = 0; i < currencyAdapter.getCount(); i++) {
+            Currency currency = currencyAdapter.getItem(i);
+            if (currency != null && "EUR".equals(currency.getCode())) {
+                currencySpinner.setSelection(i);
+                break;
+            }
+        }
     }
 
     private void updateCurrencySpinner(String preferredCurrencies) {
-        String[] currencies = preferredCurrencies.split(",");
+        String[] currencyCodes = preferredCurrencies.split(",");
+        List<Currency> currencies = CurrencyManager.getCurrenciesByCodes(currencyCodes);
 
+        // Remember the previously selected currency code
         String currentSelection = null;
-        if (currencySpinner.getSelectedItem() != null) {
-            currentSelection = currencySpinner.getSelectedItem().toString();
+        if (currencyAdapter != null && currencyAdapter.getSelectedCurrency() != null) {
+            currentSelection = currencyAdapter.getSelectedCurrency().getCode();
         }
 
-        currencyAdapter.clear();
+        // Create a new adapter with the preferred currencies
+        currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        currencySpinner.setAdapter(currencyAdapter);
 
-        for (String currency : currencies) {
-            String trimmedCurrency = currency.trim().toUpperCase();
-            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
-                currencyAdapter.add(trimmedCurrency);
-            }
-        }
-
-        currencyAdapter.notifyDataSetChanged();
-
+        // Try to restore the previous selection
         if (currentSelection != null) {
+            // Find the position of the previously selected currency
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
-                if (Objects.equals(currencyAdapter.getItem(i), currentSelection)) {
+                Currency currency = currencyAdapter.getItem(i);
+                if (currency != null && currency.getCode().equals(currentSelection)) {
                     currencySpinner.setSelection(i);
                     return;
                 }
             }
         }
-
-        if (currencyAdapter.getCount() > 0) {
+        
+        // If previous selection not found or no previous selection, select the first currency
+        if (!currencies.isEmpty()) {
             currencySpinner.setSelection(0);
+            currencyAdapter.setSelectedCurrency(currencies.get(0).getCode());
         }
     }
 
     private void resetCurrencySpinner() {
-        currencyAdapter.clear();
-        currencyAdapter.add("EUR");
-        currencyAdapter.add("USD");
-        currencyAdapter.notifyDataSetChanged();
-        currencySpinner.setSelection(0);
+        // Reset to all available currencies
+        List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
+        currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        currencySpinner.setAdapter(currencyAdapter);
+        
+        // Select EUR by default
+        for (int i = 0; i < currencyAdapter.getCount(); i++) {
+            Currency currency = currencyAdapter.getItem(i);
+            if (currency != null && "EUR".equals(currency.getCode())) {
+                currencySpinner.setSelection(i);
+                break;
+            }
+        }
     }
 
     @Override
@@ -168,10 +207,14 @@ public class SendMoneyFragment extends Fragment {
                 return;
             }
 
-            String currency = "EUR";
-            if (currencySpinner.getSelectedItem() != null) {
-                currency = currencySpinner.getSelectedItem().toString();
+            // Get the selected currency
+            Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+            if (selectedCurrency == null) {
+                // Fallback to EUR if no currency is selected
+                selectedCurrency = CurrencyManager.getCurrencyByCode("EUR");
             }
+            
+            String currency = selectedCurrency.getCode();
 
             BigDecimal decimalAmount = BigDecimal.valueOf(amount);
             BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));

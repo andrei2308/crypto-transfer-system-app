@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -18,12 +17,16 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
+import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -35,7 +38,7 @@ public class AddLiquidityFragment extends Fragment {
     private TextView resultTextView;
     private ProgressBar progressBar;
     private Button addLiquidityButton;
-    private ArrayAdapter<String> currencyAdapter;
+    private CurrencyAdapter currencyAdapter;
 
     // Wallet balance views
     private TextView eurBalanceValue;
@@ -60,6 +63,9 @@ public class AddLiquidityFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        // Initialize CurrencyManager if not already initialized
+        CurrencyManager.initialize(requireContext());
+
         currencySpinner = view.findViewById(R.id.currencySpinner);
         amountEditText = view.findViewById(R.id.amountEditText);
         resultTextView = view.findViewById(R.id.resultTextView);
@@ -80,17 +86,15 @@ public class AddLiquidityFragment extends Fragment {
         setupCurrencySpinner();
 
         addLiquidityButton.setOnClickListener(v -> {
-            if (currencySpinner.getSelectedItem() != null) {
-                String selectedCurrency = currencySpinner.getSelectedItem().toString();
-                String amount = Objects.requireNonNull(amountEditText.getText()).toString();
+            Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+            String amount = Objects.requireNonNull(amountEditText.getText()).toString();
 
-                if (!amount.isEmpty()) {
-                    addLiquidity(selectedCurrency, amount);
-                } else {
-                    Toast.makeText(requireContext(), R.string.please_enter_an_amount, Toast.LENGTH_SHORT).show();
-                }
-            } else {
+            if (selectedCurrency != null && !amount.isEmpty()) {
+                addLiquidity(selectedCurrency.getCode(), amount);
+            } else if (selectedCurrency == null) {
                 Toast.makeText(requireContext(), R.string.please_select_a_currency, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), R.string.please_enter_an_amount, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -100,13 +104,28 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void setupCurrencySpinner() {
-        currencyAdapter = new ArrayAdapter<>(
+        // Create adapter with all available currencies
+        currencyAdapter = new CurrencyAdapter(
                 requireContext(),
-                android.R.layout.simple_spinner_item,
-                new ArrayList<>()
+                new ArrayList<>(CurrencyManager.getAvailableCurrencies())
         );
-        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         currencySpinner.setAdapter(currencyAdapter);
+
+        // Add item selection listener to handle currency changes
+        currencySpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                Currency selectedCurrency = currencyAdapter.getItem(position);
+                if (selectedCurrency != null) {
+                    currencyAdapter.setSelectedCurrency(selectedCurrency.getCode());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
 
         updateCurrencySpinner();
 
@@ -123,62 +142,78 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void updateCurrencySpinner() {
-        currencyAdapter.clear();
-        currencyAdapter.add("EUR");
-        currencyAdapter.add("USD");
-        currencyAdapter.notifyDataSetChanged();
-
-        if (currencyAdapter.getCount() > 0) {
-            currencySpinner.setSelection(0);
+        // Get all available currencies
+        List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
+        
+        // Create new adapter
+        currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        currencySpinner.setAdapter(currencyAdapter);
+        
+        // Default selection: EUR
+        if (currencies.size() > 0) {
+            for (int i = 0; i < currencyAdapter.getCount(); i++) {
+                Currency currency = currencyAdapter.getItem(i);
+                if (currency != null && "EUR".equals(currency.getCode())) {
+                    currencySpinner.setSelection(i);
+                    break;
+                }
+            }
         }
     }
 
     private void updateCurrencySpinner(String preferredCurrencies) {
-        String[] currencies = preferredCurrencies.split(",");
+        String[] currencyCodes = preferredCurrencies.split(",");
+        List<Currency> currencies = CurrencyManager.getCurrenciesByCodes(currencyCodes);
 
+        // Remember the previously selected currency code
         String currentSelection = null;
-        if (currencySpinner.getSelectedItem() != null) {
-            currentSelection = currencySpinner.getSelectedItem().toString();
+        if (currencyAdapter != null && currencyAdapter.getSelectedCurrency() != null) {
+            currentSelection = currencyAdapter.getSelectedCurrency().getCode();
         }
 
-        currencyAdapter.clear();
+        // Create a new adapter with the preferred currencies
+        currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        currencySpinner.setAdapter(currencyAdapter);
 
-        for (String currency : currencies) {
-            String trimmedCurrency = currency.trim().toUpperCase();
-            if (trimmedCurrency.equals("EUR") || trimmedCurrency.equals("USD")) {
-                currencyAdapter.add(trimmedCurrency);
-            }
-        }
-
-        currencyAdapter.notifyDataSetChanged();
-
+        // Try to restore the previous selection
         if (currentSelection != null) {
+            // Find the position of the previously selected currency
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
-                if (Objects.equals(currencyAdapter.getItem(i), currentSelection)) {
+                Currency currency = currencyAdapter.getItem(i);
+                if (currency != null && currency.getCode().equals(currentSelection)) {
                     currencySpinner.setSelection(i);
                     return;
                 }
             }
         }
-
-        if (currencyAdapter.getCount() > 0) {
+        
+        // If previous selection not found or no previous selection, select the first currency
+        if (!currencies.isEmpty()) {
             currencySpinner.setSelection(0);
         }
     }
 
     private void resetCurrencySpinner() {
-        currencyAdapter.clear();
-        currencyAdapter.add("EUR");
-        currencyAdapter.add("USD");
-        currencyAdapter.notifyDataSetChanged();
-        currencySpinner.setSelection(0);
+        // Reset to all available currencies
+        List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
+        
+        // Create new adapter
+        currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
+        currencySpinner.setAdapter(currencyAdapter);
+        
+        // Default selection: EUR
+        for (int i = 0; i < currencyAdapter.getCount(); i++) {
+            Currency currency = currencyAdapter.getItem(i);
+            if (currency != null && "EUR".equals(currency.getCode())) {
+                currencySpinner.setSelection(i);
+                break;
+            }
+        }
     }
 
     private void addLiquidity(String currency, String amount) {
         resultTextView.setText(getString(R.string.adding_liquidity) + amount + " " + currency + "...");
-
         showLoading(true);
-
         viewModel.addLiquidity(currency, amount);
     }
 
@@ -193,9 +228,11 @@ public class AddLiquidityFragment extends Fragment {
             if (result == null) return;
 
             if (result.isSuccess()) {
+                Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+                String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
+                
                 resultTextView.setText(getString(R.string.added) +
-                        amountEditText.getText().toString().trim() + " " +
-                        currencySpinner.getSelectedItem().toString() +
+                        amountEditText.getText().toString().trim() + " " + currencyCode +
                         getString(R.string.transaction_id) + result.getTransactionHash());
 
                 amountEditText.setText("");
@@ -248,9 +285,9 @@ public class AddLiquidityFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
+        super.onDestroyView();
     }
 }
