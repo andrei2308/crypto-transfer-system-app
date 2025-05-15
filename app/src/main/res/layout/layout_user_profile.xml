@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="16dp"
+    android:paddingBottom="24dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/userIconContainer"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ethereumIconView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:src="@drawable/ic_ethereum"
+            android:contentDescription="@string/crypto_payment_system"
+            android:scaleType="centerInside"/>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/welcomeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/welcome"
+        android:textColor="@color/textSecondary"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/userIconContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/userIconContainer" />
+
+    <TextView
+        android:id="@+id/userAddressTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="0x..."
+        android:textColor="@color/textPrimary"
+        android:textSize="16sp"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        app:layout_constraintStart_toEndOf="@id/userIconContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/welcomeTextView" />
+
+    <TextView
+        android:id="@+id/connectedStatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/connected"
+        android:textColor="@color/colorSuccess"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        app:layout_constraintStart_toEndOf="@id/userIconContainer"
+        app:layout_constraintTop_toBottomOf="@id/userAddressTextView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

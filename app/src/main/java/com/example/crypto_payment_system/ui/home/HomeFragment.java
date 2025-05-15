@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.databinding.FragmentHomeBinding;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
@@ -35,6 +36,9 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     private TabLayout balanceTabLayout;
     private BalancePagerAdapter balancePagerAdapter;
     private TextView emptyTransactionsMessage;
+    private TextView userAddressTextView;
+    private TextView welcomeTextView;
+    private TextView connectedStatusTextView;
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
@@ -67,9 +71,23 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     }
 
     private void setupViews() {
-        balanceViewPager = binding.balanceViewPager;
-        balanceTabLayout = binding.balanceTabLayout;
-        emptyTransactionsMessage = binding.emptyTransactionsMessage;
+        balanceViewPager = binding.accountsPager;
+        balanceTabLayout = binding.pagerIndicator;
+        emptyTransactionsMessage = new TextView(requireContext());
+        emptyTransactionsMessage.setVisibility(View.GONE);
+        
+        // Get references from the included layout
+        userAddressTextView = binding.profileSection.userAddressTextView;
+        welcomeTextView = binding.profileSection.welcomeTextView;
+        connectedStatusTextView = binding.profileSection.connectedStatusTextView;
+        
+        // Set welcome text and wallet address when available
+        if (viewModel != null && viewModel.getCurrentUser().getValue() != null) {
+            String walletAddress = viewModel.getCurrentUser().getValue().getWalletAddress();
+            if (walletAddress != null && !walletAddress.isEmpty()) {
+                userAddressTextView.setText(walletAddress);
+            }
+        }
     }
 
     private void setupObservers() {
@@ -77,7 +95,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             transactionAdapter.submitList(transactions);
             if (transactions != null) {
                 boolean isEmpty = transactions.isEmpty();
-                binding.emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
                 binding.transactionsRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
             }
         });
@@ -105,6 +123,12 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                     }).attach();
                 } else {
                     balanceTabLayout.setVisibility(View.GONE);
+                }
+                
+                // Update wallet address when user data changes
+                String walletAddress = user.getWalletAddress();
+                if (walletAddress != null && !walletAddress.isEmpty()) {
+                    userAddressTextView.setText(walletAddress);
                 }
             }
         });
