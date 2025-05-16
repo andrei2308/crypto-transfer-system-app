@@ -95,6 +95,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             transactionAdapter.submitList(transactions);
             if (transactions != null) {
                 boolean isEmpty = transactions.isEmpty();
+                binding.transactionsRecyclerView.scrollToPosition(0);
                 emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
                 binding.transactionsRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
             }
@@ -183,6 +184,8 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                 if (transactionAdapter != null) {
                     transactionAdapter.setCurrentSelectedCurrency(selectedCurrency);
 
+                    binding.transactionsRecyclerView.scrollToPosition(0);
+
                 }
             }
         });
@@ -203,7 +206,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                 String newAddress = account.getAddress();
                 transactionAdapter = new TransactionAdapter(this, newAddress);
                 binding.transactionsRecyclerView.setAdapter(transactionAdapter);
-
+                binding.transactionsRecyclerView.scrollToPosition(0);
                 if (viewModel.getFilteredTransactions().getValue() != null) {
                     transactionAdapter.submitList(viewModel.getFilteredTransactions().getValue());
                 }

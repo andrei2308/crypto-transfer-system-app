@@ -5,13 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -39,6 +40,7 @@ public class AddLiquidityFragment extends Fragment {
     private ProgressBar progressBar;
     private Button addLiquidityButton;
     private CurrencyAdapter currencyAdapter;
+    private FrameLayout buttonProgressContainer;
 
     // Wallet balance views
     private TextView eurBalanceValue;
@@ -80,6 +82,7 @@ public class AddLiquidityFragment extends Fragment {
         contractEurBalanceValue = view.findViewById(R.id.contractEurBalanceValue);
         contractUsdBalanceValue = view.findViewById(R.id.contractUsdBalanceValue);
         refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
+        buttonProgressContainer = view.findViewById(R.id.buttonProgressContainer);
 
         refreshBalanceButton.setOnClickListener(v -> refreshBalances());
 
@@ -280,7 +283,10 @@ public class AddLiquidityFragment extends Fragment {
 
     private void showLoading(boolean isLoading) {
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+
         addLiquidityButton.setEnabled(!isLoading);
+
+        buttonProgressContainer.setVisibility(isLoading ? View.VISIBLE : View.GONE);
     }
 
     @Override
