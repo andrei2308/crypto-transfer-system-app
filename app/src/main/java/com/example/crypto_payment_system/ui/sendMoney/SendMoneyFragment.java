@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ProgressBar;
@@ -38,6 +39,8 @@ public class SendMoneyFragment extends Fragment {
     private Spinner currencySpinner;
     private TextView resultTextView;
     private ProgressBar progressBar;
+    private Button sendMoneyBtn;
+    private FrameLayout buttonProgressContainer;
     private CurrencyAdapter currencyAdapter;
     private Observer<TransactionResult> transactionObserver;
 
@@ -48,15 +51,15 @@ public class SendMoneyFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-        // Initialize CurrencyManager if not already initialized
         CurrencyManager.initialize(requireContext());
 
         addressTeit = root.findViewById(R.id.address_teit);
         amountTeit = root.findViewById(R.id.amount_teit);
-        Button sendMoneyBtn = root.findViewById(R.id.send_money_btn);
+        sendMoneyBtn = root.findViewById(R.id.send_money_btn);
         currencySpinner = root.findViewById(R.id.currencySpinner);
         resultTextView = root.findViewById(R.id.resultTextView);
         progressBar = root.findViewById(R.id.progressBar);
+        buttonProgressContainer = root.findViewById(R.id.buttonProgressContainer);
 
         setupCurrencySpinner();
 
@@ -68,17 +71,14 @@ public class SendMoneyFragment extends Fragment {
     }
 
     private void setupCurrencySpinner() {
-        // Create adapter with all available currencies
         currencyAdapter = new CurrencyAdapter(
                 requireContext(),
                 new ArrayList<>(CurrencyManager.getAvailableCurrencies())
         );
         currencySpinner.setAdapter(currencyAdapter);
 
-        // Setup default currencies
         updateCurrencySpinner();
-        
-        // Add item selection listener to handle currency changes
+
         currencySpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
@@ -107,12 +107,10 @@ public class SendMoneyFragment extends Fragment {
     }
 
     private void updateCurrencySpinner() {
-        // Default to showing all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         currencySpinner.setAdapter(currencyAdapter);
-        
-        // Select EUR by default
+
         for (int i = 0; i < currencyAdapter.getCount(); i++) {
             Currency currency = currencyAdapter.getItem(i);
             if (currency != null && "EUR".equals(currency.getCode())) {
@@ -126,19 +124,15 @@ public class SendMoneyFragment extends Fragment {
         String[] currencyCodes = preferredCurrencies.split(",");
         List<Currency> currencies = CurrencyManager.getCurrenciesByCodes(currencyCodes);
 
-        // Remember the previously selected currency code
         String currentSelection = null;
         if (currencyAdapter != null && currencyAdapter.getSelectedCurrency() != null) {
             currentSelection = currencyAdapter.getSelectedCurrency().getCode();
         }
 
-        // Create a new adapter with the preferred currencies
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         currencySpinner.setAdapter(currencyAdapter);
 
-        // Try to restore the previous selection
         if (currentSelection != null) {
-            // Find the position of the previously selected currency
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
                 Currency currency = currencyAdapter.getItem(i);
                 if (currency != null && currency.getCode().equals(currentSelection)) {
@@ -147,8 +141,7 @@ public class SendMoneyFragment extends Fragment {
                 }
             }
         }
-        
-        // If previous selection not found or no previous selection, select the first currency
+
         if (!currencies.isEmpty()) {
             currencySpinner.setSelection(0);
             currencyAdapter.setSelectedCurrency(currencies.get(0).getCode());
@@ -156,12 +149,10 @@ public class SendMoneyFragment extends Fragment {
     }
 
     private void resetCurrencySpinner() {
-        // Reset to all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         currencySpinner.setAdapter(currencyAdapter);
-        
-        // Select EUR by default
+
         for (int i = 0; i < currencyAdapter.getCount(); i++) {
             Currency currency = currencyAdapter.getItem(i);
             if (currency != null && "EUR".equals(currency.getCode())) {
@@ -187,6 +178,7 @@ public class SendMoneyFragment extends Fragment {
 
     @SuppressLint("SetTextI18n")
     private void sendMoney() {
+
         String address = Objects.requireNonNull(addressTeit.getText()).toString().trim();
         String amountStr = Objects.requireNonNull(amountTeit.getText()).toString().trim();
 
@@ -207,20 +199,18 @@ public class SendMoneyFragment extends Fragment {
                 return;
             }
 
-            // Get the selected currency
             Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
             if (selectedCurrency == null) {
-                // Fallback to EUR if no currency is selected
                 selectedCurrency = CurrencyManager.getCurrencyByCode("EUR");
             }
-            
+
             String currency = selectedCurrency.getCode();
 
             BigDecimal decimalAmount = BigDecimal.valueOf(amount);
             BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
             String formattedAmount = tokenUnits.toBigInteger().toString();
 
-            progressBar.setVisibility(View.VISIBLE);
+            showLoading(true);
             resultTextView.setText(getString(R.string.processing_transaction));
 
             if (transactionObserver != null) {
@@ -232,9 +222,11 @@ public class SendMoneyFragment extends Fragment {
             final double finalAmount = amount;
             final String finalCurrency = currency;
             transactionObserver = result -> {
-                progressBar.setVisibility(View.GONE);
+
                 if (result == null) {
                     return;
+                } else {
+                    showLoading(false);
                 }
                 if (result.isSuccess()) {
                     resultTextView.setText(getString(R.string.transaction_successful_sent) + finalAmount + " " +
@@ -254,6 +246,23 @@ public class SendMoneyFragment extends Fragment {
 
         } catch (NumberFormatException e) {
             amountTeit.setError("Please enter a valid number");
+        }
+    }
+
+    private void showLoading(boolean isLoading) {
+        progressBar.setVisibility(View.GONE);
+
+        sendMoneyBtn.setEnabled(!isLoading);
+
+        if (isLoading) {
+            buttonProgressContainer.setVisibility(View.VISIBLE);
+            buttonProgressContainer.setAlpha(1f);
+
+            System.out.println("ShowLoading called with isLoading = true");
+        } else {
+            buttonProgressContainer.setVisibility(View.GONE);
+
+            System.out.println("ShowLoading called with isLoading = false");
         }
     }
 }

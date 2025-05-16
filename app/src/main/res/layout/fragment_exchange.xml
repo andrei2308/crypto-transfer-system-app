@@ -413,7 +413,50 @@
                 app:cornerRadius="12dp"
                 app:layout_constraintTop_toTopOf="@id/calculateButton"
                 app:layout_constraintStart_toEndOf="@id/calculateButton"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                />
+            <!-- Add this right after your exchangeButton in fragment_exchange.xml -->
+            <FrameLayout
+                android:id="@+id/buttonProgressContainer"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                android:background="@drawable/button_loading_background"
+                app:layout_constraintBottom_toBottomOf="@+id/exchangeButton"
+                app:layout_constraintEnd_toEndOf="@+id/exchangeButton"
+                app:layout_constraintStart_toStartOf="@+id/exchangeButton"
+                app:layout_constraintTop_toTopOf="@+id/exchangeButton">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ProgressBar
+                        android:id="@+id/buttonProgressBar"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="8dp"
+                        android:indeterminateTint="@color/textOnPrimary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/loadingTextView"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/loadingTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/processing"
+                        android:textColor="@color/textOnPrimary"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/buttonProgressBar"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
 
             <!-- Transaction Status Card -->
             <com.google.android.material.card.MaterialCardView
