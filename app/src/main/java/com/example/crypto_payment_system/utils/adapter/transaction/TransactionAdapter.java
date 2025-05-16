@@ -59,7 +59,9 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
 
     public void setCurrentSelectedCurrency(String currency) {
         this.currentSelectedCurrency = currency;
-        notifyDataSetChanged();
+        List<Transaction> currentList = new ArrayList<>(getCurrentList());
+        submitList(null);
+        submitList(currentList);
     }
 
     static class TransactionViewHolder extends RecyclerView.ViewHolder {
