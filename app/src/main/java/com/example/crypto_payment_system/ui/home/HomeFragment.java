@@ -18,6 +18,7 @@ import com.example.crypto_payment_system.databinding.FragmentHomeBinding;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
 import com.example.crypto_payment_system.ui.transaction.TransactionDetailsDialogFragment;
+import com.example.crypto_payment_system.ui.transaction.TransactionHistoryFragment;
 import com.example.crypto_payment_system.utils.adapter.balancePager.BalancePagerAdapter;
 import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
@@ -88,16 +89,32 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                 userAddressTextView.setText(walletAddress);
             }
         }
+
+        binding.seeMoreTransactionsLabel.setOnClickListener(v -> {
+            String currentCurrency = viewModel.getSelectedCurrency().getValue();
+            if (currentCurrency != null) {
+                TransactionHistoryFragment fragment = TransactionHistoryFragment.newInstance(currentCurrency);
+                requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .addToBackStack(null)
+                    .commit();
+            }
+        });
     }
 
     private void setupObservers() {
         viewModel.getFilteredTransactions().observe(getViewLifecycleOwner(), transactions -> {
-            transactionAdapter.submitList(transactions);
             if (transactions != null) {
+                List<Transaction> recentTransactions = transactions.size() > 5 ? 
+                    transactions.subList(0, 5) : transactions;
+                transactionAdapter.submitList(recentTransactions);
+                
                 boolean isEmpty = transactions.isEmpty();
                 binding.transactionsRecyclerView.scrollToPosition(0);
                 emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
                 binding.transactionsRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                binding.seeMoreTransactionsLabel.setVisibility(transactions.size() > 5 ? View.VISIBLE : View.GONE);
             }
         });
 

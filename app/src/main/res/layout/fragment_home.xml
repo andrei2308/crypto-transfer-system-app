@@ -114,12 +114,23 @@
                 app:layout_constraintTop_toBottomOf="@id/pagerIndicator"
                 app:drawableTint="@color/textPrimary" />
 
+            <TextView
+                android:id="@+id/seeMoreTransactionsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="See More"
+                android:textColor="@color/colorPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/transactionsLabel"
+                app:layout_constraintBottom_toBottomOf="@id/transactionsLabel" />
+
             <!-- Transaction List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/transactionsRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
                 app:layout_constraintTop_toBottomOf="@id/transactionsLabel"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
