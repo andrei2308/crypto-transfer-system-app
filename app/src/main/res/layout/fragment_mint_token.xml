@@ -124,6 +124,7 @@
                         android:layout_height="24dp"
                         android:src="@drawable/ic_flag_eur"
                         android:layout_marginTop="16dp"
+                        android:visibility="gone"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/ethIcon" />
 
@@ -135,6 +136,7 @@
                         android:textSize="16sp"
                         android:textColor="@color/textPrimary"
                         android:layout_marginStart="12dp"
+                        android:visibility="gone"
                         app:layout_constraintStart_toEndOf="@id/eurIcon"
                         app:layout_constraintTop_toTopOf="@id/eurIcon"
                         app:layout_constraintBottom_toBottomOf="@id/eurIcon" />
@@ -148,6 +150,7 @@
                         android:textStyle="bold"
                         android:textColor="@color/textPrimary"
                         android:gravity="end"
+                        android:visibility="gone"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/eurBalanceLabel"
                         app:layout_constraintTop_toTopOf="@id/eurIcon"
@@ -161,7 +164,7 @@
                         android:src="@drawable/ic_flag_usd"
                         android:layout_marginTop="16dp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/eurIcon" />
+                        app:layout_constraintTop_toBottomOf="@id/ethIcon" />
 
                     <TextView
                         android:id="@+id/usdBalanceLabel"
@@ -293,6 +296,7 @@
                 android:id="@+id/targetWalletCard"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/colorSurface"
@@ -354,7 +358,7 @@
                 app:icon="@drawable/ic_mint"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
-                app:layout_constraintTop_toBottomOf="@id/targetWalletCard"
+                app:layout_constraintTop_toBottomOf="@id/mintCurrencyCard"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>

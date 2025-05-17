@@ -343,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void clearBackStack() {
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
+
     private void navigateToFragment(Fragment fragment) {
         boolean requiresConnection = fragment instanceof SendMoneyFragment || fragment instanceof ExchangeFragment || fragment instanceof MintFragment || fragment instanceof AddLiquidityFragment;
         if (requiresConnection && !isConnected) {

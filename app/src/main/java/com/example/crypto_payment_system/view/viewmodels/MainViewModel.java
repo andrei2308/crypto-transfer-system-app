@@ -755,4 +755,8 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<ConfirmationRequest> getTransactionConfirmation() {
         return transactionConfirmation;
     }
+
+    public void resetTransactionConfirmation() {
+        transactionConfirmation.setValue(null);
+    }
 }
