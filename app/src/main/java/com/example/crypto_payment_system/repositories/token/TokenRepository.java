@@ -11,6 +11,5 @@ import java.util.concurrent.CompletableFuture;
 public interface TokenRepository {
     public CompletableFuture<Map<String, String>> initializeTokenAddresses();
     public CompletableFuture<Map<String, TokenBalance>> getAllBalances(Credentials credentials);
-    public CompletableFuture<TransactionResult> mintTokens(String currency, Credentials credentials, String amount);
 
 }

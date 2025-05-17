@@ -1,11 +1,9 @@
 package com.example.crypto_payment_system.repositories.token;
 
 import com.example.crypto_payment_system.config.Constants;
+import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
-import com.example.crypto_payment_system.domain.token.TokenBalance;
-import com.example.crypto_payment_system.utils.events.EventParser;
-import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
@@ -20,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Repository class handling token-related operations
  */
-public class TokenRepositoryImpl implements TokenRepository{
+public class TokenRepositoryImpl implements TokenRepository {
     private final Web3Service web3Service;
     private final TokenContractService tokenService;
     private String eurcAddress = "";
@@ -90,30 +88,6 @@ public class TokenRepositoryImpl implements TokenRepository{
             }
 
             return balances;
-        });
-    }
-
-    /**
-     * Mint tokens
-     */
-    @Override
-    public CompletableFuture<TransactionResult> mintTokens(String currency, Credentials credentials, String amount) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                final String tokenAddress = currency.equals("USD") ? usdtAddress : eurcAddress;
-                BigInteger mintAmount = new BigInteger(amount);
-
-                String txHash = tokenService.mintTokens(tokenAddress, mintAmount, credentials);
-                CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
-
-                boolean success = exchangeInfo.get().getReceipt().isStatusOK();
-                return new TransactionResult(success, txHash, success ?
-                        "Tokens minted successfully" : "Token minting failed");
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new TransactionResult(false, null, "Error: " + e.getMessage());
-            }
         });
     }
 

@@ -393,7 +393,8 @@ public class ExchangeFragment extends Fragment {
             TransactionResultFragment fragment = TransactionResultFragment.newInstance(
                 result.isSuccess(),
                 result.getTransactionHash() != null ? result.getTransactionHash() : "-",
-                amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???"),
+                amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???") +
+                        (toCurrency != null ? (" → " + toCurrency.getCode()) : ""),
                 "Exchange",
                 timestamp,
                 result.getMessage() != null ? result.getMessage() : ""

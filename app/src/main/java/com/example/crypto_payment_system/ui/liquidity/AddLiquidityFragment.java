@@ -215,6 +215,13 @@ public class AddLiquidityFragment extends Fragment {
 
     private void addLiquidity(String currency, String amount) {
         showLoading(true);
+
+        if (transactionObserver != null) {
+            viewModel.getTransactionResult().removeObserver(transactionObserver);
+        }
+
+        viewModel.resetTransactionResult();
+
         viewModel.addLiquidity(currency, amount);
     }
 
@@ -244,7 +251,6 @@ public class AddLiquidityFragment extends Fragment {
             requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_main, fragment)
-                .addToBackStack(null)
                 .commit();
 
             if (result.isSuccess()) {

@@ -7,12 +7,14 @@ import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
 import com.example.crypto_payment_system.utils.events.EventParser;
+import com.example.crypto_payment_system.utils.token.TokenCostInfo;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 
 import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * Repository class handling exchange operations
@@ -156,4 +158,59 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
             }
         });
     }
+
+    /**
+     * Mint tokens
+     */
+    @Override
+    public CompletableFuture<TransactionResult> mintTokens(String currency, Credentials credentials, String amount) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                BigInteger mintAmount = new BigInteger(amount);
+                String txHash = "";
+
+                if (currency.equals("USD")) {
+                    BigInteger requiredEth = exchangeContract.getRequiredEthForUsd(mintAmount, credentials);
+                    System.out.println(requiredEth);
+                    BigInteger ethToSend = (requiredEth.multiply(BigInteger.valueOf(105)).divide(BigInteger.valueOf(100)));
+                    System.out.println(ethToSend);
+                    txHash = exchangeContract.mintUsdTokens(mintAmount, ethToSend, credentials);
+                }
+
+                CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
+
+                boolean success = exchangeInfo.get().getReceipt().isStatusOK();
+                return new TransactionResult(success, txHash, success ?
+                        "Tokens minted successfully" : "Token minting failed");
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new TransactionResult(false, null, "Error: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Get required cost for minting tokens
+     */
+    @Override
+    public CompletableFuture<TokenCostInfo> getRequiredTokenCost(String currency, Credentials credentials, String amount) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                BigInteger mintAmount = new BigInteger(amount);
+
+                if (currency.equals("USD")) {
+                    BigInteger requiredEth = exchangeContract.getRequiredEthForUsd(mintAmount, credentials);
+
+                    BigInteger ethWithBuffer = requiredEth.multiply(BigInteger.valueOf(105)).divide(BigInteger.valueOf(100));
+                    return new TokenCostInfo(mintAmount, ethWithBuffer);
+                }
+                throw new Exception("Unsupported currency: " + currency);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new CompletionException(e);
+            }
+        });
+    }
+
 }

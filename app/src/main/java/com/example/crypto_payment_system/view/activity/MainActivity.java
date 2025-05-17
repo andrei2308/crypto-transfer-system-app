@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void navigateToHomeFragment() {
+    public void navigateToHomeFragment() {
         clearFragmentBackStack();
         mainContentLayout.setVisibility(View.VISIBLE);
 

@@ -3,8 +3,8 @@ package com.example.crypto_payment_system.service.token;
 import static com.example.crypto_payment_system.config.Constants.DEFAULT_APPROVAL;
 
 import com.example.crypto_payment_system.BuildConfig;
-import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.config.Constants;
+import com.example.crypto_payment_system.service.web3.Web3Service;
 
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Service class for token contract interactions
  */
-public class TokenContractServiceImpl implements TokenContractService{
+public class TokenContractServiceImpl implements TokenContractService {
     private Web3j web3j;
     private String contractAddress;
     private final Web3Service web3Service;
@@ -156,23 +156,6 @@ public class TokenContractServiceImpl implements TokenContractService{
         return BigInteger.ZERO;
     }
 
-    /**
-     * Mint tokens
-     */
-    @Override
-    public String mintTokens(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception {
-
-        Function mintFunction = new Function(
-                "mint",
-                Arrays.asList(
-                        new Address(credentials.getAddress()),
-                        new Uint256(amount)
-                ),
-                Collections.emptyList()
-        );
-
-        return sendTransaction(credentials, tokenAddress, mintFunction, Constants.DEFAULT_GAS_LIMIT);
-    }
 
     /**
      * Check and approve tokens if needed

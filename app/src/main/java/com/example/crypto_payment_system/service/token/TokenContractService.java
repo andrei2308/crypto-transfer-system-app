@@ -8,6 +8,5 @@ public interface TokenContractService {
     public String getTokenAddress(String methodName) throws Exception;
     public BigInteger getTokenBalance(String address, String tokenAddress) throws Exception;
     public BigInteger getContractTokenBalance(String methodName, String tokenAddress) throws Exception;
-    public String mintTokens(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception;
     public String checkAndApproveIfNeeded(String tokenAddress, BigInteger amount, Credentials credentials) throws Exception;
 }

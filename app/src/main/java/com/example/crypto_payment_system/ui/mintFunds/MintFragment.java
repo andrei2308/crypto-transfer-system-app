@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -36,7 +37,6 @@ public class MintFragment extends Fragment {
     private Spinner mintCurrencySpinner;
     private TextInputEditText mintAmountEditText;
     private TextInputEditText walletAddressEditText;
-    private TextView mintStatusTextView;
     private ProgressBar progressBar;
     private CurrencyAdapter currencyAdapter;
     private TextView ethBalanceValue;
@@ -61,7 +61,6 @@ public class MintFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize CurrencyManager if not already initialized
         CurrencyManager.initialize(requireContext());
 
         mintCurrencySpinner = view.findViewById(R.id.mintCurrencySpinner);
@@ -96,14 +95,12 @@ public class MintFragment extends Fragment {
     }
 
     private void setupCurrencySpinner() {
-        // Create adapter with all available currencies
         currencyAdapter = new CurrencyAdapter(
                 requireContext(),
                 new ArrayList<>(CurrencyManager.getAvailableCurrencies())
         );
         mintCurrencySpinner.setAdapter(currencyAdapter);
 
-        // Add item selection listener to handle currency changes
         mintCurrencySpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
@@ -134,14 +131,11 @@ public class MintFragment extends Fragment {
     }
 
     private void updateCurrencySpinner() {
-        // Get all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
         
-        // Create new adapter
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         mintCurrencySpinner.setAdapter(currencyAdapter);
         
-        // Default selection: EUR
         if (currencies.size() > 0) {
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
                 Currency currency = currencyAdapter.getItem(i);
@@ -157,19 +151,15 @@ public class MintFragment extends Fragment {
         String[] currencyCodes = preferredCurrencies.split(",");
         List<Currency> currencies = CurrencyManager.getCurrenciesByCodes(currencyCodes);
 
-        // Remember the previously selected currency code
         String currentSelection = null;
         if (currencyAdapter != null && currencyAdapter.getSelectedCurrency() != null) {
             currentSelection = currencyAdapter.getSelectedCurrency().getCode();
         }
 
-        // Create a new adapter with the preferred currencies
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         mintCurrencySpinner.setAdapter(currencyAdapter);
 
-        // Try to restore the previous selection
         if (currentSelection != null) {
-            // Find the position of the previously selected currency
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
                 Currency currency = currencyAdapter.getItem(i);
                 if (currency != null && currency.getCode().equals(currentSelection)) {
@@ -179,21 +169,17 @@ public class MintFragment extends Fragment {
             }
         }
         
-        // If previous selection not found or no previous selection, select the first currency
         if (!currencies.isEmpty()) {
             mintCurrencySpinner.setSelection(0);
         }
     }
 
     private void resetCurrencySpinner() {
-        // Reset to all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
         
-        // Create new adapter
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         mintCurrencySpinner.setAdapter(currencyAdapter);
         
-        // Default selection: EUR
         for (int i = 0; i < currencyAdapter.getCount(); i++) {
             Currency currency = currencyAdapter.getItem(i);
             if (currency != null && "EUR".equals(currency.getCode())) {
@@ -208,6 +194,24 @@ public class MintFragment extends Fragment {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
 
+        viewModel.getTransactionConfirmation().observe(getViewLifecycleOwner(), confirmationRequest -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Confirm Transaction");
+            builder.setMessage(confirmationRequest.getMessage());
+
+            builder.setPositiveButton("Confirm", (dialog, which) -> {
+                confirmationRequest.confirm();
+                progressBar.setVisibility(View.VISIBLE);
+            });
+
+            builder.setNegativeButton("Cancel", (dialog, which) -> {});
+
+            builder.setCancelable(false);
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        });
+
         transactionObserver = result -> {
             progressBar.setVisibility(View.GONE);
 
@@ -219,12 +223,12 @@ public class MintFragment extends Fragment {
             long timestamp = System.currentTimeMillis();
 
             TransactionResultFragment fragment = TransactionResultFragment.newInstance(
-                result.isSuccess(),
-                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
-                amount + " " + currencyCode,
-                "Mint Tokens",
-                timestamp,
-                result.getMessage() != null ? result.getMessage() : ""
+                    result.isSuccess(),
+                    result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                    amount + " " + (selectedCurrency != null ? selectedCurrency.getCode() : "???"),
+                    "Mint",
+                    timestamp,
+                    result.getMessage() != null ? result.getMessage() : ""
             );
             requireActivity().getSupportFragmentManager()
                 .beginTransaction()
@@ -233,7 +237,6 @@ public class MintFragment extends Fragment {
                 .commit();
 
             if (result.isSuccess()) {
-                mintAmountEditText.setText("");
                 refreshBalances();
             }
         };
@@ -286,15 +289,21 @@ public class MintFragment extends Fragment {
 
             Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
             if (selectedCurrency == null) {
-                selectedCurrency = CurrencyManager.getCurrencyByCode("EUR"); // Fallback to EUR
+                selectedCurrency = CurrencyManager.getCurrencyByCode("EUR");
             }
             
             String currency = selectedCurrency.getCode();
 
             progressBar.setVisibility(View.VISIBLE);
 
+            if (transactionObserver != null) {
+                viewModel.getTransactionResult().removeObserver(transactionObserver);
+            }
+
+            viewModel.resetTransactionResult();
+
             if (!targetWalletAddress.isEmpty()) {
-                // Uncomment when the method is implemented
+                // Uncomment when implemented
                 // viewModel.mintTokensToAddress(currency, String.valueOf(amount), targetWalletAddress);
             } else {
                 viewModel.mintTokens(currency, String.valueOf(amount));
