@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.currency.Currency;
+import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
@@ -37,7 +38,6 @@ public class SendMoneyFragment extends Fragment {
     private TextInputEditText addressTeit;
     private TextInputEditText amountTeit;
     private Spinner currencySpinner;
-    private TextView resultTextView;
     private ProgressBar progressBar;
     private Button sendMoneyBtn;
     private FrameLayout buttonProgressContainer;
@@ -57,7 +57,6 @@ public class SendMoneyFragment extends Fragment {
         amountTeit = root.findViewById(R.id.amount_teit);
         sendMoneyBtn = root.findViewById(R.id.send_money_btn);
         currencySpinner = root.findViewById(R.id.currencySpinner);
-        resultTextView = root.findViewById(R.id.resultTextView);
         progressBar = root.findViewById(R.id.progressBar);
         buttonProgressContainer = root.findViewById(R.id.buttonProgressContainer);
 
@@ -178,7 +177,6 @@ public class SendMoneyFragment extends Fragment {
 
     @SuppressLint("SetTextI18n")
     private void sendMoney() {
-
         String address = Objects.requireNonNull(addressTeit.getText()).toString().trim();
         String amountStr = Objects.requireNonNull(amountTeit.getText()).toString().trim();
 
@@ -211,7 +209,6 @@ public class SendMoneyFragment extends Fragment {
             String formattedAmount = tokenUnits.toBigInteger().toString();
 
             showLoading(true);
-            resultTextView.setText(getString(R.string.processing_transaction));
 
             if (transactionObserver != null) {
                 viewModel.getTransactionResult().removeObserver(transactionObserver);
@@ -221,22 +218,31 @@ public class SendMoneyFragment extends Fragment {
 
             final double finalAmount = amount;
             final String finalCurrency = currency;
+            final String finalAddress = address;
             transactionObserver = result -> {
-
                 if (result == null) {
                     return;
                 } else {
                     showLoading(false);
                 }
-                if (result.isSuccess()) {
-                    resultTextView.setText(getString(R.string.transaction_successful_sent) + finalAmount + " " +
-                            finalCurrency + " to " + address +
-                            "\nTransaction ID: " + result.getTransactionHash());
+                long timestamp = System.currentTimeMillis();
+                TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                    result.isSuccess(),
+                    result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                    finalAmount + " " + finalCurrency,
+                    "Send Money",
+                    timestamp,
+                    result.getMessage() != null ? result.getMessage() : "Sent to: " + finalAddress
+                );
+                requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .addToBackStack(null)
+                    .commit();
 
+                if (result.isSuccess()) {
                     addressTeit.setText("");
                     amountTeit.setText("");
-                } else {
-                    resultTextView.setText("Transaction failed: " + result.getMessage());
                 }
             };
 

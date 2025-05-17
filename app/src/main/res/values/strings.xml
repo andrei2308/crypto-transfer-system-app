@@ -7,7 +7,7 @@
     <string name="exchange_eur_usd">Exchange EUR → USD</string>
     <string name="exchange_usd_eur">Exchange USD → EUR</string>
     <string name="transaction_successful_minted">"Transaction successful!\nMinted "</string>
-    <string name="transaction_failed">"Transaction failed: "</string>
+    <string name="transaction_failed">"Transaction failed "</string>
     <string name="processing_transaction">Processing transaction</string>
     <string name="account">Account:</string>
     <string name="add">+</string>
@@ -143,6 +143,10 @@
     <string name="clear_selection">Clear selection</string>
     <string name="transaction_successful">Transaction successful</string>
     <string name="processing">Processing ...</string>
+    <string name="type">Type</string>
+    <string name="timestamp">Timestamp</string>
+    <string name="message">Message</string>
+    <string name="ok">Ok</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">

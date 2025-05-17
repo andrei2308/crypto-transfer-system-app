@@ -357,55 +357,6 @@
                 app:layout_constraintTop_toBottomOf="@id/targetWalletCard"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- Status Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/mintStatusCard"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/colorSurface"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                app:layout_constraintTop_toBottomOf="@id/mintButton"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/mintStatusLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/status"
-                        android:textSize="16sp"
-                        android:textColor="@color/textPrimary"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/mintStatusTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="100dp"
-                        android:layout_marginTop="8dp"
-                        android:padding="12dp"
-                        android:scrollbars="vertical"
-                        android:text="@string/transaction_result_will_appear_here"
-                        android:background="@drawable/result_background"
-                        android:fontFamily="monospace"
-                        android:textColor="@color/textPrimary"
-                        app:layout_constraintTop_toBottomOf="@id/mintStatusLabel"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

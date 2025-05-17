@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
@@ -41,7 +42,6 @@ public class ExchangeFragment extends Fragment {
     private TextInputEditText fromAmountEditText;
     private TextView exchangeRateValue;
     private TextView estimatedAmountValue;
-    private TextView resultTextView;
     private ProgressBar progressBar;
     private Button calculateButton;
     private Button exchangeButton;
@@ -77,7 +77,6 @@ public class ExchangeFragment extends Fragment {
         fromAmountEditText = view.findViewById(R.id.fromAmountEditText);
         exchangeRateValue = view.findViewById(R.id.exchangeRateValue);
         estimatedAmountValue = view.findViewById(R.id.estimatedAmountValue);
-        resultTextView = view.findViewById(R.id.resultTextView);
         progressBar = view.findViewById(R.id.progressBar);
         calculateButton = view.findViewById(R.id.calculateButton);
         exchangeButton = view.findViewById(R.id.exchangeButton);
@@ -320,14 +319,12 @@ public class ExchangeFragment extends Fragment {
         exchangeButton.setEnabled(false);
         exchangeRateValue.setText("--");
         estimatedAmountValue.setText("--");
-        resultTextView.setText(message);
     }
 
     private void enableExchangeFunctionality() {
         fromAmountEditText.setEnabled(true);
         calculateButton.setEnabled(true);
         exchangeButton.setEnabled(true);
-        resultTextView.setText(R.string.exchange_transaction_results_will_appear_here);
     }
 
     @SuppressLint("DefaultLocale")
@@ -374,7 +371,6 @@ public class ExchangeFragment extends Fragment {
             return;
         }
 
-        resultTextView.setText(getString(R.string.starting_exchange_for) + amount + " " + fromCurrency);
         showLoading(true);
         viewModel.exchangeBasedOnPreference(fromCurrency, amount);
     }
@@ -389,23 +385,30 @@ public class ExchangeFragment extends Fragment {
 
             if (result == null) return;
 
+            Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
+            Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
+            String amount = fromAmountEditText.getText().toString();
+            long timestamp = System.currentTimeMillis();
+
+            TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                result.isSuccess(),
+                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???"),
+                "Exchange",
+                timestamp,
+                result.getMessage() != null ? result.getMessage() : ""
+            );
+            requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .addToBackStack(null)
+                .commit();
+
             if (result.isSuccess()) {
-                Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
-                Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
-                String amount = fromAmountEditText.getText().toString();
-
-                resultTextView.setText(getString(R.string.exchanged) +
-                        amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???") +
-                        " to " + (toCurrency != null ? toCurrency.getCode() : "???") +
-                        "\nTransaction ID: " + result.getTransactionHash());
-
                 fromAmountEditText.setText("");
                 exchangeRateValue.setText("--");
                 estimatedAmountValue.setText("--");
-
                 refreshBalances();
-            } else {
-                resultTextView.setText(getString(R.string.transaction_failed) + result.getMessage());
             }
         };
 
