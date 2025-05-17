@@ -190,10 +190,6 @@ public class MintFragment extends Fragment {
     }
 
     private void observeViewModel() {
-        if (transactionObserver != null) {
-            viewModel.getTransactionResult().removeObserver(transactionObserver);
-        }
-
         viewModel.getTransactionConfirmation().observe(getViewLifecycleOwner(), confirmationRequest -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
             builder.setTitle("Confirm Transaction");
@@ -212,13 +208,20 @@ public class MintFragment extends Fragment {
             dialog.show();
         });
 
+        viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateBalanceUI);
+    }
+
+    private void setupTransactionObserver() {
+        if (transactionObserver != null) {
+            viewModel.getTransactionResult().removeObserver(transactionObserver);
+        }
+        
         transactionObserver = result -> {
             progressBar.setVisibility(View.GONE);
 
             if (result == null) return;
 
             Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
-            String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
             String amount = mintAmountEditText.getText().toString().trim();
             long timestamp = System.currentTimeMillis();
 
@@ -242,8 +245,6 @@ public class MintFragment extends Fragment {
         };
 
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
-
-        viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateBalanceUI);
     }
 
     /**
@@ -295,16 +296,13 @@ public class MintFragment extends Fragment {
             String currency = selectedCurrency.getCode();
 
             progressBar.setVisibility(View.VISIBLE);
-
-            if (transactionObserver != null) {
-                viewModel.getTransactionResult().removeObserver(transactionObserver);
-            }
-
+            
             viewModel.resetTransactionResult();
 
+            setupTransactionObserver();
+
             if (!targetWalletAddress.isEmpty()) {
-                // Uncomment when implemented
-                // viewModel.mintTokensToAddress(currency, String.valueOf(amount), targetWalletAddress);
+
             } else {
                 viewModel.mintTokens(currency, String.valueOf(amount));
             }

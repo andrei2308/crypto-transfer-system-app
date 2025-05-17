@@ -76,13 +76,11 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         balanceTabLayout = binding.pagerIndicator;
         emptyTransactionsMessage = new TextView(requireContext());
         emptyTransactionsMessage.setVisibility(View.GONE);
-        
-        // Get references from the included layout
+
         userAddressTextView = binding.profileSection.userAddressTextView;
         welcomeTextView = binding.profileSection.welcomeTextView;
         connectedStatusTextView = binding.profileSection.connectedStatusTextView;
-        
-        // Set welcome text and wallet address when available
+
         if (viewModel != null && viewModel.getCurrentUser().getValue() != null) {
             String walletAddress = viewModel.getCurrentUser().getValue().getWalletAddress();
             if (walletAddress != null && !walletAddress.isEmpty()) {
@@ -95,10 +93,10 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             if (currentCurrency != null) {
                 TransactionHistoryFragment fragment = TransactionHistoryFragment.newInstance(currentCurrency);
                 requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_main, fragment)
-                    .addToBackStack(null)
-                    .commit();
+                        .beginTransaction()
+                        .replace(R.id.content_main, fragment)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
     }
@@ -106,10 +104,10 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     private void setupObservers() {
         viewModel.getFilteredTransactions().observe(getViewLifecycleOwner(), transactions -> {
             if (transactions != null) {
-                List<Transaction> recentTransactions = transactions.size() > 5 ? 
-                    transactions.subList(0, 5) : transactions;
+                List<Transaction> recentTransactions = transactions.size() > 5 ?
+                        transactions.subList(0, 5) : transactions;
                 transactionAdapter.submitList(recentTransactions);
-                
+
                 boolean isEmpty = transactions.isEmpty();
                 binding.transactionsRecyclerView.scrollToPosition(0);
                 emptyTransactionsMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
@@ -142,8 +140,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                 } else {
                     balanceTabLayout.setVisibility(View.GONE);
                 }
-                
-                // Update wallet address when user data changes
+
                 String walletAddress = user.getWalletAddress();
                 if (walletAddress != null && !walletAddress.isEmpty()) {
                     userAddressTextView.setText(walletAddress);

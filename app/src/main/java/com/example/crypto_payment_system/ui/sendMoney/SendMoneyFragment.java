@@ -7,9 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -227,18 +226,18 @@ public class SendMoneyFragment extends Fragment {
                 }
                 long timestamp = System.currentTimeMillis();
                 TransactionResultFragment fragment = TransactionResultFragment.newInstance(
-                    result.isSuccess(),
-                    result.getTransactionHash() != null ? result.getTransactionHash() : "-",
-                    finalAmount + " " + finalCurrency,
-                    "Send Money",
-                    timestamp,
-                    result.getMessage() != null ? result.getMessage() : "Sent to: " + finalAddress
+                        result.isSuccess(),
+                        result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                        finalAmount + " " + finalCurrency,
+                        "Send Money",
+                        timestamp,
+                        result.getMessage() != null ? result.getMessage() : "Sent to: " + finalAddress
                 );
                 requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_main, fragment)
-                    .addToBackStack(null)
-                    .commit();
+                        .beginTransaction()
+                        .replace(R.id.content_main, fragment)
+                        .addToBackStack(null)
+                        .commit();
 
                 if (result.isSuccess()) {
                     addressTeit.setText("");

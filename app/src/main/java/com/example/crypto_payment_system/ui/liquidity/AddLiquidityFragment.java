@@ -10,9 +10,9 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -65,7 +65,6 @@ public class AddLiquidityFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-        // Initialize CurrencyManager if not already initialized
         CurrencyManager.initialize(requireContext());
 
         currencySpinner = view.findViewById(R.id.currencySpinner);
@@ -73,11 +72,9 @@ public class AddLiquidityFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         addLiquidityButton = view.findViewById(R.id.addLiquidityButton);
 
-        // Initialize wallet balance views
         eurBalanceValue = view.findViewById(R.id.eurBalanceValue);
         usdBalanceValue = view.findViewById(R.id.usdBalanceValue);
 
-        // Initialize contract balance views
         contractEurBalanceValue = view.findViewById(R.id.contractEurBalanceValue);
         contractUsdBalanceValue = view.findViewById(R.id.contractUsdBalanceValue);
         refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
@@ -106,7 +103,6 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void setupCurrencySpinner() {
-        // Create adapter with all available currencies
         currencyAdapter = new CurrencyAdapter(
                 requireContext(),
                 new ArrayList<>(CurrencyManager.getAvailableCurrencies())
@@ -144,13 +140,11 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void updateCurrencySpinner() {
-        // Get all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
-        
-        // Create new adapter
+
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         currencySpinner.setAdapter(currencyAdapter);
-        
+
         // Default selection: EUR
         if (currencies.size() > 0) {
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
@@ -167,19 +161,15 @@ public class AddLiquidityFragment extends Fragment {
         String[] currencyCodes = preferredCurrencies.split(",");
         List<Currency> currencies = CurrencyManager.getCurrenciesByCodes(currencyCodes);
 
-        // Remember the previously selected currency code
         String currentSelection = null;
         if (currencyAdapter != null && currencyAdapter.getSelectedCurrency() != null) {
             currentSelection = currencyAdapter.getSelectedCurrency().getCode();
         }
 
-        // Create a new adapter with the preferred currencies
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         currencySpinner.setAdapter(currencyAdapter);
 
-        // Try to restore the previous selection
         if (currentSelection != null) {
-            // Find the position of the previously selected currency
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
                 Currency currency = currencyAdapter.getItem(i);
                 if (currency != null && currency.getCode().equals(currentSelection)) {
@@ -188,22 +178,18 @@ public class AddLiquidityFragment extends Fragment {
                 }
             }
         }
-        
-        // If previous selection not found or no previous selection, select the first currency
+
         if (!currencies.isEmpty()) {
             currencySpinner.setSelection(0);
         }
     }
 
     private void resetCurrencySpinner() {
-        // Reset to all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
-        
-        // Create new adapter
+
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         currencySpinner.setAdapter(currencyAdapter);
-        
-        // Default selection: EUR
+
         for (int i = 0; i < currencyAdapter.getCount(); i++) {
             Currency currency = currencyAdapter.getItem(i);
             if (currency != null && "EUR".equals(currency.getCode())) {
@@ -214,22 +200,19 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void addLiquidity(String currency, String amount) {
-        showLoading(true);
-
-        if (transactionObserver != null) {
-            viewModel.getTransactionResult().removeObserver(transactionObserver);
-        }
-
+        setupTransactionObserver();
+        
         viewModel.resetTransactionResult();
-
+        
+        showLoading(true);
         viewModel.addLiquidity(currency, amount);
     }
 
-    private void observeViewModel() {
+    private void setupTransactionObserver() {
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
-
+        
         transactionObserver = result -> {
             showLoading(false);
 
@@ -241,17 +224,18 @@ public class AddLiquidityFragment extends Fragment {
             long timestamp = System.currentTimeMillis();
 
             TransactionResultFragment fragment = TransactionResultFragment.newInstance(
-                result.isSuccess(),
-                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
-                amount + " " + currencyCode,
-                "Add Liquidity",
-                timestamp,
-                result.getMessage() != null ? result.getMessage() : ""
+                    result.isSuccess(),
+                    result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                    amount + " " + currencyCode,
+                    "Add Liquidity",
+                    timestamp,
+                    result.getMessage() != null ? result.getMessage() : ""
             );
             requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_main, fragment)
-                .commit();
+                    .beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .addToBackStack(null)
+                    .commit();
 
             if (result.isSuccess()) {
                 amountEditText.setText("");
@@ -260,7 +244,9 @@ public class AddLiquidityFragment extends Fragment {
         };
 
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
+    }
 
+    private void observeViewModel() {
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateWalletBalanceUI);
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateContractBalanceUI);
     }

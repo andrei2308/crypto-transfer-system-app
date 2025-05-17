@@ -10,8 +10,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
+import com.example.crypto_payment_system.ui.home.HomeFragment;
+import com.example.crypto_payment_system.view.activity.MainActivity;
 import com.google.android.material.button.MaterialButton;
 
 public class TransactionResultFragment extends Fragment {
@@ -79,12 +83,18 @@ public class TransactionResultFragment extends Fragment {
         timestampText.setText(android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", timestamp));
         messageText.setText(message);
 
+        // Complete rewrite of the OK button click listener
         okButton.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_main, com.example.crypto_payment_system.ui.home.HomeFragment.newInstance())
-                .commitNowAllowingStateLoss();
-            requireActivity().getSupportFragmentManager().popBackStack(null, 1);
+            // First get the FragmentManager
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+            
+            // Clear the entire back stack
+            fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            
+            // Navigate to home
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_main, HomeFragment.newInstance())
+                    .commit();
         });
     }
 } 

@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void navigateToHomeFragment() {
+    private void navigateToHomeFragment() {
         clearFragmentBackStack();
         mainContentLayout.setVisibility(View.VISIBLE);
 
@@ -340,7 +340,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .commit();
     }
 
-    private void navigateToFragment(androidx.fragment.app.Fragment fragment) {
+    private void clearBackStack() {
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    }
+    private void navigateToFragment(Fragment fragment) {
         boolean requiresConnection = fragment instanceof SendMoneyFragment || fragment instanceof ExchangeFragment || fragment instanceof MintFragment || fragment instanceof AddLiquidityFragment;
         if (requiresConnection && !isConnected) {
             Toast.makeText(this, R.string.please_connect_to_ethereum_first, Toast.LENGTH_SHORT).show();
@@ -353,6 +356,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View contentView = findViewById(R.id.content_main);
 
         if (contentView instanceof ViewGroup) {
+            clearBackStack();
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_main, fragment)
                     .addToBackStack(null)
