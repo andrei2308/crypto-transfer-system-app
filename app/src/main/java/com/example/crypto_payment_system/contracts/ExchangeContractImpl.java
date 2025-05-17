@@ -1,14 +1,16 @@
 package com.example.crypto_payment_system.contracts;
 
+import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
-import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.utils.events.EventParser;
 
 import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.crypto.Credentials;
@@ -16,6 +18,8 @@ import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.utils.Numeric;
 
@@ -28,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Class that handles interactions with the exchange contract
  */
-public class ExchangeContractImpl implements ExchangeContract{
+public class ExchangeContractImpl implements ExchangeContract {
     private final Web3Service web3Service;
     private final TokenContractService tokenService;
 
@@ -172,6 +176,117 @@ public class ExchangeContractImpl implements ExchangeContract{
                 gasPrice,
                 gasLimit,
                 contractAddress,
+                encodedFunction
+        );
+
+        byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+        String hexValue = Numeric.toHexString(signedMessage);
+
+        EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
+
+        if (ethSendTransaction.hasError()) {
+            throw new Exception("Error sending transaction: " + ethSendTransaction.getError().getMessage());
+        }
+
+        return ethSendTransaction.getTransactionHash();
+    }
+
+    /**
+     * Calculate required ETH for minting USD tokens
+     */
+    @Override
+    public BigInteger getRequiredEthForUsd(BigInteger usdAmount, Credentials credentials) throws Exception {
+        Function getRequiredEthFunction = new Function(
+                "getRequiredEthForUsd",
+                Arrays.asList(new Uint256(usdAmount)),
+                Arrays.asList(new TypeReference<Uint256>() {})
+        );
+
+        String encodedFunction = FunctionEncoder.encode(getRequiredEthFunction);
+
+        Web3j web3j = getWeb3j();
+        String contractAddress = getContractAddress();
+
+        if (web3j == null) {
+            throw new Exception("Web3j is not initialized");
+        }
+
+        if (contractAddress == null || contractAddress.isEmpty()) {
+            throw new Exception("Contract address is not initialized");
+        }
+
+        EthCall ethCall = web3j.ethCall(
+                Transaction.createEthCallTransaction(
+                        credentials.getAddress(),
+                        contractAddress,
+                        encodedFunction
+                ),
+                DefaultBlockParameterName.LATEST
+        ).sendAsync().get();
+
+        // Modify your error handling to get more details
+        if (ethCall.hasError()) {
+            String errorMessage = ethCall.getError().getMessage();
+            // Many contracts return error details in the response value when reverting
+            String errorData = ethCall.getValue();
+
+            // Log both for debugging
+            System.out.println("Error calling contract. Message: " + errorMessage);
+            System.out.println("Error data: " + errorData);
+
+            throw new Exception("Error calling contract: " + errorMessage);
+        }
+
+        List<Type> decoded = FunctionReturnDecoder.decode(
+                ethCall.getValue(),
+                getRequiredEthFunction.getOutputParameters()
+        );
+
+        if (decoded.isEmpty()) {
+            throw new Exception("Failed to decode response");
+        }
+
+        return (BigInteger) decoded.get(0).getValue();
+    }
+
+    /**
+     * Mint USD tokens (requires ETH)
+     */
+    @Override
+    public String mintUsdTokens(BigInteger usdAmount, BigInteger ethAmount, Credentials credentials) throws Exception {
+        Function mintFunction = new Function(
+                "mintUsdTokens",
+                Arrays.asList(new Uint256(usdAmount)),
+                Collections.emptyList()
+        );
+
+        String encodedFunction = FunctionEncoder.encode(mintFunction);
+
+        Web3j web3j = getWeb3j();
+        String contractAddress = getContractAddress();
+
+        if (web3j == null) {
+            throw new Exception("Web3j is not initialized");
+        }
+
+        if (contractAddress == null || contractAddress.isEmpty()) {
+            throw new Exception("Contract address is not initialized");
+        }
+
+        BigInteger nonce = web3j.ethGetTransactionCount(
+                credentials.getAddress(),
+                DefaultBlockParameterName.LATEST
+        ).sendAsync().get().getTransactionCount();
+
+        BigInteger gasPrice = web3j.ethGasPrice().sendAsync().get().getGasPrice();
+        BigInteger gasLimit = BigInteger.valueOf(Constants.DEFAULT_GAS_LIMIT);
+
+        RawTransaction rawTransaction = RawTransaction.createTransaction(
+                nonce,
+                gasPrice,
+                gasLimit,
+                contractAddress,
+                ethAmount,
                 encodedFunction
         );
 

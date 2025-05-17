@@ -31,7 +31,7 @@ public class Constants {
     public static final int CURRENCY_USD = 2;
 
     public static final String EUR_TOKEN_CONTRACT_ADDRESS = "0x08210F9170F89Ab7658F0B5E3fF39b0E03C594D4";
-    public static final String USD_TOKEN_CONTRACT_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
+    public static final String USD_TOKEN_CONTRACT_ADDRESS = "0x5c3E80d8218f9e382CeBB017f4F3270f1AE2D8Fc";
 
-    public static final String CONTRACT_ADDRESS = "0xF6686f06E3a9cC8D5C280AeF5852F55a25558cd9";
+    public static final String CONTRACT_ADDRESS = "0xb74710F2C45fB43949502cE7f702Cde35F4f1aCf";
 }

@@ -69,7 +69,6 @@ public class ExchangeFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
-        // Initialize CurrencyManager if not already initialized
         CurrencyManager.initialize(requireContext());
 
         fromCurrencySpinner = view.findViewById(R.id.fromCurrencySpinner);
@@ -110,11 +109,10 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void setupCurrencySpinners() {
-        // Create adapters with all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
         fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
-        
+
         fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
@@ -128,7 +126,6 @@ public class ExchangeFragment extends Fragment {
                 Currency selectedCurrency = fromCurrencyAdapter.getItem(position);
                 fromCurrencyAdapter.setSelectedCurrency(selectedCurrency.getCode());
 
-                // Select the other currency in the to-spinner
                 for (int i = 0; i < toCurrencyAdapter.getCount(); i++) {
                     Currency currency = toCurrencyAdapter.getItem(i);
                     if (currency != null && !currency.getCode().equals(selectedCurrency.getCode())) {
@@ -157,7 +154,6 @@ public class ExchangeFragment extends Fragment {
                 Currency selectedCurrency = toCurrencyAdapter.getItem(position);
                 toCurrencyAdapter.setSelectedCurrency(selectedCurrency.getCode());
 
-                // Select the other currency in the from-spinner
                 for (int i = 0; i < fromCurrencyAdapter.getCount(); i++) {
                     Currency currency = fromCurrencyAdapter.getItem(i);
                     if (currency != null && !currency.getCode().equals(selectedCurrency.getCode())) {
@@ -172,7 +168,6 @@ public class ExchangeFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                //
             }
         });
 
@@ -191,14 +186,11 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void updateCurrencySpinners() {
-        // Get all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
-        
-        // Create new adapters
+
         fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
-        
-        // Set adapters
+
         fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
@@ -206,7 +198,7 @@ public class ExchangeFragment extends Fragment {
         if (currencies.size() > 0) {
             // Select first currency (EUR) for 'from'
             fromCurrencySpinner.setSelection(0);
-            
+
             if (currencies.size() > 1) {
                 // Select second currency (USD) for 'to'
                 toCurrencySpinner.setSelection(1);
@@ -223,11 +215,9 @@ public class ExchangeFragment extends Fragment {
         if (currencies.size() <= 1) {
             disableExchangeFunctionality(getString(R.string.exchange_unavailable_only_one_currency_is_configured));
 
-            // Create adapters with the limited currencies
             fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
             toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
-            
-            // Set adapters
+
             fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
             toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
@@ -241,27 +231,23 @@ public class ExchangeFragment extends Fragment {
 
         enableExchangeFunctionality();
 
-        // Remember current selections if any
         Currency currentFromSelection = null;
         Currency currentToSelection = null;
 
         if (fromCurrencyAdapter != null && fromCurrencyAdapter.getSelectedCurrency() != null) {
             currentFromSelection = fromCurrencyAdapter.getSelectedCurrency();
         }
-        
+
         if (toCurrencyAdapter != null && toCurrencyAdapter.getSelectedCurrency() != null) {
             currentToSelection = toCurrencyAdapter.getSelectedCurrency();
         }
 
-        // Create new adapters with preferred currencies
         fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
-        
-        // Set adapters
+
         fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
-        // Try to restore previous selections
         boolean fromSelectionRestored = false;
         if (currentFromSelection != null) {
             for (int i = 0; i < fromCurrencyAdapter.getCount(); i++) {
@@ -297,16 +283,16 @@ public class ExchangeFragment extends Fragment {
 
     private void resetCurrencySpinners() {
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
-        
+
         fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
-        
+
         fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
         if (currencies.size() > 0) {
             fromCurrencySpinner.setSelection(0);
-            
+
             if (currencies.size() > 1) {
                 toCurrencySpinner.setSelection(1);
             }
@@ -371,38 +357,41 @@ public class ExchangeFragment extends Fragment {
             return;
         }
 
+        setupTransactionObserver();
+        
+        viewModel.resetTransactionResult();
+        
         showLoading(true);
         viewModel.exchangeBasedOnPreference(fromCurrency, amount);
     }
 
-    private void observeViewModel() {
+    private void setupTransactionObserver() {
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
-
+        
         transactionObserver = result -> {
             showLoading(false);
 
             if (result == null) return;
 
             Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
-            Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
             String amount = fromAmountEditText.getText().toString();
             long timestamp = System.currentTimeMillis();
 
             TransactionResultFragment fragment = TransactionResultFragment.newInstance(
-                result.isSuccess(),
-                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
-                amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???"),
-                "Exchange",
-                timestamp,
-                result.getMessage() != null ? result.getMessage() : ""
+                    result.isSuccess(),
+                    result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                    amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???"),
+                    "Exchange",
+                    timestamp,
+                    result.getMessage() != null ? result.getMessage() : ""
             );
             requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_main, fragment)
-                .addToBackStack(null)
-                .commit();
+                    .beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .addToBackStack(null)
+                    .commit();
 
             if (result.isSuccess()) {
                 fromAmountEditText.setText("");
@@ -413,7 +402,9 @@ public class ExchangeFragment extends Fragment {
         };
 
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
+    }
 
+    private void observeViewModel() {
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateBalanceUI);
     }
 

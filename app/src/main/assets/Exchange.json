@@ -4,11 +4,6 @@
       "type": "constructor",
       "inputs": [
         {
-          "name": "_priceFeedAddress",
-          "type": "address",
-          "internalType": "address"
-        },
-        {
           "name": "_euroTokenAddress",
           "type": "address",
           "internalType": "address"
@@ -17,9 +12,44 @@
           "name": "_usdTokenAddress",
           "type": "address",
           "internalType": "address"
+        },
+        {
+          "name": "_ethUsdPriceFeedAddress",
+          "type": "address",
+          "internalType": "address"
         }
       ],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "receive",
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "EUR",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "USD",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -41,6 +71,32 @@
     },
     {
       "type": "function",
+      "name": "decimals",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "ethUsdPriceFeed",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "contract AggregatorV3Interface"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "euroToken",
       "inputs": [],
       "outputs": [
@@ -58,6 +114,25 @@
       "inputs": [
         {
           "name": "amountInEur",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "exchangeUsdToEur",
+      "inputs": [
+        {
+          "name": "amountInUsd",
           "type": "uint256",
           "internalType": "uint256"
         }
@@ -120,6 +195,19 @@
           "internalType": "uint8"
         }
       ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "getEthUsdPrice",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256",
+          "internalType": "int256"
+        }
+      ],
       "stateMutability": "view"
     },
     {
@@ -137,7 +225,7 @@
     },
     {
       "type": "function",
-      "name": "getLatestPrice",
+      "name": "getExchangeRate",
       "inputs": [],
       "outputs": [
         {
@@ -163,16 +251,83 @@
     },
     {
       "type": "function",
+      "name": "mintUsdTokens",
+      "inputs": [
+        {
+          "name": "usdAmount",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "sendMoney",
+      "inputs": [
+        {
+          "name": "amount",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "sendCurrency",
+          "type": "uint8",
+          "internalType": "uint8"
+        },
+        {
+          "name": "receiveCurrency",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setExchangeRate",
+      "inputs": [
+        {
+          "name": "exchangeRate",
+          "type": "int256",
+          "internalType": "int256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
       "name": "usdToken",
       "inputs": [],
       "outputs": [
         {
           "name": "",
           "type": "address",
-          "internalType": "contract IERC20"
+          "internalType": "contract UsdERC20"
         }
       ],
       "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "withdrawEth",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "nonpayable"
     },
     {
       "type": "event",
@@ -185,16 +340,28 @@
           "internalType": "address"
         },
         {
-          "name": "euroAmount",
+          "name": "sourceAmount",
           "type": "uint256",
           "indexed": false,
           "internalType": "uint256"
         },
         {
-          "name": "usdAmount",
+          "name": "targetAmount",
           "type": "uint256",
           "indexed": false,
           "internalType": "uint256"
+        },
+        {
+          "name": "sourceCurrency",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "targetCurrency",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
         },
         {
           "name": "exchangeRate",
@@ -204,7 +371,150 @@
         }
       ],
       "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "LiquidityAdded",
+      "inputs": [
+        {
+          "name": "token",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "MoneySent",
+      "inputs": [
+        {
+          "name": "from",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "sendAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "receiveAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "sendCurrency",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "receiveCurrency",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        },
+        {
+          "name": "exchangeRate",
+          "type": "int256",
+          "indexed": false,
+          "internalType": "int256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "UsdTokensMinted",
+      "inputs": [
+        {
+          "name": "to",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "ethPaid",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "ChainlinkError",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InsufficientAmount",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InsufficientEthProvided",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidCurrency",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidExchangeRate",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidToken",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ReentrancyGuardReentrantCall",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "RefundFailed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "TransferFailed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "Unauthorized",
+      "inputs": []
     }
   ],
-  "address" : "0xF6686f06E3a9cC8D5C280AeF5852F55a25558cd9"
+  "address" : "0xb74710F2C45fB43949502cE7f702Cde35F4f1aCf"
 }

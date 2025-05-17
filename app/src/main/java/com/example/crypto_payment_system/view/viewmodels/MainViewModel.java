@@ -34,6 +34,7 @@ import com.example.crypto_payment_system.service.token.TokenContractService;
 import com.example.crypto_payment_system.service.token.TokenContractServiceImpl;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
+import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.google.api.JwtLocation;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -42,6 +43,7 @@ import org.json.JSONException;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,6 +73,7 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<String> selectedCurrency = new MutableLiveData<>();
     private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<Transaction>> filteredTransactions = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<ConfirmationRequest> transactionConfirmation = new MutableLiveData<>();
     private ListenerRegistration transactionListener;
 
     public MainViewModel(@NonNull Application application) throws Exception {
@@ -327,12 +330,14 @@ public class MainViewModel extends AndroidViewModel {
             transactionResult.setValue(new TransactionResult(false, null, "Connect to Ethereum first"));
             return;
         }
+
         try {
             double amount = Double.parseDouble(humanReadableAmount);
             if (amount <= 0) {
                 transactionResult.setValue(new TransactionResult(false, null, "Amount must be greater than zero"));
                 return;
             }
+
             BigDecimal decimalAmount = BigDecimal.valueOf(amount);
             BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
             String tokenAmount = tokenUnits.toBigInteger().toString();
@@ -342,27 +347,60 @@ public class MainViewModel extends AndroidViewModel {
             final String displayAmount = humanReadableAmount;
             final String displayCurrency = currency.equals("USD") ? "USDT" : "EURC";
 
-            tokenRepository.mintTokens(currency, getActiveCredentials(), tokenAmount)
-                    .thenAccept(result -> {
-                        if (result.isSuccess()) {
-                            result = new TransactionResult(
-                                    true,
-                                    result.getTransactionHash(),
-                                    "Successfully added " + displayAmount + " " + displayCurrency + " as liquidity"
-                            );
-                        }
-                        transactionResult.postValue(result);
+            // First, get the required ETH amount without executing the transaction
+            exchangeRepository.getRequiredTokenCost(currency, getActiveCredentials(), tokenAmount)
+                    .thenAccept(costInfo -> {
                         isLoading.postValue(false);
 
-                        if (result.isSuccess()) {
-                            tokenRepository.getAllBalances(getActiveCredentials())
-                                    .thenAccept(balances -> tokenBalances.postValue(balances));
-                        }
+                        BigDecimal ethAmount = new BigDecimal(costInfo.getRequiredEth())
+                                .divide(BigDecimal.TEN.pow(18), 6, RoundingMode.HALF_UP);
+
+                        String confirmationMessage = "Converting " + displayAmount + " " + displayCurrency +
+                                " will cost approximately " + ethAmount + " ETH. Proceed?";
+
+                        transactionConfirmation.postValue(new ConfirmationRequest(
+                                confirmationMessage,
+                                () -> executeTokenMinting(currency, tokenAmount, displayAmount, displayCurrency)
+                        ));
+                    })
+                    .exceptionally(ex -> {
+                        isLoading.postValue(false);
+                        transactionResult.postValue(new TransactionResult(
+                                false,
+                                null,
+                                "Error calculating cost: " + ex.getMessage()
+                        ));
+                        return null;
                     });
         } catch (NumberFormatException e) {
             transactionResult.setValue(new TransactionResult(false, null, "Invalid amount format"));
             isLoading.setValue(false);
         }
+    }
+
+    /**
+     * Execute the actual token minting after user confirmation
+     */
+    private void executeTokenMinting(String currency, String tokenAmount, String displayAmount, String displayCurrency) {
+        isLoading.setValue(true);
+
+        exchangeRepository.mintTokens(currency, getActiveCredentials(), tokenAmount)
+                .thenAccept(result -> {
+                    if (result.isSuccess()) {
+                        result = new TransactionResult(
+                                true,
+                                result.getTransactionHash(),
+                                "Successfully added " + displayAmount + " " + displayCurrency + " as liquidity"
+                        );
+                    }
+                    transactionResult.postValue(result);
+                    isLoading.postValue(false);
+
+                    if (result.isSuccess()) {
+                        tokenRepository.getAllBalances(getActiveCredentials())
+                                .thenAccept(balances -> tokenBalances.postValue(balances));
+                    }
+                });
     }
 
     /**
@@ -712,5 +750,13 @@ public class MainViewModel extends AndroidViewModel {
             return Arrays.asList(user.getPreferredCurrency().split(","));
         }
         return new ArrayList<>();
+    }
+
+    public LiveData<ConfirmationRequest> getTransactionConfirmation() {
+        return transactionConfirmation;
+    }
+
+    public void resetTransactionConfirmation() {
+        transactionConfirmation.setValue(null);
     }
 }
