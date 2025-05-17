@@ -601,7 +601,7 @@ public class MainViewModel extends AndroidViewModel {
             boolean include = false;
 
             if ("EUR".equals(currency)) {
-                if (type.equals("EUR_TRANSFER") || type.equals("EUR_TO_USD")) {
+                if (type.equals("EUR_TRANSFER") || type.equals("EUR_TO_USD") || type.equals("EUR_TO_USD_TRANSFER")) {
                     include = true;
                 } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 1) {
                     include = true;
@@ -609,7 +609,7 @@ public class MainViewModel extends AndroidViewModel {
                     include = true;
                 }
             } else if ("USD".equals(currency)) {
-                if (type.equals("USD_TRANSFER") || type.equals("USD_TO_EUR_TRANSFER")) {
+                if (type.equals("USD_TRANSFER") || type.equals("USD_TO_EUR_TRANSFER") || type.equals("USD_TO_EUR")) {
                     include = true;
                 } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 2) {
                     include = true;

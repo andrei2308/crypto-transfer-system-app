@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
@@ -40,12 +42,12 @@ public class ExchangeFragment extends Fragment {
     private TextInputEditText fromAmountEditText;
     private TextView exchangeRateValue;
     private TextView estimatedAmountValue;
-    private TextView resultTextView;
     private ProgressBar progressBar;
     private Button calculateButton;
     private Button exchangeButton;
     private CurrencyAdapter fromCurrencyAdapter;
     private CurrencyAdapter toCurrencyAdapter;
+    private FrameLayout buttonProgressContainer;
 
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
@@ -75,10 +77,10 @@ public class ExchangeFragment extends Fragment {
         fromAmountEditText = view.findViewById(R.id.fromAmountEditText);
         exchangeRateValue = view.findViewById(R.id.exchangeRateValue);
         estimatedAmountValue = view.findViewById(R.id.estimatedAmountValue);
-        resultTextView = view.findViewById(R.id.resultTextView);
         progressBar = view.findViewById(R.id.progressBar);
         calculateButton = view.findViewById(R.id.calculateButton);
         exchangeButton = view.findViewById(R.id.exchangeButton);
+        buttonProgressContainer = view.findViewById(R.id.buttonProgressContainer);
 
         eurBalanceValue = view.findViewById(R.id.eurBalanceValue);
         usdBalanceValue = view.findViewById(R.id.usdBalanceValue);
@@ -284,7 +286,6 @@ public class ExchangeFragment extends Fragment {
             }
         }
 
-        // Default selections if not restored
         if (!fromSelectionRestored && currencies.size() > 0) {
             fromCurrencySpinner.setSelection(0);
         }
@@ -295,18 +296,14 @@ public class ExchangeFragment extends Fragment {
     }
 
     private void resetCurrencySpinners() {
-        // Get all available currencies
         List<Currency> currencies = new ArrayList<>(CurrencyManager.getAvailableCurrencies());
         
-        // Create new adapters
         fromCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         toCurrencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         
-        // Set adapters
         fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
-        // Default selections
         if (currencies.size() > 0) {
             fromCurrencySpinner.setSelection(0);
             
@@ -322,14 +319,12 @@ public class ExchangeFragment extends Fragment {
         exchangeButton.setEnabled(false);
         exchangeRateValue.setText("--");
         estimatedAmountValue.setText("--");
-        resultTextView.setText(message);
     }
 
     private void enableExchangeFunctionality() {
         fromAmountEditText.setEnabled(true);
         calculateButton.setEnabled(true);
         exchangeButton.setEnabled(true);
-        resultTextView.setText(R.string.exchange_transaction_results_will_appear_here);
     }
 
     @SuppressLint("DefaultLocale")
@@ -376,58 +371,50 @@ public class ExchangeFragment extends Fragment {
             return;
         }
 
-        resultTextView.setText(getString(R.string.starting_exchange_for) + amount + " " + fromCurrency);
-        progressBar.setVisibility(View.VISIBLE);
-        exchangeButton.setEnabled(false);
-
+        showLoading(true);
         viewModel.exchangeBasedOnPreference(fromCurrency, amount);
     }
 
     private void observeViewModel() {
-        // Remove existing observer if any
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
 
-        // Create a new observer
         transactionObserver = result -> {
-            progressBar.setVisibility(View.GONE);
-            exchangeButton.setEnabled(true);
+            showLoading(false);
 
             if (result == null) return;
 
+            Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
+            Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
+            String amount = fromAmountEditText.getText().toString();
+            long timestamp = System.currentTimeMillis();
+
+            TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                result.isSuccess(),
+                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???"),
+                "Exchange",
+                timestamp,
+                result.getMessage() != null ? result.getMessage() : ""
+            );
+            requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .addToBackStack(null)
+                .commit();
+
             if (result.isSuccess()) {
-                Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
-                Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
-                String amount = fromAmountEditText.getText().toString();
-
-                resultTextView.setText(getString(R.string.exchanged) +
-                        amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???") +
-                        " to " + (toCurrency != null ? toCurrency.getCode() : "???") +
-                        "\nTransaction ID: " + result.getTransactionHash());
-
-                // Clear input
                 fromAmountEditText.setText("");
                 exchangeRateValue.setText("--");
                 estimatedAmountValue.setText("--");
-
-                // Refresh balances
                 refreshBalances();
-            } else {
-                resultTextView.setText(getString(R.string.transaction_failed) + result.getMessage());
             }
         };
 
-        // Register the observer
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
 
-        // Observe token balances
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateBalanceUI);
-    }
-
-    private void refreshBalances() {
-        progressBar.setVisibility(View.VISIBLE);
-        viewModel.checkAllBalances();
     }
 
     private void updateBalanceUI(Map<String, TokenBalance> balances) {
@@ -446,9 +433,32 @@ public class ExchangeFragment extends Fragment {
         }
     }
 
+
     private void showLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        progressBar.setVisibility(View.GONE);
+
         exchangeButton.setEnabled(!isLoading);
+        calculateButton.setEnabled(!isLoading);
+
+        if (isLoading) {
+            buttonProgressContainer.setAlpha(0f);
+            buttonProgressContainer.setVisibility(View.VISIBLE);
+            buttonProgressContainer.animate()
+                    .alpha(1f)
+                    .setDuration(200)
+                    .start();
+        } else {
+            buttonProgressContainer.animate()
+                    .alpha(0f)
+                    .setDuration(200)
+                    .withEndAction(() -> buttonProgressContainer.setVisibility(View.GONE))
+                    .start();
+        }
+    }
+
+    private void refreshBalances() {
+        progressBar.setVisibility(View.VISIBLE);
+        viewModel.checkAllBalances();
     }
 
     @Override

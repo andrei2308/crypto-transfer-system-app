@@ -5,13 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
@@ -35,10 +37,10 @@ public class AddLiquidityFragment extends Fragment {
     private MainViewModel viewModel;
     private Spinner currencySpinner;
     private TextInputEditText amountEditText;
-    private TextView resultTextView;
     private ProgressBar progressBar;
     private Button addLiquidityButton;
     private CurrencyAdapter currencyAdapter;
+    private FrameLayout buttonProgressContainer;
 
     // Wallet balance views
     private TextView eurBalanceValue;
@@ -68,7 +70,6 @@ public class AddLiquidityFragment extends Fragment {
 
         currencySpinner = view.findViewById(R.id.currencySpinner);
         amountEditText = view.findViewById(R.id.amountEditText);
-        resultTextView = view.findViewById(R.id.resultTextView);
         progressBar = view.findViewById(R.id.progressBar);
         addLiquidityButton = view.findViewById(R.id.addLiquidityButton);
 
@@ -80,6 +81,7 @@ public class AddLiquidityFragment extends Fragment {
         contractEurBalanceValue = view.findViewById(R.id.contractEurBalanceValue);
         contractUsdBalanceValue = view.findViewById(R.id.contractUsdBalanceValue);
         refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
+        buttonProgressContainer = view.findViewById(R.id.buttonProgressContainer);
 
         refreshBalanceButton.setOnClickListener(v -> refreshBalances());
 
@@ -212,7 +214,6 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void addLiquidity(String currency, String amount) {
-        resultTextView.setText(getString(R.string.adding_liquidity) + amount + " " + currency + "...");
         showLoading(true);
         viewModel.addLiquidity(currency, amount);
     }
@@ -227,26 +228,34 @@ public class AddLiquidityFragment extends Fragment {
 
             if (result == null) return;
 
+            Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+            String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
+            String amount = amountEditText.getText().toString().trim();
+            long timestamp = System.currentTimeMillis();
+
+            TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                result.isSuccess(),
+                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                amount + " " + currencyCode,
+                "Add Liquidity",
+                timestamp,
+                result.getMessage() != null ? result.getMessage() : ""
+            );
+            requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .addToBackStack(null)
+                .commit();
+
             if (result.isSuccess()) {
-                Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
-                String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
-                
-                resultTextView.setText(getString(R.string.added) +
-                        amountEditText.getText().toString().trim() + " " + currencyCode +
-                        getString(R.string.transaction_id) + result.getTransactionHash());
-
                 amountEditText.setText("");
-
                 refreshBalances();
-            } else {
-                resultTextView.setText(getString(R.string.transaction_failed) + result.getMessage());
             }
         };
 
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
 
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateWalletBalanceUI);
-
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateContractBalanceUI);
     }
 
@@ -280,7 +289,10 @@ public class AddLiquidityFragment extends Fragment {
 
     private void showLoading(boolean isLoading) {
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+
         addLiquidityButton.setEnabled(!isLoading);
+
+        buttonProgressContainer.setVisibility(isLoading ? View.VISIBLE : View.GONE);
     }
 
     @Override

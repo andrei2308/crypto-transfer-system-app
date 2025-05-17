@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
+import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
@@ -67,7 +68,6 @@ public class MintFragment extends Fragment {
         mintAmountEditText = view.findViewById(R.id.mintAmountEditText);
         walletAddressEditText = view.findViewById(R.id.walletAddressEditText);
         Button mintButton = view.findViewById(R.id.mintButton);
-        mintStatusTextView = view.findViewById(R.id.mintStatusTextView);
         progressBar = view.findViewById(R.id.mintProgressBar);
         ethBalanceValue = view.findViewById(R.id.ethBalanceValue);
         eurBalanceValue = view.findViewById(R.id.eurBalanceValue);
@@ -213,18 +213,28 @@ public class MintFragment extends Fragment {
 
             if (result == null) return;
 
-            if (result.isSuccess()) {
-                Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
-                String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
-                
-                mintStatusTextView.setText(getString(R.string.transaction_successful_minted) +
-                        mintAmountEditText.getText().toString().trim() + " " + currencyCode +
-                        "\nTransaction ID: " + result.getTransactionHash());
-                mintAmountEditText.setText("");
+            Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+            String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
+            String amount = mintAmountEditText.getText().toString().trim();
+            long timestamp = System.currentTimeMillis();
 
+            TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                result.isSuccess(),
+                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                amount + " " + currencyCode,
+                "Mint Tokens",
+                timestamp,
+                result.getMessage() != null ? result.getMessage() : ""
+            );
+            requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .addToBackStack(null)
+                .commit();
+
+            if (result.isSuccess()) {
+                mintAmountEditText.setText("");
                 refreshBalances();
-            } else {
-                mintStatusTextView.setText(getString(R.string.transaction_failed) + result.getMessage());
             }
         };
 
@@ -282,7 +292,6 @@ public class MintFragment extends Fragment {
             String currency = selectedCurrency.getCode();
 
             progressBar.setVisibility(View.VISIBLE);
-            mintStatusTextView.setText(R.string.processing_transaction);
 
             if (!targetWalletAddress.isEmpty()) {
                 // Uncomment when the method is implemented

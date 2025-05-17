@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.App.AccountSpinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/spinner_transparent_background</item>
+        <item name="android:dropDownWidth">280dp</item>
+        <item name="android:popupBackground">@color/colorSurface</item>
+        <item name="android:popupElevation">4dp</item>
+        <item name="android:dropDownVerticalOffset">-4dp</item>
+        <item name="android:dropDownHorizontalOffset">0dp</item>
+        <item name="android:spinnerMode">dropdown</item>
+        <item name="android:focusable">true</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+</resources> 

@@ -63,11 +63,11 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
     }
 
     static class TransactionViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView typeIcon;
-        private final TextView typeText;
-        private final TextView hashText;
-        private final TextView amountText;
-        private final TextView timestampText;
+        private final TextView statusIndicator;
+        private final TextView dateIndicatorText;
+        private final TextView merchantNameTextView;
+        private final TextView transactionTypeTextView;
+        private final TextView amountTextView;
         private final TransactionClickListener listener;
         private final String currentUserAddress;
         private List<String> prefferedCurrencies = new ArrayList<>();
@@ -76,11 +76,11 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         public TransactionViewHolder(@NonNull View itemView, TransactionClickListener listener, String currentUserAddress, List<String> prefferedCurrencies) {
             super(itemView);
             this.listener = listener;
-            typeIcon = itemView.findViewById(R.id.transactionTypeIcon);
-            typeText = itemView.findViewById(R.id.transactionTypeText);
-            hashText = itemView.findViewById(R.id.transactionHashText);
-            amountText = itemView.findViewById(R.id.transactionAmount);
-            timestampText = itemView.findViewById(R.id.transactionTimestamp);
+            statusIndicator = itemView.findViewById(R.id.statusIndicator);
+            dateIndicatorText = itemView.findViewById(R.id.dateIndicatorText);
+            merchantNameTextView = itemView.findViewById(R.id.merchantNameTextView);
+            transactionTypeTextView = itemView.findViewById(R.id.transactionTypeTextView);
+            amountTextView = itemView.findViewById(R.id.amountTextView);
             this.currentUserAddress = currentUserAddress;
             this.prefferedCurrencies = prefferedCurrencies;
         }
@@ -90,35 +90,15 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         }
 
         public void bind(final Transaction transaction) {
-            int iconResId;
-            String type = transaction.getTransactionType();
+            // Set the date
+            Date date = new Date(transaction.getTimestamp());
+            dateIndicatorText.setText(DateFormat.format("dd", date).toString());
+            
+            // Merchant name (using hash as merchant name)
+            merchantNameTextView.setText(shortenHash(transaction.getTransactionHash()));
 
-            if ("ADD_LIQUIDITY".equals(type)) {
-                iconResId = R.drawable.ic_transaction_add;
-            } else if ("REMOVE_LIQUIDITY".equals(type)) {
-                iconResId = R.drawable.ic_transaction_remove;
-            } else if ("EUR_TO_USD".equals(type)) {
-                iconResId = R.drawable.ic_transaction_eur_to_usd;
-            } else if ("USD_TO_EUR".equals(type)) {
-                iconResId = R.drawable.ic_transaction_usd_to_eur;
-            } else if ("EUR_TRANSFER".equals(type)) {
-                iconResId = R.drawable.ic_transaction_eur_transfer;
-            } else if ("USD_TRANSFER".equals(type)) {
-                iconResId = R.drawable.ic_transaction_usd_transfer;
-            } else if ("EUR_TO_USD_TRANSFER".equals(type)) {
-                iconResId = R.drawable.ic_transaction_eur_to_usd_transfer;
-            } else if ("USD_TO_EUR_TRANSFER".equals(type)) {
-                iconResId = R.drawable.ic_transaction_usd_to_eur_transfer;
-            } else if (("EUR TRANSFER".equals(type) || "USD TRANSFER".equals(type)) && transaction.getWalletAddress().equals(transaction.getWalletAddressTo())) {
-                iconResId = R.drawable.ic_transaction_swap;
-            } else {
-                iconResId = R.drawable.ic_transaction_default;
-            }
-            typeIcon.setImageResource(iconResId);
-
-            typeText.setText(formatTransactionType(transaction.getTransactionType()));
-
-            hashText.setText(shortenHash(transaction.getTransactionHash()));
+            // Set transaction type
+            transactionTypeTextView.setText(formatTransactionType(transaction.getTransactionType()));
 
             String currency = "";
             String exchangeRate = "100000000"; // exchange rate with 8 decimals for blockchain
@@ -156,7 +136,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             }
             String amount = formatAmount(transaction, transaction.getAmount(), exchangeRate);
             amount += currency;
-            amountText.setText(amount);
+            amountTextView.setText(amount);
 
             int amountColor;
 
@@ -165,10 +145,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             } else {
                 amountColor = R.color.colorPositive;
             }
-            amountText.setTextColor(ContextCompat.getColor(itemView.getContext(), amountColor));
-
-
-            timestampText.setText(formatTimestamp(transaction.getTimestamp()));
+            amountTextView.setTextColor(ContextCompat.getColor(itemView.getContext(), amountColor));
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -230,11 +207,6 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
 
         private String getCurrentUserAddress() {
             return currentUserAddress;
-        }
-
-        private String formatTimestamp(long timestamp) {
-            Date date = new Date(timestamp);
-            return DateFormat.format("MMM dd, yyyy HH:mm", date).toString();
         }
 
         private String capitalizeWords(String text) {

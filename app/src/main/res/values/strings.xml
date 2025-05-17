@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">crypto-payment-system</string>
+    <string name="app_name">Crypto payment system</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
@@ -7,7 +7,7 @@
     <string name="exchange_eur_usd">Exchange EUR → USD</string>
     <string name="exchange_usd_eur">Exchange USD → EUR</string>
     <string name="transaction_successful_minted">"Transaction successful!\nMinted "</string>
-    <string name="transaction_failed">"Transaction failed: "</string>
+    <string name="transaction_failed">"Transaction failed "</string>
     <string name="processing_transaction">Processing transaction</string>
     <string name="account">Account:</string>
     <string name="add">+</string>
@@ -136,6 +136,17 @@
     <string name="selected">Selected</string>
     <string name="euro">Euro</string>
     <string name="us_dollar">US Dollar</string>
+    <string name="welcome">Welcome !</string>
+    <string name="select_your_account">Select your account :</string>
+    <string name="welcome_back">Welcome back !</string>
+    <string name="please_enter_valid_number">Please enter a valid number</string>
+    <string name="clear_selection">Clear selection</string>
+    <string name="transaction_successful">Transaction successful</string>
+    <string name="processing">Processing ...</string>
+    <string name="type">Type</string>
+    <string name="timestamp">Timestamp</string>
+    <string name="message">Message</string>
+    <string name="ok">Ok</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
