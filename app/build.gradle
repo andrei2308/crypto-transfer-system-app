@@ -27,6 +27,13 @@ android {
 
         def alchemyNode = localProperties.getProperty('ethereum.apiKey', '')
         buildConfigField "String", "ALCHEMY_NODE", "\"${alchemyNode}\""
+
+        def backendUsername = localProperties.getProperty('backend.username', '')
+        buildConfigField "String", "BACKEND_USERNAME", "\"${backendUsername}\""
+
+        def backendPassword = localProperties.getProperty('backend.password', '')
+        buildConfigField "String", "BACKEND_PASSWORD", "\"${backendPassword}\""
+
     }
 
     buildTypes {
@@ -60,6 +67,7 @@ dependencies {
 
     implementation ('org.web3j:core:4.12.3-android')
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'org.slf4j:slf4j-simple:1.7.36'
     // Jackson dependencies for JSON processing (needed by web3j)
@@ -80,4 +88,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:22.3.1'
 
     implementation "androidx.preference:preference:1.2.1"
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 }

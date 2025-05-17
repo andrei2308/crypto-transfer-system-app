@@ -5,6 +5,7 @@ import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
 
 import android.app.Application;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -13,6 +14,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.config.ApiConfig;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.contracts.ExchangeContractImpl;
 import com.example.crypto_payment_system.domain.account.User;
@@ -20,6 +22,9 @@ import com.example.crypto_payment_system.domain.account.WalletAccount;
 import com.example.crypto_payment_system.domain.account.WalletManager;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
+import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
+import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
+import com.example.crypto_payment_system.repositories.api.ExchangeRateRepositoryImpl;
 import com.example.crypto_payment_system.repositories.exchange.ExchangeRepository;
 import com.example.crypto_payment_system.repositories.exchange.ExchangeRepositoryImpl;
 import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
@@ -36,7 +41,6 @@ import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
 import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
-import com.google.api.JwtLocation;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import org.json.JSONException;
@@ -62,6 +66,7 @@ public class MainViewModel extends AndroidViewModel {
     private final TransactionRepositoryImpl transactionRepository;
     private final UserRepository userRepository;
     private final WalletManager walletManager;
+    private final ExchangeRateRepository exchangeRateRepository;
 
     private final MutableLiveData<String> connectionStatus = new MutableLiveData<>();
     private final MutableLiveData<Map<String, String>> tokenAddresses = new MutableLiveData<>();
@@ -74,6 +79,8 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<Transaction>> filteredTransactions = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<ConfirmationRequest> transactionConfirmation = new MutableLiveData<>();
+    private final MutableLiveData<ExchangeRate> exchangeRate = new MutableLiveData<>();
+    
     private ListenerRegistration transactionListener;
 
     public MainViewModel(@NonNull Application application) throws Exception {
@@ -88,6 +95,12 @@ public class MainViewModel extends AndroidViewModel {
         ExchangeContract exchangeContract = new ExchangeContractImpl(web3Service, tokenService);
         tokenRepository = new TokenRepositoryImpl(web3Service, tokenService);
         exchangeRepository = new ExchangeRepositoryImpl(web3Service, exchangeContract, tokenRepository, firestoreService);
+        
+        exchangeRateRepository = new ExchangeRateRepositoryImpl(
+                ApiConfig.BASE_URL,
+                ApiConfig.USERNAME,
+                ApiConfig.PASSWORD
+        );
 
         walletManager = new WalletManager(application);
 
@@ -758,5 +771,30 @@ public class MainViewModel extends AndroidViewModel {
 
     public void resetTransactionConfirmation() {
         transactionConfirmation.setValue(null);
+    }
+
+    /**
+     * Fetch the current exchange rate from the API
+     */
+    public void fetchExchangeRate() {
+        isLoading.setValue(true);
+        
+        exchangeRateRepository.getExchangeRate()
+                .thenAccept(rate -> {
+                    exchangeRate.postValue(rate);
+                    isLoading.postValue(false);
+                })
+                .exceptionally(e -> {
+                    Log.e("MainViewModel", "Error fetching exchange rate", e);
+                    isLoading.postValue(false);
+                    return null;
+                });
+    }
+
+    /**
+     * Get the exchange rate LiveData
+     */
+    public LiveData<ExchangeRate> getExchangeRate() {
+        return exchangeRate;
     }
 }

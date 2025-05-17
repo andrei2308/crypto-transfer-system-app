@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/label_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exchange Rate"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_exchange_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="--"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/label_rate" />
+
+    <TextView
+        android:id="@+id/label_from"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="From Currency:"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_exchange_rate" />
+
+    <TextView
+        android:id="@+id/tv_from_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="--"
+        app:layout_constraintBottom_toBottomOf="@id/label_from"
+        app:layout_constraintStart_toEndOf="@id/label_from"
+        app:layout_constraintTop_toTopOf="@id/label_from" />
+
+    <TextView
+        android:id="@+id/label_to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="To Currency:"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/label_from" />
+
+    <TextView
+        android:id="@+id/tv_to_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="--"
+        app:layout_constraintBottom_toBottomOf="@id/label_to"
+        app:layout_constraintStart_toEndOf="@id/label_to"
+        app:layout_constraintTop_toTopOf="@id/label_to" />
+
+    <TextView
+        android:id="@+id/label_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Updated:"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/label_to" />
+
+    <TextView
+        android:id="@+id/tv_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="--"
+        app:layout_constraintBottom_toBottomOf="@id/label_timestamp"
+        app:layout_constraintStart_toEndOf="@id/label_timestamp"
+        app:layout_constraintTop_toTopOf="@id/label_timestamp" />
+
+    <Button
+        android:id="@+id/btn_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Refresh"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/label_timestamp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.databinding.FragmentHomeBinding;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
+import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.ui.transaction.TransactionDetailsDialogFragment;
 import com.example.crypto_payment_system.ui.transaction.TransactionHistoryFragment;
 import com.example.crypto_payment_system.utils.adapter.balancePager.BalancePagerAdapter;
@@ -25,6 +27,7 @@ import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +43,12 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     private TextView userAddressTextView;
     private TextView welcomeTextView;
     private TextView connectedStatusTextView;
+    
+    // Exchange rate views
+    private TextView exchangeRateValue;
+    private TextView exchangeRateCurrencies;
+    private TextView exchangeRateTimestamp;
+    private Button refreshRateButton;
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
@@ -61,6 +70,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         setupObservers();
         setupBalanceViewPager();
         setupTransactionsList();
+        setupExchangeRate();
 
         String walletAddress = viewModel.getCurrentUser().getValue() != null ?
                 viewModel.getCurrentUser().getValue().getWalletAddress() : "";
@@ -68,6 +78,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         if (!walletAddress.isEmpty()) {
             viewModel.loadTransactionsForWallet(walletAddress.toLowerCase());
             viewModel.checkAllBalances();
+            viewModel.fetchExchangeRate(); // Fetch exchange rate on view creation
         }
     }
 
@@ -80,6 +91,12 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         userAddressTextView = binding.profileSection.userAddressTextView;
         welcomeTextView = binding.profileSection.welcomeTextView;
         connectedStatusTextView = binding.profileSection.connectedStatusTextView;
+        
+        // Setup exchange rate views
+        exchangeRateValue = binding.exchangeRateCard.findViewById(R.id.exchange_rate_value);
+        exchangeRateCurrencies = binding.exchangeRateCard.findViewById(R.id.exchange_rate_currencies);
+        exchangeRateTimestamp = binding.exchangeRateCard.findViewById(R.id.exchange_rate_timestamp);
+        refreshRateButton = binding.exchangeRateCard.findViewById(R.id.btn_refresh_rate);
 
         if (viewModel != null && viewModel.getCurrentUser().getValue() != null) {
             String walletAddress = viewModel.getCurrentUser().getValue().getWalletAddress();
@@ -147,6 +164,38 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                 }
             }
         });
+        
+        viewModel.getExchangeRate().observe(getViewLifecycleOwner(), this::updateExchangeRateUI);
+        
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            refreshRateButton.setEnabled(!isLoading);
+        });
+    }
+    
+    /**
+     * Set up exchange rate functionality
+     */
+    private void setupExchangeRate() {
+        refreshRateButton.setOnClickListener(v -> viewModel.fetchExchangeRate());
+    }
+    
+    /**
+     * Update UI with exchange rate data
+     */
+    private void updateExchangeRateUI(ExchangeRate rate) {
+        if (rate == null) {
+            exchangeRateValue.setText("--");
+            exchangeRateCurrencies.setText("");
+            exchangeRateTimestamp.setText("");
+            return;
+        }
+        
+        DecimalFormat df = new DecimalFormat("#.####");
+        exchangeRateValue.setText(df.format(rate.getRate()));
+        exchangeRateCurrencies.setText(
+                String.format("%s → %s", rate.getFromCurrency(), rate.getToCurrency())
+        );
+        exchangeRateTimestamp.setText(String.format("Updated: %s", rate.getTimestamp()));
     }
 
     private void setupBalanceViewPager() {
