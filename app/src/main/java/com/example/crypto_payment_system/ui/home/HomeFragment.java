@@ -1,10 +1,13 @@
 package com.example.crypto_payment_system.ui.home;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,19 +20,28 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.databinding.FragmentHomeBinding;
 import com.example.crypto_payment_system.domain.account.User;
-import com.example.crypto_payment_system.domain.transaction.Transaction;
+import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
+import com.example.crypto_payment_system.domain.transaction.Transaction;
+import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
 import com.example.crypto_payment_system.ui.transaction.TransactionDetailsDialogFragment;
 import com.example.crypto_payment_system.ui.transaction.TransactionHistoryFragment;
 import com.example.crypto_payment_system.utils.adapter.balancePager.BalancePagerAdapter;
+import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
+import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 public class HomeFragment extends Fragment implements TransactionAdapter.TransactionClickListener {
 
@@ -43,6 +55,11 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     private TextView userAddressTextView;
     private TextView welcomeTextView;
     private TextView connectedStatusTextView;
+
+    private TextInputEditText quickFromAmountEditText;
+    private TextView quickEstimatedAmountValue;
+    private TextView quickExchangeRateValue;
+    private TextView lastUpdatedText;
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
@@ -64,6 +81,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         setupObservers();
         setupBalanceViewPager();
         setupTransactionsList();
+        setupSimpleExchangeCalculator();
 
         String walletAddress = viewModel.getCurrentUser().getValue() != null ?
                 viewModel.getCurrentUser().getValue().getWalletAddress() : "";
@@ -103,6 +121,95 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                         .commit();
             }
         });
+
+        binding.goToExchangeLabel.setOnClickListener(v -> {
+            ExchangeFragment fragment = new ExchangeFragment();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+    }
+
+    private void setupSimpleExchangeCalculator() {
+        quickFromAmountEditText = binding.quickFromAmountEditText;
+        quickEstimatedAmountValue = binding.quickEstimatedAmountValue;
+        quickExchangeRateValue = binding.quickExchangeRateValue;
+        lastUpdatedText = binding.lastUpdatedText;
+
+        TextView fromCurrencyLabel = binding.fromCurrencyLabel;
+        TextView toCurrencyLabel = binding.toCurrencyLabel;
+        fromCurrencyLabel.setText("EUR Amount");
+        toCurrencyLabel.setText("USD Equivalent");
+
+        binding.quickFromCurrencySpinner.setVisibility(View.GONE);
+        binding.quickToCurrencySpinner.setVisibility(View.GONE);
+
+        quickFromAmountEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s != null && !s.toString().isEmpty()) {
+                    calculateEurToUsdRate();
+                } else {
+                    quickEstimatedAmountValue.setText("0.00 USD");
+                }
+            }
+        });
+
+        viewModel.getExchangeRateData().observe(getViewLifecycleOwner(), exchangeRate -> {
+            if (exchangeRate != null) {
+                updateExchangeRateUI(exchangeRate);
+            }
+        });
+
+        viewModel.fetchExchangeRate();
+    }
+
+    private void calculateEurToUsdRate() {
+        String amount = Objects.requireNonNull(quickFromAmountEditText.getText()).toString();
+        if (amount.isEmpty()) {
+            quickEstimatedAmountValue.setText("0.00 USD");
+            return;
+        }
+
+        double rate = viewModel.getCurrentExchangeRate();
+        if (rate <= 0) {
+            quickEstimatedAmountValue.setText("-- USD");
+            viewModel.fetchExchangeRate();
+            return;
+        }
+
+        try {
+            double inputAmount = Double.parseDouble(amount);
+            double estimatedAmount = inputAmount * rate;
+            DecimalFormat df = new DecimalFormat("#,##0.00");
+            quickEstimatedAmountValue.setText(df.format(estimatedAmount) + " USD");
+        } catch (NumberFormatException e) {
+            quickEstimatedAmountValue.setText("0.00 USD");
+        }
+    }
+
+    private void updateExchangeRateUI(ExchangeRate exchangeRate) {
+        if (exchangeRate == null) return;
+
+        double rate = exchangeRate.getRate();
+
+        viewModel.setCurrentExchangeRate(rate);
+
+        DecimalFormat df = new DecimalFormat("#.####");
+        quickExchangeRateValue.setText(String.format("1 EUR = %s USD", df.format(rate)));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        lastUpdatedText.setText("Last updated: " + sdf.format(new Date()));
+
+        calculateEurToUsdRate();
     }
 
     private void setupObservers() {

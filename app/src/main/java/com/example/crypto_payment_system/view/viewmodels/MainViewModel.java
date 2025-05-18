@@ -796,7 +796,7 @@ public class MainViewModel extends AndroidViewModel {
     /**
      * Get the exchange rate LiveData
      */
-    public LiveData<ExchangeRate> getExchangeRate() {
+    public LiveData<ExchangeRate> getExchangeRateData() {
         return exchangeRate;
     }
 
