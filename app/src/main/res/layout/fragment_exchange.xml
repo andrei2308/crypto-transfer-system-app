@@ -223,6 +223,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/amount_to_exchange"
+                            android:maxLength="6"
                             android:textColor="@color/textPrimary"
                             android:textSize="16sp"
                             android:inputType="numberDecimal" />
@@ -347,7 +348,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/erate"
-                        android:textSize="16sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
                         android:textColor="@color/colorPrimary"
                         android:gravity="end"
@@ -372,7 +373,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="@string/erate"
-                        android:textSize="16sp"
+                        android:textSize="12sp"
                         android:textStyle="bold"
                         android:textColor="@color/colorPrimary"
                         android:gravity="end"
@@ -382,23 +383,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/estimatedAmountLabel" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!-- Action Buttons -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/calculateButton"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/calculate"
-                android:textSize="16sp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="6dp"
-                app:icon="@drawable/ic_calculate"
-                app:iconGravity="textStart"
-                app:cornerRadius="12dp"
-                app:layout_constraintTop_toBottomOf="@id/rateInfoCardView"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/exchangeButton" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/exchangeButton"
@@ -411,8 +395,8 @@
                 app:icon="@drawable/ic_compare_arrows"
                 app:iconGravity="textStart"
                 app:cornerRadius="12dp"
-                app:layout_constraintTop_toTopOf="@id/calculateButton"
-                app:layout_constraintStart_toEndOf="@id/calculateButton"
+                app:layout_constraintTop_toBottomOf="@id/rateInfoCardView"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 />
             <!-- Add this right after your exchangeButton in fragment_exchange.xml -->

@@ -1,4 +1,4 @@
-package com.example.crypto_payment_system.ui.fragments;
+package com.example.crypto_payment_system.ui.exchangeRate;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -70,7 +70,6 @@ public class ExchangeRateFragment extends Fragment {
      * Fetch exchange rate data from the API
      */
     private void fetchExchangeRate() {
-        // Show loading state
         tvExchangeRate.setText("Loading...");
         
         exchangeRateRepository.getExchangeRate()

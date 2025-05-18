@@ -68,6 +68,8 @@ public class MainViewModel extends AndroidViewModel {
     private final WalletManager walletManager;
     private final ExchangeRateRepository exchangeRateRepository;
 
+    private double currentExchangeRate = 0;
+
     private final MutableLiveData<String> connectionStatus = new MutableLiveData<>();
     private final MutableLiveData<Map<String, String>> tokenAddresses = new MutableLiveData<>();
     private final MutableLiveData<Map<String, TokenBalance>> tokenBalances = new MutableLiveData<>();
@@ -796,5 +798,13 @@ public class MainViewModel extends AndroidViewModel {
      */
     public LiveData<ExchangeRate> getExchangeRate() {
         return exchangeRate;
+    }
+
+    public double getCurrentExchangeRate() {
+        return currentExchangeRate;
+    }
+
+    public void setCurrentExchangeRate(double rate) {
+        this.currentExchangeRate = rate;
     }
 }
