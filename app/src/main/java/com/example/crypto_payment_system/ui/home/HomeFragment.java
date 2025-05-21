@@ -99,9 +99,9 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         emptyTransactionsMessage = new TextView(requireContext());
         emptyTransactionsMessage.setVisibility(View.GONE);
 
-        userAddressTextView = binding.profileSection.userAddressTextView;
-        welcomeTextView = binding.profileSection.welcomeTextView;
-        connectedStatusTextView = binding.profileSection.connectedStatusTextView;
+        userAddressTextView = binding.profileSection.findViewById(R.id.userAddressTextView);
+        welcomeTextView = binding.profileSection.findViewById(R.id.welcomeTextView);
+        connectedStatusTextView = binding.profileSection.findViewById(R.id.connectedStatusTextView);
 
         if (viewModel != null && viewModel.getCurrentUser().getValue() != null) {
             String walletAddress = viewModel.getCurrentUser().getValue().getWalletAddress();

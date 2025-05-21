@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     android:background="@color/colorBackground"
+    android:padding="16dp"
     tools:context=".ui.liquidity.AddLiquidityFragment">
 
     <TextView
@@ -14,11 +13,11 @@
         style="@style/Widget.App.TextView.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/add_liquidity"
-        android:textSize="24sp"
-        android:textColor="@color/colorPrimaryDark"
         android:gravity="start"
         android:padding="8dp"
+        android:text="@string/add_liquidity"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,9 +28,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/colorSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/liquidityTitleTextView">
@@ -45,11 +44,11 @@
                 android:id="@+id/walletIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:contentDescription="@string/wallet_balance"
                 android:src="@drawable/ic_wallet"
+                app:layout_constraintBottom_toBottomOf="@id/walletBalanceLabel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/walletBalanceLabel"
-                android:contentDescription="@string/wallet_balance"
                 app:tint="@color/colorPrimary" />
 
             <TextView
@@ -57,10 +56,10 @@
                 style="@style/Widget.App.TextView.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/wallet_balance"
-                android:textStyle="bold"
-                android:textColor="@color/colorPrimary"
                 android:layout_marginStart="8dp"
+                android:text="@string/wallet_balance"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/walletIcon"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -68,79 +67,79 @@
                 android:id="@+id/walletDivider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/dividerColor"
                 android:layout_marginTop="8dp"
+                android:background="@color/dividerColor"
                 app:layout_constraintTop_toBottomOf="@id/walletBalanceLabel" />
 
             <ImageView
                 android:id="@+id/eurFlagIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_flag_eur"
                 android:layout_marginTop="12dp"
+                android:contentDescription="@string/eur"
+                android:src="@drawable/ic_flag_eur"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/walletDivider"
-                android:contentDescription="@string/eur" />
+                app:layout_constraintTop_toBottomOf="@id/walletDivider" />
 
             <TextView
                 android:id="@+id/eurBalanceLabel"
                 style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/eur"
                 android:layout_marginStart="8dp"
+                android:text="@string/eur"
+                app:layout_constraintBottom_toBottomOf="@id/eurFlagIcon"
                 app:layout_constraintStart_toEndOf="@id/eurFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/eurFlagIcon"
-                app:layout_constraintBottom_toBottomOf="@id/eurFlagIcon" />
+                app:layout_constraintTop_toTopOf="@id/eurFlagIcon" />
 
             <TextView
                 android:id="@+id/eurBalanceValue"
                 style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/_0_00_eur"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
+                android:text="@string/_0_00_eur"
                 android:textAlignment="textEnd"
+                android:textColor="@color/textPrimary"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/eurBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/eurBalanceLabel"
-                app:layout_constraintBottom_toBottomOf="@id/eurBalanceLabel" />
+                app:layout_constraintTop_toTopOf="@id/eurBalanceLabel" />
 
             <ImageView
                 android:id="@+id/usdFlagIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_flag_usd"
                 android:layout_marginTop="12dp"
+                android:contentDescription="@string/usd"
+                android:src="@drawable/ic_flag_usd"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/eurFlagIcon"
-                android:contentDescription="@string/usd" />
+                app:layout_constraintTop_toBottomOf="@id/eurFlagIcon" />
 
             <TextView
                 android:id="@+id/usdBalanceLabel"
                 style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/usd"
                 android:layout_marginStart="8dp"
+                android:text="@string/usd"
+                app:layout_constraintBottom_toBottomOf="@id/usdFlagIcon"
                 app:layout_constraintStart_toEndOf="@id/usdFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/usdFlagIcon"
-                app:layout_constraintBottom_toBottomOf="@id/usdFlagIcon" />
+                app:layout_constraintTop_toTopOf="@id/usdFlagIcon" />
 
             <TextView
                 android:id="@+id/usdBalanceValue"
                 style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/_0_00_usd"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
+                android:text="@string/_0_00_usd"
                 android:textAlignment="textEnd"
+                android:textColor="@color/textPrimary"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/usdBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/usdBalanceLabel"
-                app:layout_constraintBottom_toBottomOf="@id/usdBalanceLabel" />
+                app:layout_constraintTop_toTopOf="@id/usdBalanceLabel" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -150,9 +149,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/colorSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/walletBalanceCardView">
@@ -166,11 +165,11 @@
                 android:id="@+id/contractIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:contentDescription="@string/contract_balance"
                 android:src="@drawable/ic_ethereum"
+                app:layout_constraintBottom_toBottomOf="@id/contractBalanceLabel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/contractBalanceLabel"
-                android:contentDescription="@string/contract_balance"
                 app:tint="@color/colorPrimary" />
 
             <TextView
@@ -178,114 +177,90 @@
                 style="@style/Widget.App.TextView.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/contract_balance"
-                android:textStyle="bold"
-                android:textColor="@color/colorPrimary"
                 android:layout_marginStart="8dp"
+                android:text="@string/contract_balance"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/contractIcon"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/refreshBalanceButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:text="@string/refresh"
-                android:textSize="12sp"
-                android:textColor="@color/colorPrimary"
-                android:minHeight="32dp"
-                android:minWidth="72dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:layout_marginEnd="0dp"
-                android:letterSpacing="0"
-                app:rippleColor="@color/rippleColor"
-                app:cornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/colorGray200"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/contractBalanceLabel"
-                app:layout_constraintBottom_toBottomOf="@id/contractBalanceLabel" />
 
             <View
                 android:id="@+id/contractDivider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/dividerColor"
                 android:layout_marginTop="8dp"
+                android:background="@color/dividerColor"
                 app:layout_constraintTop_toBottomOf="@id/contractBalanceLabel" />
 
             <ImageView
                 android:id="@+id/contractEurFlagIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_flag_eur"
                 android:layout_marginTop="12dp"
+                android:contentDescription="@string/eur"
+                android:src="@drawable/ic_flag_eur"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/contractDivider"
-                android:contentDescription="@string/eur" />
+                app:layout_constraintTop_toBottomOf="@id/contractDivider" />
 
             <TextView
                 android:id="@+id/contractEurBalanceLabel"
                 style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/eur"
                 android:layout_marginStart="8dp"
+                android:text="@string/eur"
+                app:layout_constraintBottom_toBottomOf="@id/contractEurFlagIcon"
                 app:layout_constraintStart_toEndOf="@id/contractEurFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/contractEurFlagIcon"
-                app:layout_constraintBottom_toBottomOf="@id/contractEurFlagIcon" />
+                app:layout_constraintTop_toTopOf="@id/contractEurFlagIcon" />
 
             <TextView
                 android:id="@+id/contractEurBalanceValue"
                 style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/_0_00_eur"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
+                android:text="@string/_0_00_eur"
                 android:textAlignment="textEnd"
+                android:textColor="@color/textPrimary"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/contractEurBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/contractEurBalanceLabel"
-                app:layout_constraintBottom_toBottomOf="@id/contractEurBalanceLabel" />
+                app:layout_constraintTop_toTopOf="@id/contractEurBalanceLabel" />
 
             <ImageView
                 android:id="@+id/contractUsdFlagIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_flag_usd"
                 android:layout_marginTop="12dp"
+                android:contentDescription="@string/usd"
+                android:src="@drawable/ic_flag_usd"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/contractEurFlagIcon"
-                android:contentDescription="@string/usd" />
+                app:layout_constraintTop_toBottomOf="@id/contractEurFlagIcon" />
 
             <TextView
                 android:id="@+id/contractUsdBalanceLabel"
                 style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/usd"
                 android:layout_marginStart="8dp"
+                android:text="@string/usd"
+                app:layout_constraintBottom_toBottomOf="@id/contractUsdFlagIcon"
                 app:layout_constraintStart_toEndOf="@id/contractUsdFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/contractUsdFlagIcon"
-                app:layout_constraintBottom_toBottomOf="@id/contractUsdFlagIcon" />
+                app:layout_constraintTop_toTopOf="@id/contractUsdFlagIcon" />
 
             <TextView
                 android:id="@+id/contractUsdBalanceValue"
                 style="@style/Widget.App.TextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/_0_00_usd"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
                 android:layout_marginStart="8dp"
+                android:text="@string/_0_00_usd"
                 android:textAlignment="textEnd"
+                android:textColor="@color/textPrimary"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/contractUsdBalanceLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/contractUsdBalanceLabel"
-                app:layout_constraintBottom_toBottomOf="@id/contractUsdBalanceLabel" />
+                app:layout_constraintTop_toTopOf="@id/contractUsdBalanceLabel" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -295,9 +270,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        app:cardBackgroundColor="@color/colorSurface"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/colorSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/contractBalanceCardView">
@@ -311,10 +286,10 @@
                 android:id="@+id/addLiquidityIcon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:contentDescription="@string/add_liquidity"
                 android:src="@drawable/ic_fund"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/add_liquidity"
                 app:tint="@color/colorPrimary" />
 
             <TextView
@@ -322,20 +297,20 @@
                 style="@style/Widget.App.TextView.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/add_liquidity"
-                android:textStyle="bold"
-                android:textColor="@color/colorPrimary"
                 android:layout_marginStart="8dp"
+                android:text="@string/add_liquidity"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/addLiquidityIcon"
                 app:layout_constraintStart_toEndOf="@id/addLiquidityIcon"
-                app:layout_constraintTop_toTopOf="@id/addLiquidityIcon"
-                app:layout_constraintBottom_toBottomOf="@id/addLiquidityIcon" />
+                app:layout_constraintTop_toTopOf="@id/addLiquidityIcon" />
 
             <View
                 android:id="@+id/addLiquidityDivider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/dividerColor"
                 android:layout_marginTop="8dp"
+                android:background="@color/dividerColor"
                 app:layout_constraintTop_toBottomOf="@id/addLiquidityLabel" />
 
             <TextView
@@ -343,8 +318,8 @@
                 style="@style/Widget.App.TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/currency"
                 android:layout_marginTop="16dp"
+                android:text="@string/currency"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/addLiquidityDivider" />
 
@@ -354,10 +329,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                app:layout_constraintStart_toEndOf="@+id/currencyLabel"
+                app:layout_constraintBottom_toBottomOf="@+id/currencyLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/currencyLabel"
-                app:layout_constraintBottom_toBottomOf="@+id/currencyLabel" />
+                app:layout_constraintStart_toEndOf="@+id/currencyLabel"
+                app:layout_constraintTop_toTopOf="@+id/currencyLabel" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/amountInputLayout"
@@ -365,19 +340,19 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:startIconDrawable="@drawable/ic_money"
-                app:startIconTint="@color/colorPrimary"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/currencyLabel">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/currencyLabel"
+                app:startIconDrawable="@drawable/ic_money"
+                app:startIconTint="@color/colorPrimary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/amountEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/amount_to_add"
-                    android:maxLength="6"
                     android:inputType="numberDecimal"
+                    android:maxLength="6"
                     android:textColor="@color/textPrimary" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -387,8 +362,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/add_liquidity"
                 android:icon="@drawable/ic_fund"
+                android:text="@string/add_liquidity"
                 app:iconGravity="textStart"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -399,8 +374,8 @@
                 android:id="@+id/buttonProgressContainer"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:visibility="gone"
                 android:background="@drawable/button_loading_background"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/addLiquidityButton"
                 app:layout_constraintEnd_toEndOf="@+id/addLiquidityButton"
                 app:layout_constraintStart_toStartOf="@+id/addLiquidityButton"
@@ -445,8 +420,8 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:indeterminateTint="@color/colorPrimary"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

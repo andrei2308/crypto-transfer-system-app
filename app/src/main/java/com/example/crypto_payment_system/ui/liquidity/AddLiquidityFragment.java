@@ -49,7 +49,6 @@ public class AddLiquidityFragment extends Fragment {
     // Contract balance views
     private TextView contractEurBalanceValue;
     private TextView contractUsdBalanceValue;
-    private Button refreshBalanceButton;
 
     private Observer<TransactionResult> transactionObserver;
 
@@ -77,10 +76,7 @@ public class AddLiquidityFragment extends Fragment {
 
         contractEurBalanceValue = view.findViewById(R.id.contractEurBalanceValue);
         contractUsdBalanceValue = view.findViewById(R.id.contractUsdBalanceValue);
-        refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
         buttonProgressContainer = view.findViewById(R.id.buttonProgressContainer);
-
-        refreshBalanceButton.setOnClickListener(v -> refreshBalances());
 
         setupCurrencySpinner();
 

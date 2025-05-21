@@ -147,6 +147,9 @@
     <string name="timestamp">Timestamp</string>
     <string name="message">Message</string>
     <string name="ok">Ok</string>
+    <string name="connect_subtitle">Connect to the Ethereum network to start using the app</string>
+    <string name="select_account">Select your account:</string>
+    <string name="account_icon">Account Icon</string>
 
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
