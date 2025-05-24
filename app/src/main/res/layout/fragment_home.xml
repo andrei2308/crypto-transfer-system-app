@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground">
 
-    <!-- Top App Bar -->
+    <!-- Enhanced App Bar with Gradient Background -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary">
+        android:background="@drawable/gradient_primary">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -22,22 +20,23 @@
 
             <ImageButton
                 android:id="@+id/menuButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/navigation_drawer_open"
-                android:src="@drawable/ic_add"
-                app:tint="@color/textWhite"
+                android:src="@drawable/ic_menu"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/titleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
                 android:text="@string/home"
-                android:textColor="@color/textWhite"
+                android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -47,15 +46,15 @@
 
             <ImageButton
                 android:id="@+id/notificationButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/transaction_status"
-                android:src="@drawable/ic_add"
-                app:tint="@color/textWhite"
+                android:src="@drawable/ic_notifications"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -65,6 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
+        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -72,32 +72,62 @@
             android:layout_height="match_parent"
             android:padding="16dp">
 
-            <!-- User Profile Section -->
-            <include
+            <!-- Enhanced User Profile Section -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/profileSection"
-                layout="@layout/layout_user_profile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <!-- Account Cards Pager -->
+                <include
+                    layout="@layout/layout_user_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Account Cards Section with Title -->
+            <TextView
+                android:id="@+id/accountsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:drawableStart="@drawable/ic_wallet"
+                android:drawablePadding="8dp"
+                android:text="Your Accounts"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:drawableTint="@color/textPrimary"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/profileSection" />
+
+            <!-- Enhanced Account Cards Pager -->
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/accountsPager"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/profileSection" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                app:layout_constraintTop_toBottomOf="@id/accountsLabel" />
 
-            <!-- Pager Indicator -->
+            <!-- Enhanced Pager Indicator -->
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/pagerIndicator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
+                app:layout_constraintTop_toBottomOf="@id/accountsPager"
                 app:tabBackground="@drawable/tab_selector"
+                android:layout_marginTop="16dp"
+                android:maxHeight="8dp"
+                android:maxWidth="8dp"
                 app:tabGravity="center"
-                app:tabIndicatorHeight="0dp"
-                app:layout_constraintTop_toBottomOf="@id/accountsPager" />
+                app:tabIndicatorHeight="0dp" />
 
             <!-- Transactions Section -->
             <TextView
@@ -111,30 +141,40 @@
                 android:textColor="@color/textPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold"
+                app:drawableTint="@color/textPrimary"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/pagerIndicator"
-                app:drawableTint="@color/textPrimary" />
+                app:layout_constraintTop_toBottomOf="@id/pagerIndicator" />
 
             <TextView
                 android:id="@+id/seeMoreTransactionsLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="See More"
+                android:text="See All"
                 android:textColor="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@id/transactionsLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/transactionsLabel"
-                app:layout_constraintBottom_toBottomOf="@id/transactionsLabel" />
+                app:layout_constraintTop_toTopOf="@id/transactionsLabel" />
 
-            <!-- Transaction List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/transactionsRecyclerView"
+            <!-- Enhanced Transaction List with Card Background -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/transactionsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:nestedScrollingEnabled="false"
-                app:layout_constraintTop_toBottomOf="@id/transactionsLabel" />
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintTop_toBottomOf="@id/transactionsLabel">
 
-            <!-- Exchange Calculator Section - NEW -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/transactionsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:padding="8dp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Exchange Calculator Section - Enhanced -->
             <TextView
                 android:id="@+id/exchangeCalculatorLabel"
                 android:layout_width="wrap_content"
@@ -142,13 +182,13 @@
                 android:layout_marginTop="24dp"
                 android:drawableStart="@drawable/ic_compare_arrows"
                 android:drawablePadding="8dp"
-                android:text="Quick Exchange Calculator"
+                android:text="Quick Exchange"
                 android:textColor="@color/textPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold"
+                app:drawableTint="@color/textPrimary"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/transactionsRecyclerView"
-                app:drawableTint="@color/textPrimary" />
+                app:layout_constraintTop_toBottomOf="@id/transactionsCard" />
 
             <TextView
                 android:id="@+id/goToExchangeLabel"
@@ -156,40 +196,40 @@
                 android:layout_height="wrap_content"
                 android:text="Full Exchange"
                 android:textColor="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@id/exchangeCalculatorLabel"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/exchangeCalculatorLabel"
-                app:layout_constraintBottom_toBottomOf="@id/exchangeCalculatorLabel" />
+                app:layout_constraintTop_toTopOf="@id/exchangeCalculatorLabel" />
 
-            <!-- Exchange Calculator Card -->
-            <!-- Exchange Calculator Card -->
+            <!-- Enhanced Exchange Calculator Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/exchangeCalculatorCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/colorSurface"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/colorSurface"
-                app:layout_constraintTop_toBottomOf="@id/exchangeCalculatorLabel"
-                app:layout_constraintBottom_toBottomOf="parent">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/exchangeCalculatorLabel">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
-                    <!-- From Currency Section (EUR) -->
+                    <!-- From Currency Section -->
                     <TextView
                         android:id="@+id/fromCurrencyLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="EUR Amount"
-                        android:textSize="14sp"
                         android:textColor="@color/textSecondary"
+                        android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!-- Hide these spinners -->
+                    <!-- Hidden spinners -->
                     <Spinner
                         android:id="@+id/quickFromCurrencySpinner"
                         android:layout_width="0dp"
@@ -198,14 +238,19 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/fromCurrencyLabel" />
 
+                    <!-- Enhanced Input Layout -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/quickFromAmountInputLayout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="24dp"
-                        app:layout_constraintStart_toStartOf="parent"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
                         app:layout_constraintEnd_toStartOf="@+id/guideline"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/fromCurrencyLabel">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -213,10 +258,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Enter amount"
-                            android:textColor="@color/textPrimary"
+                            android:inputType="numberDecimal"
                             android:maxLength="6"
-                            android:textSize="16sp"
-                            android:inputType="numberDecimal" />
+                            android:textColor="@color/textPrimary"
+                            android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Center Guideline -->
@@ -227,32 +272,41 @@
                         android:orientation="vertical"
                         app:layout_constraintGuide_percent="0.5" />
 
-                    <!-- Exchange Icon -->
-                    <ImageView
-                        android:id="@+id/exchangeIcon"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_compare_arrows"
-                        app:tint="@color/colorPrimary"
-                        app:layout_constraintStart_toStartOf="@id/guideline"
+                    <!-- Enhanced Exchange Icon -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/exchangeIconContainer"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardBackgroundColor="@color/colorPrimaryLight"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="2dp"
+                        app:layout_constraintBottom_toBottomOf="@id/quickFromAmountInputLayout"
                         app:layout_constraintEnd_toStartOf="@+id/guideline"
-                        app:layout_constraintTop_toTopOf="@id/quickFromAmountInputLayout"
-                        app:layout_constraintBottom_toBottomOf="@id/quickFromAmountInputLayout" />
+                        app:layout_constraintStart_toStartOf="@id/guideline"
+                        app:layout_constraintTop_toTopOf="@id/quickFromAmountInputLayout">
 
-                    <!-- To Currency Section (USD) -->
+                        <ImageView
+                            android:id="@+id/exchangeIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_compare_arrows"
+                            app:tint="@color/colorPrimary" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- To Currency Section -->
                     <TextView
                         android:id="@+id/toCurrencyLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="USD Equivalent"
-                        android:textSize="14sp"
-                        android:textColor="@color/textSecondary"
                         android:layout_marginStart="24dp"
-                        android:layout_marginTop="8dp"
+                        android:text="USD Equivalent"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="14sp"
                         app:layout_constraintStart_toEndOf="@+id/guideline"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="@id/fromCurrencyLabel" />
 
-                    <!-- Hide this spinner -->
+                    <!-- Hidden spinner -->
                     <Spinner
                         android:id="@+id/quickToCurrencySpinner"
                         android:layout_width="0dp"
@@ -261,50 +315,58 @@
                         app:layout_constraintStart_toEndOf="@+id/guideline"
                         app:layout_constraintTop_toBottomOf="@id/toCurrencyLabel" />
 
-                    <!-- Result Display -->
+                    <!-- Enhanced Result Display -->
                     <TextView
                         android:id="@+id/quickEstimatedAmountValue"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="0.00 USD"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorPrimary"
                         android:layout_marginStart="24dp"
                         android:layout_marginTop="12dp"
-                        app:layout_constraintStart_toEndOf="@+id/guideline"
+                        android:text="0.00 USD"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/guideline"
                         app:layout_constraintTop_toBottomOf="@id/toCurrencyLabel" />
 
-                    <!-- Exchange Rate Display -->
+                    <!-- Divider -->
+                    <View
+                        android:id="@+id/divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="20dp"
+                        android:background="@color/dividerColor"
+                        app:layout_constraintTop_toBottomOf="@id/quickFromAmountInputLayout" />
+
+                    <!-- Enhanced Exchange Rate Display -->
                     <TextView
                         android:id="@+id/quickExchangeRateValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="1 EUR = 1.0989 USD"
-                        android:textSize="14sp"
-                        android:textColor="@color/textSecondary"
-                        android:gravity="center"
                         android:layout_marginTop="16dp"
-                        app:layout_constraintTop_toBottomOf="@id/quickFromAmountInputLayout"
+                        android:gravity="center"
+                        android:text="1 EUR = 1.0989 USD"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="14sp"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
+                        app:layout_constraintTop_toBottomOf="@id/divider" />
 
                     <TextView
                         android:id="@+id/lastUpdatedText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Last updated: just now"
-                        android:textSize="12sp"
-                        android:textColor="@color/textSecondary"
                         android:layout_marginTop="4dp"
-                        app:layout_constraintTop_toBottomOf="@id/quickExchangeRateValue"
+                        android:text="Last updated: just now"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
+                        app:layout_constraintTop_toBottomOf="@id/quickExchangeRateValue" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

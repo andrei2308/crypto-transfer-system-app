@@ -31,6 +31,7 @@ import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
+import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -60,8 +61,10 @@ public class ExchangeFragment extends Fragment {
     private Button refreshBalanceButton;
     private boolean isSelectionInProgress = false;
 
-
     private Observer<TransactionResult> transactionObserver;
+    private TransactionProgressDialog progressDialog;
+
+    private boolean isTransactionInProgress = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -97,6 +100,11 @@ public class ExchangeFragment extends Fragment {
         fetchExchangeRate();
 
         exchangeButton.setOnClickListener(v -> {
+            if (isTransactionInProgress) {
+                Toast.makeText(requireContext(), "Transaction already in progress", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
             String amount = Objects.requireNonNull(fromAmountEditText.getText()).toString();
 
@@ -126,9 +134,7 @@ public class ExchangeFragment extends Fragment {
             }
         });
 
-
         observeViewModel();
-
         refreshBalances();
     }
 
@@ -352,7 +358,6 @@ public class ExchangeFragment extends Fragment {
         String fromCode = fromCurrency.getCode();
         String toCode = toCurrency.getCode();
 
-
         exchangeRateValue.setText("Loading...");
 
         ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepositoryImpl(ApiConfig.BASE_URL, ApiConfig.USERNAME, ApiConfig.PASSWORD);
@@ -375,7 +380,6 @@ public class ExchangeFragment extends Fragment {
                     } else {
                         exchangeRateValue.setText(String.format("1 %s = %s %s", "USDT", df.format(rate), "EURSC"));
                     }
-
 
                     String amount = fromAmountEditText.getText().toString();
                     if (!amount.isEmpty()) {
@@ -452,12 +456,58 @@ public class ExchangeFragment extends Fragment {
             return;
         }
 
-        setupTransactionObserver();
+        isTransactionInProgress = true;
 
         viewModel.resetTransactionResult();
 
-        showLoading(true);
+        setupTransactionObserver();
+
+        showTransactionProgressDialog();
+
         viewModel.exchangeBasedOnPreference(fromCurrency, amount);
+    }
+
+    private void showTransactionProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+
+        progressDialog = new TransactionProgressDialog(requireContext());
+
+        try {
+            progressDialog.show();
+            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
+
+            simulateTransactionProgress();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            isTransactionInProgress = false;
+        }
+    }
+
+    private void simulateTransactionProgress() {
+
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
+        }
+
+        exchangeButton.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.SUBMITTING);
+            }
+        }, 1000);
+
+        exchangeButton.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.PENDING);
+            }
+        }, 2000);
+
+        exchangeButton.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMING);
+            }
+        }, 4000);
     }
 
     private void setupTransactionObserver() {
@@ -466,16 +516,38 @@ public class ExchangeFragment extends Fragment {
         }
 
         transactionObserver = result -> {
+            if (result == null) {
+                return;
+            }
+
+            viewModel.getTransactionResult().removeObserver(transactionObserver);
+            transactionObserver = null;
+
+            isTransactionInProgress = false;
+
             showLoading(false);
 
-            if (result == null) return;
+            if (progressDialog != null && progressDialog.isShowing()) {
+                if (result.isSuccess()) {
+                    progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMED);
+                    if (result.getTransactionHash() != null) {
+                        progressDialog.setTransactionHash(result.getTransactionHash());
+                    }
+                } else {
+                    progressDialog.updateState(TransactionProgressDialog.TransactionState.FAILED);
+                }
 
-            Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
-            String amount = fromAmountEditText.getText().toString();
-            long timestamp = System.currentTimeMillis();
+                exchangeButton.postDelayed(() -> {
+                    if (progressDialog != null && progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                        progressDialog = null;
+                    }
+                }, 1500);
+            }
 
-            TransactionResultFragment fragment = TransactionResultFragment.newInstance(result.isSuccess(), result.getTransactionHash() != null ? result.getTransactionHash() : "-", amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???"), "Exchange", timestamp, result.getMessage() != null ? result.getMessage() : "");
-            requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).addToBackStack(null).commit();
+            exchangeButton.postDelayed(() -> {
+                showTransactionResult(result);
+            }, 2000);
 
             if (result.isSuccess()) {
                 fromAmountEditText.setText("");
@@ -486,6 +558,26 @@ public class ExchangeFragment extends Fragment {
         };
 
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
+    }
+
+    private void showTransactionResult(TransactionResult result) {
+        Currency fromCurrency = fromCurrencyAdapter.getSelectedCurrency();
+        String amount = fromAmountEditText.getText().toString();
+        long timestamp = System.currentTimeMillis();
+
+        TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                result.isSuccess(),
+                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                amount + " " + (fromCurrency != null ? fromCurrency.getCode() : "???"),
+                "Exchange",
+                timestamp,
+                result.getMessage() != null ? result.getMessage() : ""
+        );
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void observeViewModel() {
@@ -508,10 +600,9 @@ public class ExchangeFragment extends Fragment {
         }
     }
 
-
     private void showLoading(boolean isLoading) {
         progressBar.setVisibility(View.GONE);
-        
+
         if (isLoading) {
             buttonProgressContainer.setAlpha(0f);
             buttonProgressContainer.setVisibility(View.VISIBLE);
@@ -530,7 +621,12 @@ public class ExchangeFragment extends Fragment {
     public void onDestroyView() {
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
+            transactionObserver = null;
         }
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        isTransactionInProgress = false;
         super.onDestroyView();
     }
 }

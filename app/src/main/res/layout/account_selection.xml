@@ -1,99 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<!-- Revised account_selection.xml to make spinner clickable -->
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/colorSurfaceVariant"
+    app:cardBackgroundColor="@color/colorSurfaceVariant">
 
-    <TextView
-        android:id="@+id/accountsLabel"
-        style="@style/Widget.App.TextView.Subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/select_your_account"
-        android:textStyle="bold"
-        android:textColor="@color/textPrimary"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-    <com.google.android.material.card.MaterialCardView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/colorPrimaryLight"
-        app:cardBackgroundColor="@color/colorSurfaceVariant"
-        android:layout_marginTop="0dp"
-        app:layout_constraintTop_toBottomOf="@id/accountsLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="wrap_content"
+        android:padding="8dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:padding="8dp">
+        <ImageView
+            android:id="@+id/accountIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_manage_account"
+            android:contentDescription="@string/account_icon"
+            app:tint="@color/colorPrimary"
+            android:layout_marginStart="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-            <FrameLayout
-                android:id="@+id/spinnerContainer"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:foreground="?attr/selectableItemBackground"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/addAccountButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+        <!-- IMPORTANT: Updated spinner to be fully clickable -->
+        <Spinner
+            android:id="@+id/accountsSpinner"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
+            android:spinnerMode="dropdown"
+            android:clickable="true"
+            android:focusable="true"
+            android:dropDownWidth="match_parent"
+            android:popupBackground="@color/white"
+            android:overlapAnchor="false"
+            app:layout_constraintStart_toEndOf="@id/accountIcon"
+            app:layout_constraintEnd_toStartOf="@id/addAccountButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-                <ImageView
-                    android:id="@+id/accountIcon"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="start|center_vertical"
-                    android:layout_marginStart="0dp"
-                    android:contentDescription="@string/account"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_wallet"
-                    app:tint="@color/colorPrimary" />
-
-                <Spinner
-                    android:id="@+id/accountsSpinner"
-                    style="@style/Widget.App.AccountSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="22dp"
-                    android:layout_marginStart="32dp"
-                    android:background="@drawable/spinner_transparent_background"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:minWidth="48dp"
-                    android:minHeight="128dp" />
-            </FrameLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addAccountButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/colorSurface"
-                android:contentDescription="@string/add_account"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp"
-                android:paddingStart="0dp"
-                android:paddingTop="0dp"
-                android:paddingEnd="0dp"
-                android:paddingBottom="0dp"
-                app:icon="@drawable/ic_add"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="24dp"
-                app:iconTint="@color/colorPrimary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addAccountButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:icon="@drawable/ic_add"
+            app:iconTint="@color/colorPrimary"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:contentDescription="@string/add_account"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

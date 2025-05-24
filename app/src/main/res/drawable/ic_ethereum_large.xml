@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/ic_ethereum_large.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="256dp"
+    android:height="417dp"
+    android:viewportWidth="256"
+    android:viewportHeight="417">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M127.961,0l-2.795,9.5v275.668l2.795,2.79l127.962,-75.638z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M127.962,0L0,212.32l127.962,75.639V154.158z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M127.961,312.187l-1.575,1.92v98.199l1.575,4.6L256,236.587z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M127.962,416.905v-104.72L0,236.585z"/>
+</vector>

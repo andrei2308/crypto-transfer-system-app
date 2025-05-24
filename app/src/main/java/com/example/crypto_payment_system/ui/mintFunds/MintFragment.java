@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.ui.mintFunds;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +25,7 @@ import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
+import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -42,6 +46,9 @@ public class MintFragment extends Fragment {
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
     private Observer<TransactionResult> transactionObserver;
+    private TransactionProgressDialog progressDialog;
+
+    private boolean isTransactionInProgress = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,7 +80,13 @@ public class MintFragment extends Fragment {
 
         setupCurrencySpinner();
 
-        mintButton.setOnClickListener(v -> mintFunds());
+        mintButton.setOnClickListener(v -> {
+            if (isTransactionInProgress) {
+                Toast.makeText(requireContext(), "Transaction already in progress", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            mintFunds();
+        });
 
         refreshBalanceButton.setOnClickListener(v -> refreshBalances());
 
@@ -98,10 +111,10 @@ public class MintFragment extends Fragment {
         if (usdCurrency != null) {
             currencies.add(usdCurrency);
         }
-        
+
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         mintCurrencySpinner.setAdapter(currencyAdapter);
-        
+
         if (!currencies.isEmpty()) {
             mintCurrencySpinner.setSelection(0);
         }
@@ -113,10 +126,10 @@ public class MintFragment extends Fragment {
         if (usdCurrency != null) {
             currencies.add(usdCurrency);
         }
-        
+
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         mintCurrencySpinner.setAdapter(currencyAdapter);
-        
+
         if (!currencies.isEmpty()) {
             mintCurrencySpinner.setSelection(0);
         }
@@ -132,21 +145,24 @@ public class MintFragment extends Fragment {
 
     private void observeViewModel() {
         viewModel.resetTransactionConfirmation();
-        
+
         viewModel.getTransactionConfirmation().observe(getViewLifecycleOwner(), confirmationRequest -> {
             if (confirmationRequest == null) return;
-            
+
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
             builder.setTitle("Confirm Transaction");
             builder.setMessage(confirmationRequest.getMessage());
 
             builder.setPositiveButton("Confirm", (dialog, which) -> {
                 confirmationRequest.confirm();
-                progressBar.setVisibility(View.VISIBLE);
+
+                showTransactionProgressDialog();
+
                 viewModel.resetTransactionConfirmation();
             });
 
             builder.setNegativeButton("Cancel", (dialog, which) -> {
+                isTransactionInProgress = false;
                 viewModel.resetTransactionConfirmation();
             });
 
@@ -159,40 +175,113 @@ public class MintFragment extends Fragment {
         viewModel.getTokenBalances().observe(getViewLifecycleOwner(), this::updateBalanceUI);
     }
 
+    private void showTransactionProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+
+        progressDialog = new TransactionProgressDialog(requireContext());
+
+        try {
+            progressDialog.show();
+            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
+
+            simulateTransactionProgress();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            isTransactionInProgress = false;
+        }
+    }
+
+    private void simulateTransactionProgress() {
+
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
+        }
+
+        mintAmountEditText.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.SUBMITTING);
+            }
+        }, 1000);
+
+        mintAmountEditText.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.PENDING);
+            }
+        }, 2000);
+
+        mintAmountEditText.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMING);
+            }
+        }, 4000);
+    }
+
     private void setupTransactionObserver() {
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
-        
+
         transactionObserver = result -> {
-            progressBar.setVisibility(View.GONE);
+            if (result == null) {
+                return;
+            }
 
-            if (result == null) return;
+            viewModel.getTransactionResult().removeObserver(transactionObserver);
+            transactionObserver = null;
 
-            Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
-            String amount = mintAmountEditText.getText().toString().trim();
-            long timestamp = System.currentTimeMillis();
+            isTransactionInProgress = false;
 
-            TransactionResultFragment fragment = TransactionResultFragment.newInstance(
-                    result.isSuccess(),
-                    result.getTransactionHash() != null ? result.getTransactionHash() : "-",
-                    amount + " " + (selectedCurrency != null ? selectedCurrency.getCode() : "???"),
-                    "Mint",
-                    timestamp,
-                    result.getMessage() != null ? result.getMessage() : ""
-            );
-            requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_main, fragment)
-                .addToBackStack(null)
-                .commit();
+            if (progressDialog != null && progressDialog.isShowing()) {
+                if (result.isSuccess()) {
+                    progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMED);
+                    if (result.getTransactionHash() != null) {
+                        progressDialog.setTransactionHash(result.getTransactionHash());
+                    }
+                } else {
+                    progressDialog.updateState(TransactionProgressDialog.TransactionState.FAILED);
+                }
+
+                mintAmountEditText.postDelayed(() -> {
+                    if (progressDialog != null && progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                        progressDialog = null;
+                    }
+                }, 1500);
+            }
+
+            mintAmountEditText.postDelayed(() -> {
+                showTransactionResult(result);
+            }, 2000);
 
             if (result.isSuccess()) {
+                mintAmountEditText.setText("");
                 refreshBalances();
             }
         };
 
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
+    }
+
+    private void showTransactionResult(TransactionResult result) {
+        Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+        String amount = mintAmountEditText.getText().toString().trim();
+        long timestamp = System.currentTimeMillis();
+
+        TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                result.isSuccess(),
+                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                amount + " " + (selectedCurrency != null ? selectedCurrency.getCode() : "???"),
+                "Mint",
+                timestamp,
+                result.getMessage() != null ? result.getMessage() : ""
+        );
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
@@ -207,7 +296,6 @@ public class MintFragment extends Fragment {
             ethBalanceValue.setText("0 ETH");
         }
 
-        // For USDT balance
         if (balances.containsKey("USDT")) {
             usdBalanceValue.setText(balances.get("USDT").getFormattedWalletBalance() + " USD");
         } else {
@@ -230,20 +318,19 @@ public class MintFragment extends Fragment {
                 return;
             }
 
-            // Always use USD for minting
+            isTransactionInProgress = true;
+
             String currency = "USD";
 
-            progressBar.setVisibility(View.VISIBLE);
-            
             viewModel.resetTransactionResult();
 
             setupTransactionObserver();
 
-            // Directly mint tokens to the current wallet
             viewModel.mintTokens(currency, String.valueOf(amount));
 
         } catch (NumberFormatException e) {
             mintAmountEditText.setError("Please enter a valid amount");
+            isTransactionInProgress = false; // Reset flag on error
         }
     }
 
@@ -251,7 +338,12 @@ public class MintFragment extends Fragment {
     public void onDestroyView() {
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
+            transactionObserver = null;
         }
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        isTransactionInProgress = false;
         super.onDestroyView();
     }
 }

@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +48,7 @@ import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
 import com.example.crypto_payment_system.utils.adapter.account.AccountAdapter;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -59,6 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private MainViewModel viewModel;
+    private final static String TAG = "MAIN";
     private ProgressBar progressBar;
     private ProgressBar connectionProgressBar;
     private DrawerLayout drawerLayout;
@@ -372,92 +375,129 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressLint("ClickableViewAccessibility")
     private void setupAccountSelection() {
-        View accountSelectionView = findViewById(R.id.account_selection_layout);
-        if (accountSelectionView == null) {
-            return;
-        }
+        try {
+            Log.d(TAG, "Setting up account selection");
 
-        Spinner accountsSpinner = accountSelectionView.findViewById(R.id.accountsSpinner);
-        Button addAccountButton = accountSelectionView.findViewById(R.id.addAccountButton);
+            // Get the account_selection_layout view that we've included in connectionCard
+            View accountSelectionView = findViewById(R.id.account_selection_layout);
 
-        ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
-        accountsSpinner.setAdapter(accountArrayAdapter);
-
-        final String[] previouslySelectedAddress = {null};
-
-        accountsSpinner.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                int position = accountsSpinner.getSelectedItemPosition();
-                if (position >= 0 && position < accountArrayAdapter.getCount()) {
-                    WalletAccount account = accountArrayAdapter.getItem(position);
-                    if (account != null) {
-                        previouslySelectedAddress[0] = account.getAddress();
-                    }
-                }
+            if (accountSelectionView == null) {
+                Log.e(TAG, "Account selection layout not found");
+                return;
             }
-            return false;
-        });
 
-        accountsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                WalletAccount selectedAccount = (WalletAccount) parent.getItemAtPosition(position);
-                if (selectedAccount != null) {
-                    String newAddress = selectedAccount.getAddress();
+            // Now find the Spinner inside this included layout
+            Spinner accountsSpinner = accountSelectionView.findViewById(R.id.accountsSpinner);
 
-                    boolean isConnected = viewModel.getConnectionStatus().getValue() != null &&
-                            !viewModel.getConnectionStatus().getValue().startsWith("Error");
+            if (accountsSpinner == null) {
+                Log.e(TAG, "Account spinner not found in the account selection layout");
+                return;
+            }
 
-                    if (!isConnected) {
-                        walletAddressText.setText(newAddress);
-                        previouslySelectedAddress[0] = newAddress;
-                        return;
-                    }
+            // Find the add account button - it's a MaterialButton in your layout
+            MaterialButton addAccountButton = accountSelectionView.findViewById(R.id.addAccountButton);
 
-                    if (!newAddress.equals(previouslySelectedAddress[0])) {
-                        try {
-                            progressBar.setVisibility(View.VISIBLE);
-                            walletAddressText.setText(newAddress);
+            // IMPORTANT: Make the parent container NOT consume touch events
+            // This ensures the spinner can receive clicks
+            accountSelectionView.setOnTouchListener((v, event) -> false);
 
-                            viewModel.switchAccount(newAddress);
+            // Set up the spinner adapter - IMPORTANT: Using custom adapter without setDropDownViewResource
+            ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
 
-                            Toast.makeText(MainActivity.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
+            // IMPORTANT: Do NOT call this!
+            // accountArrayAdapter.setDropDownViewResource(R.layout.item_account_dropdown);
+
+            accountsSpinner.setAdapter(accountArrayAdapter);
+
+            // IMPORTANT: Ensure the spinner is clickable by setting this flag
+            accountsSpinner.setClickable(true);
+            accountsSpinner.setFocusable(true);
+            accountsSpinner.setEnabled(true);
+
+            // For older Android versions, we might need to use this workaround
+            accountsSpinner.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    accountsSpinner.performClick();
+                    return true;
+                }
+                return false;
+            });
+
+            // Rest of your existing spinner setup code
+            final String[] previouslySelectedAddress = {null};
+
+            accountsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    WalletAccount selectedAccount = (WalletAccount) parent.getItemAtPosition(position);
+                    if (selectedAccount != null) {
+                        String newAddress = selectedAccount.getAddress();
+
+                        boolean isConnected = viewModel.getConnectionStatus().getValue() != null &&
+                                !viewModel.getConnectionStatus().getValue().startsWith("Error");
+
+                        if (!isConnected) {
+                            if (walletAddressText != null) {
+                                walletAddressText.setText(newAddress);
+                            }
                             previouslySelectedAddress[0] = newAddress;
+                            return;
+                        }
 
-                        } catch (JSONException e) {
-                            Toast.makeText(MainActivity.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        if (!newAddress.equals(previouslySelectedAddress[0])) {
+                            try {
+                                if (progressBar != null) {
+                                    progressBar.setVisibility(View.VISIBLE);
+                                }
+
+                                if (walletAddressText != null) {
+                                    walletAddressText.setText(newAddress);
+                                }
+
+                                viewModel.switchAccount(newAddress);
+
+                                Toast.makeText(MainActivity.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
+                                previouslySelectedAddress[0] = newAddress;
+
+                            } catch (JSONException e) {
+                                Toast.makeText(MainActivity.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
-        viewModel.getAccounts().observe(this, accounts -> {
-            accountArrayAdapter.clear();
-            accountArrayAdapter.addAll(accounts);
-            accountArrayAdapter.notifyDataSetChanged();
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    // Do nothing
+                }
+            });
 
-            WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
-            if (activeAccount != null) {
-                for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
-                    WalletAccount account = accountArrayAdapter.getItem(i);
-                    if (account != null && account.getAddress().equals(activeAccount.getAddress())) {
-                        accountsSpinner.setSelection(i);
-                        previouslySelectedAddress[0] = activeAccount.getAddress();
-                        break;
+            viewModel.getAccounts().observe(this, accounts -> {
+                accountArrayAdapter.clear();
+                accountArrayAdapter.addAll(accounts);
+                accountArrayAdapter.notifyDataSetChanged();
+
+                WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
+                if (activeAccount != null) {
+                    for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
+                        WalletAccount account = accountArrayAdapter.getItem(i);
+                        if (account != null && account.getAddress().equals(activeAccount.getAddress())) {
+                            accountsSpinner.setSelection(i);
+                            previouslySelectedAddress[0] = activeAccount.getAddress();
+                            break;
+                        }
                     }
                 }
-            }
-        });
-
-        if (addAccountButton != null) {
-            addAccountButton.setOnClickListener(v -> {
-                showAccountDialog();
             });
+
+            if (addAccountButton != null) {
+                addAccountButton.setOnClickListener(v -> {
+                    showAccountDialog();
+                });
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up account selection", e);
+            Toast.makeText(this, "Error setting up account selection", Toast.LENGTH_SHORT).show();
         }
     }
 

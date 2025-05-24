@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/card_background_pattern.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Solid white background -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/colorWhite" />
+        </shape>
+    </item>
+
+    <!-- Subtle pattern with low opacity -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#10000000"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Top-right decorative circle -->
+    <item android:right="-120dp" android:top="-120dp">
+        <shape android:shape="oval">
+            <size android:width="200dp" android:height="200dp" />
+            <solid android:color="#08000000" />
+        </shape>
+    </item>
+
+    <!-- Bottom-left decorative circle -->
+    <item android:left="-140dp" android:bottom="-140dp">
+        <shape android:shape="oval">
+            <size android:width="220dp" android:height="220dp" />
+            <solid android:color="#05000000" />
+        </shape>
+    </item>
+</layer-list>

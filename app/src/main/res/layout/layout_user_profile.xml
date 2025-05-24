@@ -4,65 +4,108 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="16dp"
-    android:paddingBottom="24dp">
+    android:padding="16dp">
 
+    <!-- Enhanced User Icon with Gradient Background and Shadow -->
     <androidx.cardview.widget.CardView
         android:id="@+id/userIconContainer"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        app:cardCornerRadius="30dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        app:cardCornerRadius="32dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/colorPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_circle" />
 
         <ImageView
             android:id="@+id/ethereumIconView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="12dp"
+            android:padding="14dp"
             android:src="@drawable/ic_ethereum"
             android:contentDescription="@string/crypto_payment_system"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside"
+            app:tint="@color/white" />
     </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:id="@+id/welcomeTextView"
+    <!-- User Info Container with Enhanced Typography -->
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="@string/welcome"
-        android:textColor="@color/textSecondary"
-        android:textSize="16sp"
+        android:orientation="vertical"
         app:layout_constraintStart_toEndOf="@id/userIconContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/userIconContainer" />
+        app:layout_constraintTop_toTopOf="@id/userIconContainer"
+        app:layout_constraintBottom_toBottomOf="@id/userIconContainer">
 
-    <TextView
-        android:id="@+id/userAddressTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="0x..."
-        android:textColor="@color/textPrimary"
-        android:textSize="16sp"
-        android:singleLine="true"
-        android:ellipsize="middle"
-        app:layout_constraintStart_toEndOf="@id/userIconContainer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/welcomeTextView" />
+        <TextView
+            android:id="@+id/welcomeTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/welcome"
+            android:textColor="@color/textSecondary"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium" />
 
-    <TextView
-        android:id="@+id/connectedStatusTextView"
+        <TextView
+            android:id="@+id/userAddressTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="0x7A1b...8F4d"
+            android:textColor="@color/textPrimary"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"
+            android:ellipsize="middle" />
+
+        <!-- Enhanced Connected Status with Icon -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/status_dot" />
+
+            <TextView
+                android:id="@+id/connectedStatusTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/connected"
+                android:textColor="@color/colorSuccess"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Optional Network Selection Button -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/networkChip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="@string/connected"
-        android:textColor="@color/colorSuccess"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintStart_toEndOf="@id/userIconContainer"
-        app:layout_constraintTop_toBottomOf="@id/userAddressTextView" />
+        android:text="Ethereum Mainnet"
+        android:textColor="@color/textOnPrimary"
+        android:textSize="12sp"
+        app:chipBackgroundColor="@color/colorPrimaryLight"
+        app:chipStrokeColor="@color/colorPrimary"
+        app:chipStrokeWidth="1dp"
+        app:chipMinHeight="32dp"
+        app:chipStartPadding="8dp"
+        app:chipEndPadding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/userIconContainer"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone" />
 
-</androidx.constraintlayout.widget.ConstraintLayout> 
+</androidx.constraintlayout.widget.ConstraintLayout>

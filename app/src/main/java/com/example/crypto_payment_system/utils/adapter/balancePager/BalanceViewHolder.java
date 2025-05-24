@@ -18,33 +18,14 @@ import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
  */
 public class BalanceViewHolder extends RecyclerView.ViewHolder {
     private final TextView balanceValue;
-    private final Button refreshButton;
-    private final ProgressBar refreshProgressBar;
     private final BalancePagerAdapter.RefreshClickListener refreshClickListener;
-
     public BalanceViewHolder(@NonNull View itemView, BalancePagerAdapter.RefreshClickListener refreshClickListener) {
         super(itemView);
         balanceValue = itemView.findViewById(R.id.balanceValue);
-        refreshButton = itemView.findViewById(R.id.refreshBalanceButton);
-        refreshProgressBar = itemView.findViewById(R.id.refreshProgressBar);
         this.refreshClickListener = refreshClickListener;
-
-        refreshButton.setOnClickListener(v -> {
-            int position = getAdapterPosition();
-            if (position != RecyclerView.NO_POSITION) {
-                refreshClickListener.onRefreshClick(position);
-            }
-        });
     }
 
     public void bind(int position, String currency, MainViewModel viewModel, LifecycleOwner lifecycleOwner) {
-        if (refreshProgressBar != null) {
-            refreshProgressBar.setVisibility(
-                    Boolean.TRUE.equals(viewModel.getIsLoading().getValue()) ?
-                            View.VISIBLE : View.GONE
-            );
-        }
-
         viewModel.getTokenBalances().observe(lifecycleOwner, tokenBalances -> {
             if (tokenBalances != null) {
                 String formattedBalance = "0.00";
@@ -60,12 +41,6 @@ public class BalanceViewHolder extends RecyclerView.ViewHolder {
                     }
                 }
                 balanceValue.setText(String.format("%s %s", formattedBalance, currency));
-            }
-        });
-
-        viewModel.getIsLoading().observe(lifecycleOwner, isLoading -> {
-            if (refreshProgressBar != null) {
-                refreshProgressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             }
         });
     }

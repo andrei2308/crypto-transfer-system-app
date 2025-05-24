@@ -1,54 +1,63 @@
 package com.example.crypto_payment_system.utils.adapter.account;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
 
 import java.util.List;
 
-/**
- * Custom adapter for displaying wallet accounts
- */
 public class AccountAdapter extends ArrayAdapter<WalletAccount> {
 
     public AccountAdapter(Context context, List<WalletAccount> accounts) {
-        super(context, android.R.layout.simple_spinner_item, accounts);
-        setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        super(context, 0, accounts);
     }
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        View view = super.getView(position, convertView, parent);
-        TextView textView = view.findViewById(android.R.id.text1);
-        WalletAccount account = getItem(position);
-
-        if (account != null) {
-            textView.setText(account.getName());
-        }
-
-        return view;
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        return getCustomView(position, convertView, parent, R.layout.item_account_spinner);
     }
 
     @Override
-    public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
-        View view = super.getDropDownView(position, convertView, parent);
-        TextView textView = view.findViewById(android.R.id.text1);
-        WalletAccount account = getItem(position);
+    public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        return getCustomView(position, convertView, parent, R.layout.item_account_dropdown);
+    }
 
-        if (account != null) {
-            String address = account.getAddress();
-            String truncatedAddress = address.substring(0, 6) + "..." +
-                    address.substring(address.length() - 4);
-            textView.setText(account.getName() + " (" + truncatedAddress + ")");
+    private View getCustomView(int position, View convertView, ViewGroup parent, int layoutResource) {
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(layoutResource, parent, false);
         }
 
-        return view;
+        TextView accountName = convertView.findViewById(R.id.accountName);
+        WalletAccount account = getItem(position);
+
+        if (account != null && accountName != null) {
+            accountName.setText(account.getName());
+
+            if (layoutResource == R.layout.item_account_dropdown) {
+                TextView accountAddress = convertView.findViewById(R.id.accountAddress);
+                if (accountAddress != null) {
+                    String address = account.getAddress();
+                    if (address != null && address.length() > 10) {
+                        String formattedAddress = address.substring(0, 6) + "..." +
+                                address.substring(address.length() - 4);
+                        accountAddress.setText(formattedAddress);
+                    } else {
+                        accountAddress.setText(address);
+                    }
+                }
+            }
+        }
+
+        return convertView;
     }
 }

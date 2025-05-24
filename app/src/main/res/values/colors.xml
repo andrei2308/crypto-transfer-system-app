@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors - Dark Blue -->
-    <color name="colorPrimary">#1A237E</color>             <!-- Dark Blue -->
-    <color name="colorPrimaryDark">#0D1350</color>         <!-- Deeper Blue -->
-    <color name="colorPrimaryLight">#534BAE</color>        <!-- Lighter Blue -->
-    <color name="colorAccent">#FF9800</color>             <!-- Orange Accent -->
     <color name="colorAccentDark">#F57C00</color>         <!-- Darker Orange -->
     <color name="colorAccentLight">#FFB74D</color>        <!-- Lighter Orange -->
 
-    <!-- Background Colors -->
-    <color name="colorBackground">#F5F7FA</color>         <!-- Light background for main surfaces -->
-    <color name="colorSurface">#FFFFFF</color>            <!-- White for cards and dialogs -->
-    <color name="colorSurfaceVariant">#EEF2F6</color>     <!-- Slight off-white for alternate surfaces -->
-    
     <!-- Gray Scale -->
     <color name="colorGray100">#F5F7FA</color>
     <color name="colorGray200">#E4E7EB</color>
@@ -30,12 +20,8 @@
     <color name="colorWarning">#FBBF24</color>             <!-- Amber -->
     <color name="colorError">#EF4444</color>               <!-- Red -->
 
-    <!-- Text Colors -->
-    <color name="textPrimary">#1F2933</color>              <!-- Near-black -->
-    <color name="textSecondary">#52606D</color>            <!-- Dark Gray -->
     <color name="textTertiary">#7B8794</color>             <!-- Medium Gray -->
     <color name="textHint">#9AA5B1</color>                 <!-- Light Gray -->
-    <color name="textOnPrimary">#FFFFFF</color>            <!-- White text on primary color -->
     <color name="textOnAccent">#FFFFFF</color>             <!-- White text on accent color -->
     <color name="textWhite">#FFFFFF</color>                <!-- White -->
 
@@ -43,14 +29,42 @@
     <color name="colorPositive">#10B981</color>            <!-- Green for positive values -->
     <color name="colorNegative">#EF4444</color>            <!-- Red for negative values -->
     <color name="colorCryptoHighlight">#FF9800</color>     <!-- Highlight for crypto amounts -->
-    
+
     <!-- UI Elements -->
-    <color name="dividerColor">#E4E7EB</color>             <!-- Light gray for dividers -->
-    <color name="rippleColor">#3D1A237E</color>            <!-- Semi-transparent primary for ripples -->
+    <color name="rippleColor">#3D1A237E
+    </color>            <!-- Semi-transparent primary for ripples -->
     <color name="shadowColor">#1A000000</color>            <!-- Light shadow -->
-    
+
     <!-- Backward compatibility colors -->
     <color name="colorWhite">@color/colorSurface</color>
     <color name="colorOffWhite">@color/colorBackground</color>
     <color name="colorLightGrey">@color/colorGray100</color>
+
+    <!-- Primary colors -->
+    <color name="colorPrimary">#3445DD</color>
+    <color name="colorPrimaryDark">#243380</color>
+    <color name="colorPrimaryLight">#5C6FFF</color>
+    <color name="colorAccent">#42A5F5</color>
+
+    <!-- Background colors -->
+    <color name="colorBackground">#F5F7FF</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorSurfaceVariant">#EFF3FF</color>
+
+    <!-- Text colors -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="textOnPrimary">#FFFFFF</color>
+
+    <!-- Common colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="dividerColor">#EEEEEE</color>
+
+    <color name="black">#000000</color>
+
+    <color name="transaction_icon_background">#EEF3FF</color>
+    <color name="status_background_color">#E6F0F9</color>
+    <color name="status_text_color">#0277BD</color>
+
+    <color name="colorPrimaryLight10">#EEF1FF</color>
 </resources>

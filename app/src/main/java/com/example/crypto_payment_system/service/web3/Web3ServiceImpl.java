@@ -42,10 +42,10 @@ public class Web3ServiceImpl implements Web3Service {
         try {
             web3j = Web3j.build(new HttpService(BuildConfig.ALCHEMY_NODE));
 
-            // Test connection with timeout
+            // Testare conexiune
             Web3ClientVersion clientVersion = web3j.web3ClientVersion()
                     .sendAsync()
-                    .get(10, TimeUnit.SECONDS); // Add timeout
+                    .get(10, TimeUnit.SECONDS); // Adaugă timeout
 
             String connectedVersion = clientVersion.getWeb3ClientVersion();
 
