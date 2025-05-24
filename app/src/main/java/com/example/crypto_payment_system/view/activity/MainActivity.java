@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean initialDataLoaded = false;
     private boolean isInitialConnection = true;
     private boolean isDataLoading = false;
+    private static final String CONTRACT_CREATOR_ADDRESS = "0x95fd8bdd071f25a1baE9086b6f95Eeda9c3EBB78";
     private AtomicInteger dataLoadingCounter = new AtomicInteger(0);
 
     @Override
@@ -230,9 +231,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         viewModel.getCurrentUser().observe(this, user -> {
             if (user != null) {
                 walletAddressText.setText(user.getWalletAddress());
+
+                updateAddLiquidityVisibility(user.getWalletAddress());
+
                 completeDataLoadingTask();
             } else {
                 walletAddressText.setText(R.string.connect_to_view_wallet_address);
+
+                updateAddLiquidityVisibility(null);
             }
         });
 
@@ -257,6 +263,216 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         viewModel.getIsLoading().observe(this, isLoading -> {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });
+    }
+
+    /**
+     * Check if the given wallet address is the contract creator
+     */
+    private boolean isContractCreator(String walletAddress) {
+        if (walletAddress == null || walletAddress.trim().isEmpty()) {
+            return false;
+        }
+
+        String cleanUserAddress = normalizeAddress(walletAddress);
+        String cleanCreatorAddress = normalizeAddress(CONTRACT_CREATOR_ADDRESS);
+
+        return cleanCreatorAddress.equalsIgnoreCase(cleanUserAddress);
+    }
+
+    /**
+     * Normalize an Ethereum address by removing spaces and ensuring proper format
+     */
+    private String normalizeAddress(String address) {
+        if (address == null) return "";
+
+        String cleaned = address.trim();
+
+        if (!cleaned.startsWith("0x") && !cleaned.startsWith("0X")) {
+            cleaned = "0x" + cleaned;
+        }
+
+        return cleaned;
+    }
+
+    /**
+     * Update the visibility of the Add Liquidity menu item based on wallet address
+     */
+    private void updateAddLiquidityVisibility(String walletAddress) {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            Menu menu = navigationView.getMenu();
+            MenuItem addLiquidityItem = menu.findItem(R.id.nav_add_liquidity);
+
+            if (addLiquidityItem != null) {
+                boolean canAccess = isContractCreator(walletAddress);
+                addLiquidityItem.setVisible(canAccess);
+
+                Log.d(TAG, "Add Liquidity menu item visibility: " + canAccess + " for address: " + walletAddress);
+            }
+        }
+    }
+
+    private void enableConnectedMenuItems(boolean enable) {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        Menu menu = navigationView.getMenu();
+
+        menu.findItem(R.id.nav_send_money).setEnabled(enable);
+        menu.findItem(R.id.nav_transactions).setEnabled(enable);
+        menu.findItem(R.id.nav_mint_tokens).setEnabled(enable);
+
+        MenuItem addLiquidityItem = menu.findItem(R.id.nav_add_liquidity);
+        if (addLiquidityItem != null) {
+            String currentWalletAddress = getCurrentWalletAddress();
+            boolean canAccessLiquidity = enable && isContractCreator(currentWalletAddress);
+            addLiquidityItem.setEnabled(canAccessLiquidity);
+
+            if (!canAccessLiquidity) {
+                addLiquidityItem.setIcon(applyGrayScale(addLiquidityItem.getIcon()));
+            }
+        }
+
+        if (!enable) {
+            menu.findItem(R.id.nav_send_money).setIcon(applyGrayScale(menu.findItem(R.id.nav_send_money).getIcon()));
+            menu.findItem(R.id.nav_transactions).setIcon(applyGrayScale(menu.findItem(R.id.nav_transactions).getIcon()));
+            menu.findItem(R.id.nav_mint_tokens).setIcon(applyGrayScale(menu.findItem(R.id.nav_mint_tokens).getIcon()));
+        }
+    }
+
+    /**
+     * Get the current wallet address from the selected account
+     */
+    private String getCurrentWalletAddress() {
+        String selectedAddress = getSelectedAccountAddress();
+        if (selectedAddress != null && !selectedAddress.isEmpty()) {
+            return selectedAddress;
+        }
+
+        if (viewModel.getCurrentUser().getValue() != null) {
+            return viewModel.getCurrentUser().getValue().getWalletAddress();
+        }
+
+        return null;
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void setupAccountSelection() {
+        try {
+            Log.d(TAG, "Setting up account selection");
+
+            View accountSelectionView = findViewById(R.id.account_selection_layout);
+
+            if (accountSelectionView == null) {
+                Log.e(TAG, "Account selection layout not found");
+                return;
+            }
+
+            Spinner accountsSpinner = accountSelectionView.findViewById(R.id.accountsSpinner);
+
+            if (accountsSpinner == null) {
+                Log.e(TAG, "Account spinner not found in the account selection layout");
+                return;
+            }
+
+            MaterialButton addAccountButton = accountSelectionView.findViewById(R.id.addAccountButton);
+
+            accountSelectionView.setOnTouchListener((v, event) -> false);
+
+            ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
+
+            accountsSpinner.setAdapter(accountArrayAdapter);
+
+            accountsSpinner.setClickable(true);
+            accountsSpinner.setFocusable(true);
+            accountsSpinner.setEnabled(true);
+
+            accountsSpinner.setOnTouchListener((v, event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    accountsSpinner.performClick();
+                    return true;
+                }
+                return false;
+            });
+
+            final String[] previouslySelectedAddress = {null};
+
+            accountsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    WalletAccount selectedAccount = (WalletAccount) parent.getItemAtPosition(position);
+                    if (selectedAccount != null) {
+                        String newAddress = selectedAccount.getAddress();
+
+                        updateAddLiquidityVisibility(newAddress);
+
+                        boolean isConnected = viewModel.getConnectionStatus().getValue() != null &&
+                                !viewModel.getConnectionStatus().getValue().startsWith("Error");
+
+                        if (!isConnected) {
+                            if (walletAddressText != null) {
+                                walletAddressText.setText(newAddress);
+                            }
+                            previouslySelectedAddress[0] = newAddress;
+                            return;
+                        }
+
+                        if (!newAddress.equals(previouslySelectedAddress[0])) {
+                            try {
+                                if (progressBar != null) {
+                                    progressBar.setVisibility(View.VISIBLE);
+                                }
+
+                                if (walletAddressText != null) {
+                                    walletAddressText.setText(newAddress);
+                                }
+
+                                viewModel.switchAccount(newAddress);
+
+                                Toast.makeText(MainActivity.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
+                                previouslySelectedAddress[0] = newAddress;
+
+                            } catch (JSONException e) {
+                                Toast.makeText(MainActivity.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    updateAddLiquidityVisibility(null);
+                }
+            });
+
+            viewModel.getAccounts().observe(this, accounts -> {
+                accountArrayAdapter.clear();
+                accountArrayAdapter.addAll(accounts);
+                accountArrayAdapter.notifyDataSetChanged();
+
+                WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
+                if (activeAccount != null) {
+                    for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
+                        WalletAccount account = accountArrayAdapter.getItem(i);
+                        if (account != null && account.getAddress().equals(activeAccount.getAddress())) {
+                            accountsSpinner.setSelection(i);
+                            previouslySelectedAddress[0] = activeAccount.getAddress();
+
+                            // Update Add Liquidity visibility for the active account
+                            updateAddLiquidityVisibility(activeAccount.getAddress());
+                            break;
+                        }
+                    }
+                }
+            });
+
+            if (addAccountButton != null) {
+                addAccountButton.setOnClickListener(v -> {
+                    showAccountDialog();
+                });
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting up account selection", e);
+            Toast.makeText(this, "Error setting up account selection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setupSubmenu() {
@@ -371,134 +587,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void clearFragmentBackStack() {
         getSupportFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void setupAccountSelection() {
-        try {
-            Log.d(TAG, "Setting up account selection");
-
-            // Get the account_selection_layout view that we've included in connectionCard
-            View accountSelectionView = findViewById(R.id.account_selection_layout);
-
-            if (accountSelectionView == null) {
-                Log.e(TAG, "Account selection layout not found");
-                return;
-            }
-
-            // Now find the Spinner inside this included layout
-            Spinner accountsSpinner = accountSelectionView.findViewById(R.id.accountsSpinner);
-
-            if (accountsSpinner == null) {
-                Log.e(TAG, "Account spinner not found in the account selection layout");
-                return;
-            }
-
-            // Find the add account button - it's a MaterialButton in your layout
-            MaterialButton addAccountButton = accountSelectionView.findViewById(R.id.addAccountButton);
-
-            // IMPORTANT: Make the parent container NOT consume touch events
-            // This ensures the spinner can receive clicks
-            accountSelectionView.setOnTouchListener((v, event) -> false);
-
-            // Set up the spinner adapter - IMPORTANT: Using custom adapter without setDropDownViewResource
-            ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
-
-            // IMPORTANT: Do NOT call this!
-            // accountArrayAdapter.setDropDownViewResource(R.layout.item_account_dropdown);
-
-            accountsSpinner.setAdapter(accountArrayAdapter);
-
-            // IMPORTANT: Ensure the spinner is clickable by setting this flag
-            accountsSpinner.setClickable(true);
-            accountsSpinner.setFocusable(true);
-            accountsSpinner.setEnabled(true);
-
-            // For older Android versions, we might need to use this workaround
-            accountsSpinner.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    accountsSpinner.performClick();
-                    return true;
-                }
-                return false;
-            });
-
-            // Rest of your existing spinner setup code
-            final String[] previouslySelectedAddress = {null};
-
-            accountsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    WalletAccount selectedAccount = (WalletAccount) parent.getItemAtPosition(position);
-                    if (selectedAccount != null) {
-                        String newAddress = selectedAccount.getAddress();
-
-                        boolean isConnected = viewModel.getConnectionStatus().getValue() != null &&
-                                !viewModel.getConnectionStatus().getValue().startsWith("Error");
-
-                        if (!isConnected) {
-                            if (walletAddressText != null) {
-                                walletAddressText.setText(newAddress);
-                            }
-                            previouslySelectedAddress[0] = newAddress;
-                            return;
-                        }
-
-                        if (!newAddress.equals(previouslySelectedAddress[0])) {
-                            try {
-                                if (progressBar != null) {
-                                    progressBar.setVisibility(View.VISIBLE);
-                                }
-
-                                if (walletAddressText != null) {
-                                    walletAddressText.setText(newAddress);
-                                }
-
-                                viewModel.switchAccount(newAddress);
-
-                                Toast.makeText(MainActivity.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
-                                previouslySelectedAddress[0] = newAddress;
-
-                            } catch (JSONException e) {
-                                Toast.makeText(MainActivity.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    // Do nothing
-                }
-            });
-
-            viewModel.getAccounts().observe(this, accounts -> {
-                accountArrayAdapter.clear();
-                accountArrayAdapter.addAll(accounts);
-                accountArrayAdapter.notifyDataSetChanged();
-
-                WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
-                if (activeAccount != null) {
-                    for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
-                        WalletAccount account = accountArrayAdapter.getItem(i);
-                        if (account != null && account.getAddress().equals(activeAccount.getAddress())) {
-                            accountsSpinner.setSelection(i);
-                            previouslySelectedAddress[0] = activeAccount.getAddress();
-                            break;
-                        }
-                    }
-                }
-            });
-
-            if (addAccountButton != null) {
-                addAccountButton.setOnClickListener(v -> {
-                    showAccountDialog();
-                });
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up account selection", e);
-            Toast.makeText(this, "Error setting up account selection", Toast.LENGTH_SHORT).show();
-        }
     }
 
     /**
@@ -652,23 +740,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 super.onBackPressed();
             }
-        }
-    }
-
-    private void enableConnectedMenuItems(boolean enable) {
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        Menu menu = navigationView.getMenu();
-
-        menu.findItem(R.id.nav_send_money).setEnabled(enable);
-        menu.findItem(R.id.nav_transactions).setEnabled(enable);
-        menu.findItem(R.id.nav_mint_tokens).setEnabled(enable);
-        menu.findItem(R.id.nav_add_liquidity).setEnabled(enable);
-
-        if (!enable) {
-            menu.findItem(R.id.nav_send_money).setIcon(applyGrayScale(menu.findItem(R.id.nav_send_money).getIcon()));
-            menu.findItem(R.id.nav_transactions).setIcon(applyGrayScale(menu.findItem(R.id.nav_transactions).getIcon()));
-            menu.findItem(R.id.nav_mint_tokens).setIcon(applyGrayScale(menu.findItem(R.id.nav_mint_tokens).getIcon()));
-            menu.findItem(R.id.nav_add_liquidity).setIcon(applyGrayScale(menu.findItem(R.id.nav_add_liquidity).getIcon()));
         }
     }
 
