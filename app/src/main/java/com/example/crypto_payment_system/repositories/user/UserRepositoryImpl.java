@@ -113,10 +113,9 @@ public class UserRepositoryImpl implements UserRepository {
                             return CURRENCY_EUR;
                         }
                     } else {
-                        String firstPreferredCurrency = currencyList.get(0);
-                        if (firstPreferredCurrency.equals("EUR")) {
+                        if (sendCurrency.equals("EUR")) {
                             return CURRENCY_EUR;
-                        } else if (firstPreferredCurrency.equals("USD")) {
+                        } else if (sendCurrency.equals("USD")) {
                             return CURRENCY_USD;
                         } else {
                             return CURRENCY_EUR;
