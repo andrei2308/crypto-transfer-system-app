@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.ui.liquidity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
+import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -51,6 +54,8 @@ public class AddLiquidityFragment extends Fragment {
     private TextView contractUsdBalanceValue;
 
     private Observer<TransactionResult> transactionObserver;
+    private TransactionProgressDialog progressDialog;
+    private boolean isTransactionInProgress = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,6 +86,12 @@ public class AddLiquidityFragment extends Fragment {
         setupCurrencySpinner();
 
         addLiquidityButton.setOnClickListener(v -> {
+            // Prevent multiple simultaneous transactions
+            if (isTransactionInProgress) {
+                Toast.makeText(requireContext(), "Transaction already in progress", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
             String amount = Objects.requireNonNull(amountEditText.getText()).toString();
 
@@ -94,7 +105,6 @@ public class AddLiquidityFragment extends Fragment {
         });
 
         observeViewModel();
-
         refreshBalances();
     }
 
@@ -105,7 +115,6 @@ public class AddLiquidityFragment extends Fragment {
         );
         currencySpinner.setAdapter(currencyAdapter);
 
-        // Add item selection listener to handle currency changes
         currencySpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
@@ -142,7 +151,7 @@ public class AddLiquidityFragment extends Fragment {
         currencySpinner.setAdapter(currencyAdapter);
 
         // Default selection: EUR
-        if (currencies.size() > 0) {
+        if (!currencies.isEmpty()) {
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
                 Currency currency = currencyAdapter.getItem(i);
                 if (currency != null && "EUR".equals(currency.getCode())) {
@@ -196,42 +205,89 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void addLiquidity(String currency, String amount) {
-        setupTransactionObserver();
-        
+        isTransactionInProgress = true;
+
         viewModel.resetTransactionResult();
-        
-        showLoading(true);
+
+        setupTransactionObserver();
+
+        showTransactionProgressDialog();
+
         viewModel.addLiquidity(currency, amount);
+    }
+
+    private void showTransactionProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+
+        progressDialog = new TransactionProgressDialog(requireContext());
+
+        try {
+            progressDialog.show();
+            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
+
+            simulateTransactionProgress();
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            isTransactionInProgress = false;
+        }
+    }
+
+    private void simulateTransactionProgress() {
+
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
+        }
+
+        addLiquidityButton.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.SUBMITTING);
+            }
+        }, 1000);
+
+        addLiquidityButton.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.PENDING);
+            }
+        }, 2000);
+
+        addLiquidityButton.postDelayed(() -> {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMING);
+            }
+        }, 4000);
     }
 
     private void setupTransactionObserver() {
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
-        
+
         transactionObserver = result -> {
-            showLoading(false);
+            if (result == null) {
+                return;
+            }
 
-            if (result == null) return;
+            viewModel.getTransactionResult().removeObserver(transactionObserver);
+            transactionObserver = null;
 
-            Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
-            String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
-            String amount = amountEditText.getText().toString().trim();
-            long timestamp = System.currentTimeMillis();
+            isTransactionInProgress = false;
 
-            TransactionResultFragment fragment = TransactionResultFragment.newInstance(
-                    result.isSuccess(),
-                    result.getTransactionHash() != null ? result.getTransactionHash() : "-",
-                    amount + " " + currencyCode,
-                    "Add Liquidity",
-                    timestamp,
-                    result.getMessage() != null ? result.getMessage() : ""
-            );
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_main, fragment)
-                    .addToBackStack(null)
-                    .commit();
+            if (progressDialog != null && progressDialog.isShowing()) {
+                if (result.isSuccess()) {
+                    progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMED);
+                    if (result.getTransactionHash() != null) {
+                        progressDialog.setTransactionHash(result.getTransactionHash());
+                    }
+                } else {
+                    progressDialog.updateState(TransactionProgressDialog.TransactionState.FAILED);
+                }
+            }
+
+            addLiquidityButton.postDelayed(() -> {
+                showTransactionResult(result);
+            }, 2000);
 
             if (result.isSuccess()) {
                 amountEditText.setText("");
@@ -240,6 +296,28 @@ public class AddLiquidityFragment extends Fragment {
         };
 
         viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
+    }
+
+    private void showTransactionResult(TransactionResult result) {
+        Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+        String currencyCode = selectedCurrency != null ? selectedCurrency.getCode() : "???";
+        String amount = amountEditText.getText().toString().trim();
+        long timestamp = System.currentTimeMillis();
+
+        TransactionResultFragment fragment = TransactionResultFragment.newInstance(
+                result.isSuccess(),
+                result.getTransactionHash() != null ? result.getTransactionHash() : "-",
+                amount + " " + currencyCode,
+                "Add Liquidity",
+                timestamp,
+                result.getMessage() != null ? result.getMessage() : ""
+        );
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void observeViewModel() {
@@ -275,19 +353,16 @@ public class AddLiquidityFragment extends Fragment {
         }
     }
 
-    private void showLoading(boolean isLoading) {
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-
-        addLiquidityButton.setEnabled(!isLoading);
-
-        buttonProgressContainer.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-    }
-
     @Override
     public void onDestroyView() {
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
+            transactionObserver = null;
         }
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        isTransactionInProgress = false;
         super.onDestroyView();
     }
 }

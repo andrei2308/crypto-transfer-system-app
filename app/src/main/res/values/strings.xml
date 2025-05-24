@@ -150,7 +150,9 @@
     <string name="connect_subtitle">Connect to the Ethereum network to start using the app</string>
     <string name="select_account">Select your account:</string>
     <string name="account_icon">Account Icon</string>
-
+    <string name="preparing_transaction">Preparing transaction...</string>
+    <string name="blockchain_transaction">Blockchain Transaction</string>
+    <string name="view_explorer">View Explorer</string>
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
         <item>EUR (Euro)</item>
