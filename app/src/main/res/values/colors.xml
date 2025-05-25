@@ -67,4 +67,59 @@
     <color name="status_text_color">#0277BD</color>
 
     <color name="colorPrimaryLight10">#EEF1FF</color>
+
+    <!-- Primary Colors -->
+    <color name="primaryBlue">#4A90E2</color>
+    <color name="primaryPurple">#8E44AD</color>
+    <color name="accentOrange">#F39C12</color>
+    <color name="successGreen">#27AE60</color>
+
+    <!-- Background Colors -->
+    <color name="backgroundGradient">#F8FAFC</color>
+    <color name="cardBackground">#FFFFFF</color>
+    <color name="inputBackground">#F7F9FC</color>
+
+    <!-- Text Colors -->
+    <color name="darkSlate">#2C3E50</color>
+    <color name="textMuted">#95A5A6</color>
+
+    <!-- Border Colors -->
+    <color name="cardBorder">#E8EDF3</color>
+    <color name="inputBorderColor">#DDE4EA</color>
+
+    <!-- Exchange Specific Colors -->
+    <color name="warningOrange">#FF9500</color>
+    <color name="estimatedAmountBackground">#F0FDF4</color>
+    <color name="dividerColorLight">#E2E8F0</color>
+    <color name="primaryBlueLight">#E3F2FD</color>
+
+    <!-- Mint Screen Specific Colors -->
+    <color name="mintPrimary">#0EA5E9</color>
+    <color name="mintSecondary">#0891B2</color>
+    <color name="mintAccent">#06B6D4</color>
+    <color name="mintPrimaryLight">#EFF6FF</color>
+
+
+    <!-- Liquidity Screen Specific Colors -->
+    <color name="liquidityPrimary">#1976D2</color>
+    <color name="liquiditySecondary">#1565C0</color>
+    <color name="liquidityAccent">#FF9800</color>
+    <color name="liquidityTertiary">#4CAF50</color>
+
+
+    <!-- Transaction Dialog Specific Colors -->
+    <color name="transactionPrimary">#7C3AED</color>
+    <color name="transactionSecondary">#2563EB</color>
+    <color name="transactionAccent">#059669</color>
+    <color name="transactionTertiary">#F59E0B</color>
+    <color name="transactionQuaternary">#DC2626</color>
+    <color name="transactionQuaternaryLight">#FEE2E2</color>
+
+    <!-- Dialog Background Colors -->
+    <color name="transactionDialogBackground">#F1F5F9</color>
+    <color name="transactionCardBorder">#E2E8F0</color>
+    <color name="technicalDetailBackground">#FEFEFE</color>
+    <color name="technicalDetailBorder">#F1F5F9</color>
+
+
 </resources>

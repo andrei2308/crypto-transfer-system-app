@@ -4,8 +4,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="connect_to_view_wallet_address">Connect to view wallet address</string>
-    <string name="exchange_eur_usd">Exchange EUR → USD</string>
-    <string name="exchange_usd_eur">Exchange USD → EUR</string>
+    <string name="exchange_eur_usd">Exchange EURSC → USDT</string>
+    <string name="exchange_usd_eur">Exchange USDT → EURSC</string>
     <string name="transaction_successful_minted">"Transaction successful!\nMinted "</string>
     <string name="transaction_failed">"Transaction failed "</string>
     <string name="processing_transaction">Processing transaction</string>
@@ -24,12 +24,12 @@
     <string name="results_will_appear_here">Results will appear here</string>
     <string name="please_connect_to_ethereum_to_access_all_features_n_nmake_sure_you_have_selected_an_account_from_the_dropdown_above">Please connect to Ethereum to access all features.\n\nMake sure you have selected an account from the dropdown above.</string>
     <string name="select_currency">Select currency</string>
-    <string name="eur">EUR</string>
-    <string name="usd">USD</string>
+    <string name="eur">EURSC</string>
+    <string name="usd">USDT</string>
     <string name="add_liquidity">Add liquidity</string>
     <string name="wallet_balance">Wallet balance</string>
-    <string name="_0_00_eur">0.00 EUR</string>
-    <string name="_0_00_usd">0.00 USD</string>
+    <string name="_0_00_eur">0.00 EURSC</string>
+    <string name="_0_00_usd">0.00 USDT</string>
     <string name="contract_balance">Contract balance</string>
     <string name="refresh">Refresh</string>
     <string name="amount_to_add">Amount to add</string>
@@ -51,8 +51,8 @@
     <string name="not_connected">Not connected</string>
     <string name="select_your_preferred_currencies">Select your preferred currencies:</string>
     <string name="you_can_select_multiple_currencies_the_first_selected_currency_will_be_considered_your_primary_currency">You can select multiple currencies. The first selected currency will be considered your primary currency.</string>
-    <string name="eur_euro">EUR - Euro</string>
-    <string name="usd_us_dollar">USD - US Dollar</string>
+    <string name="eur_euro">EURSC - Euro stablecoin</string>
+    <string name="usd_us_dollar">USDT - US Dollar stablecoin</string>
     <string name="note_your_preferred_currencies_are_used_to_determine_which_tokens_you_want_to_use_for_transactions_make_sure_you_have_liquidity_for_these_currencies">Note: Your preferred currencies are used to determine which tokens you want to use for transactions. Make sure you have liquidity for these currencies.</string>
     <string name="save_preferences">Save preferences</string>
     <string name="mint_tokens">Mint tokens</string>
@@ -120,8 +120,8 @@
     <string name="transaction_type">Transaction type</string>
     <string name="transaction_details">Transaction details</string>
     <string name="close">Close</string>
-    <string name="swipe_for_usd">swipe for usd</string>
-    <string name="swipe_for_eur">swipe for eur</string>
+    <string name="swipe_for_usd">swipe for usdt</string>
+    <string name="swipe_for_eur">swipe for eursc</string>
     <string name="connection_status">Connection status</string>
     <string name="connect">Connect</string>
     <string name="loading_data">Loading data ...</string>
@@ -155,11 +155,11 @@
     <string name="view_explorer">View Explorer</string>
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
-        <item>EUR (Euro)</item>
-        <item>USD (US Dollar)</item>
+        <item>EURSC (Euro stablecoin)</item>
+        <item>USDT (US Dollar stablecoin)</item>
     </string-array>
     <string-array name="display_currency_values">
-        <item>EUR</item>
-        <item>USD</item>
+        <item>EURSC</item>
+        <item>USDT</item>
     </string-array>
 </resources>
