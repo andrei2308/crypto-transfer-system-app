@@ -1,6 +1,7 @@
 package com.example.crypto_payment_system.utils.adapter.transaction;
 
 import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.MINT_USD;
 import static com.example.crypto_payment_system.config.Constants.USDT;
 
 import android.text.format.DateFormat;
@@ -121,7 +122,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
                     if (!prefferedCurrencies.contains(USDT)) {
                         exchangeRate = transaction.getExchangeRate();
                     }
-                } else if (transaction.getSentCurrency() == -1){
+                } else if (transaction.getTransactionType().equals(MINT_USD)){
                     currency += " " + USDT;
                 }
             } else {
