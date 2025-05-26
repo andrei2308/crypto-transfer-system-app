@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.ui.transaction;
 
+import static com.example.crypto_payment_system.config.Constants.ETH;
+
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -166,7 +168,7 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
             sign = "-";
         }
 
-        return sign + amount.abs().toPlainString() + " ETH";
+        return sign + amount.abs().toPlainString() + " " + ETH;
     }
 
     private String formatTimestamp(long timestamp) {

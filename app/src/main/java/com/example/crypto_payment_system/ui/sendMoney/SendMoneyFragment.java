@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.ui.sendMoney;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
@@ -124,7 +126,7 @@ public class SendMoneyFragment extends Fragment {
 
         for (int i = 0; i < currencyAdapter.getCount(); i++) {
             Currency currency = currencyAdapter.getItem(i);
-            if (currency != null && "EUR".equals(currency.getCode())) {
+            if (currency != null && EURSC.equals(currency.getCode())) {
                 currencySpinner.setSelection(i);
                 break;
             }
@@ -166,7 +168,7 @@ public class SendMoneyFragment extends Fragment {
 
         for (int i = 0; i < currencyAdapter.getCount(); i++) {
             Currency currency = currencyAdapter.getItem(i);
-            if (currency != null && "EUR".equals(currency.getCode())) {
+            if (currency != null && EURSC.equals(currency.getCode())) {
                 currencySpinner.setSelection(i);
                 break;
             }
@@ -324,7 +326,7 @@ public class SendMoneyFragment extends Fragment {
 
             Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
             if (selectedCurrency == null) {
-                selectedCurrency = CurrencyManager.getCurrencyByCode("EUR");
+                selectedCurrency = CurrencyManager.getCurrencyByCode(EURSC);
             }
 
             String currency = selectedCurrency.getCode();

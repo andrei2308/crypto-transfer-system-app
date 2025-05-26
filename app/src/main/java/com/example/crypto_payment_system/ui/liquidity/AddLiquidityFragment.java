@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.ui.liquidity;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -154,7 +157,7 @@ public class AddLiquidityFragment extends Fragment {
         if (!currencies.isEmpty()) {
             for (int i = 0; i < currencyAdapter.getCount(); i++) {
                 Currency currency = currencyAdapter.getItem(i);
-                if (currency != null && "EUR".equals(currency.getCode())) {
+                if (currency != null && EURSC.equals(currency.getCode())) {
                     currencySpinner.setSelection(i);
                     break;
                 }
@@ -197,7 +200,7 @@ public class AddLiquidityFragment extends Fragment {
 
         for (int i = 0; i < currencyAdapter.getCount(); i++) {
             Currency currency = currencyAdapter.getItem(i);
-            if (currency != null && "EUR".equals(currency.getCode())) {
+            if (currency != null && EURSC.equals(currency.getCode())) {
                 currencySpinner.setSelection(i);
                 break;
             }
@@ -332,24 +335,24 @@ public class AddLiquidityFragment extends Fragment {
     private void updateWalletBalanceUI(Map<String, TokenBalance> balances) {
         if (balances == null) return;
 
-        if (balances.containsKey("EURC")) {
-            eurBalanceValue.setText(balances.get("EURC").getFormattedWalletBalance() + " EUR");
+        if (balances.containsKey(EURSC)) {
+            eurBalanceValue.setText(balances.get(EURSC).getFormattedWalletBalance() + " EURSC");
         }
 
-        if (balances.containsKey("USDT")) {
-            usdBalanceValue.setText(balances.get("USDT").getFormattedWalletBalance() + " USD");
+        if (balances.containsKey(USDT)) {
+            usdBalanceValue.setText(balances.get(USDT).getFormattedWalletBalance() + " USDT");
         }
     }
 
     private void updateContractBalanceUI(Map<String, TokenBalance> balances) {
         if (balances == null) return;
 
-        if (balances.containsKey("EURC")) {
-            contractEurBalanceValue.setText(balances.get("EURC").getFormattedContractBalance() + " EUR");
+        if (balances.containsKey(EURSC)) {
+            contractEurBalanceValue.setText(balances.get(EURSC).getFormattedContractBalance() + " EUR");
         }
 
-        if (balances.containsKey("USDT")) {
-            contractUsdBalanceValue.setText(balances.get("USDT").getFormattedContractBalance() + " USD");
+        if (balances.containsKey(USDT)) {
+            contractUsdBalanceValue.setText(balances.get(USDT).getFormattedContractBalance() + " USD");
         }
     }
 

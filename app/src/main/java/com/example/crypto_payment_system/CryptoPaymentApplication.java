@@ -12,7 +12,6 @@ public class CryptoPaymentApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         CurrencyManager.initialize(this);
     }
 } 

@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.ui.transaction;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +56,7 @@ public class TransactionHistoryFragment extends Fragment implements TransactionA
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
         if (getArguments() != null) {
-            currency = getArguments().getString("currency", "EUR");
+            currency = getArguments().getString("currency", EURSC);
             viewModel.setSelectedCurrency(currency);
         }
 
@@ -109,13 +112,13 @@ public class TransactionHistoryFragment extends Fragment implements TransactionA
                     totalReceived = totalReceived.add(amount);
                 }
             } else {
-                if (currency.equals("EUR") && transaction.getSentCurrency() == 1) {
+                if (currency.equals(EURSC) && transaction.getSentCurrency() == 1) {
                     totalSent = totalSent.add(amount);
-                } else if (currency.equals("EUR") && transaction.getReceivedCurrency() == 1) {
+                } else if (currency.equals(EURSC) && transaction.getReceivedCurrency() == 1) {
                     totalReceived = totalReceived.add(amount.multiply(BigDecimal.valueOf(Long.valueOf(transaction.getExchangeRate())).divide(BigDecimal.valueOf(100000000L))));
-                } else if (currency.equals("USD") && transaction.getSentCurrency() == 2) {
+                } else if (currency.equals(USDT) && transaction.getSentCurrency() == 2) {
                     totalSent = totalSent.add(amount);
-                } else if (currency.equals("USD") && transaction.getReceivedCurrency() == 2) {
+                } else if (currency.equals(USDT) && transaction.getReceivedCurrency() == 2) {
                     totalReceived = totalReceived.add(amount.multiply(BigDecimal.valueOf(Long.valueOf(transaction.getExchangeRate())).divide(BigDecimal.valueOf(100000000L))));
                 }
             }

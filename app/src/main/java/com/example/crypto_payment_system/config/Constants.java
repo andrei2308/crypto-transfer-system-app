@@ -29,6 +29,19 @@ public class Constants {
     // currency codes
     public static final int CURRENCY_EUR = 1;
     public static final int CURRENCY_USD = 2;
+    public static final String EURSC = "EURSC";
+    public static final String USDT = "USDT";
+    public static final String ADD_LIQUIDITY = "ADD_LIQUIDITY";
+    public static final String EUR_TO_USD = "EUR_TO_USD";
+    public static final String USD_TO_EUR = "USD_TO_EUR";
+    public static final String USD_TO_EUR_TRANSFER = "USD_TO_EUR_TRANSFER";
+    public static final String USD_TRANSFER = "USD_TRANSFER";
+    public static final String EUR_TO_USD_TRANSFER = "EUR_TO_USD_TRANSFER";
+    public static final String EUR_TRANSFER = "EUR_TRANSFER";
+    public static final String ETH = "ETH";
+    public static final String CONTRACT_CREATOR_ADDRESS = "0x95fd8bdd071f25a1baE9086b6f95Eeda9c3EBB78";
+    public static final String MINT_USD = "MINT_USD";
+
 
     public static final String EUR_TOKEN_CONTRACT_ADDRESS = "0x08210F9170F89Ab7658F0B5E3fF39b0E03C594D4";
     public static final String USD_TOKEN_CONTRACT_ADDRESS = "0x5c3E80d8218f9e382CeBB017f4F3270f1AE2D8Fc";

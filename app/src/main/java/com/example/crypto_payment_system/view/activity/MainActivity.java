@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.view.activity;
 
+import static com.example.crypto_payment_system.config.Constants.CONTRACT_CREATOR_ADDRESS;
+
 import android.annotation.SuppressLint;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -84,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean initialDataLoaded = false;
     private boolean isInitialConnection = true;
     private boolean isDataLoading = false;
-    private static final String CONTRACT_CREATOR_ADDRESS = "0x95fd8bdd071f25a1baE9086b6f95Eeda9c3EBB78";
     private AtomicInteger dataLoadingCounter = new AtomicInteger(0);
 
     @Override

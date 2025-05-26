@@ -1,7 +1,17 @@
 package com.example.crypto_payment_system.view.viewmodels;
 
+import static com.example.crypto_payment_system.config.Constants.ADD_LIQUIDITY;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.EUR_TO_USD;
+import static com.example.crypto_payment_system.config.Constants.EUR_TO_USD_TRANSFER;
+import static com.example.crypto_payment_system.config.Constants.EUR_TRANSFER;
+import static com.example.crypto_payment_system.config.Constants.MINT_USD;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+import static com.example.crypto_payment_system.config.Constants.USD_TO_EUR;
+import static com.example.crypto_payment_system.config.Constants.USD_TO_EUR_TRANSFER;
+import static com.example.crypto_payment_system.config.Constants.USD_TRANSFER;
 
 import android.app.Application;
 import android.text.TextUtils;
@@ -299,12 +309,12 @@ public class MainViewModel extends AndroidViewModel {
 
 
             final String displayAmount = humanReadableAmount;
-            final String displayCurrency = currencyToExchange.equals("USD") ? "USDT" : "EURC";
+            final String displayCurrency = currencyToExchange.equals(USDT) ? USDT : EURSC;
 
 
-            if ("EUR".equals(currencyToExchange)) {
+            if (EURSC.equals(currencyToExchange)) {
                 exchangeEurToUsd(tokenAmount);
-            } else if ("USD".equals(currencyToExchange)) {
+            } else if (USDT.equals(currencyToExchange)) {
                 exchangeUsdToEur(tokenAmount);
             } else {
                 transactionResult.setValue(
@@ -360,9 +370,8 @@ public class MainViewModel extends AndroidViewModel {
             isLoading.setValue(true);
 
             final String displayAmount = humanReadableAmount;
-            final String displayCurrency = currency.equals("USD") ? "USDT" : "EURC";
+            final String displayCurrency = currency.equals(USDT) ? USDT : EURSC;
 
-            // First, get the required ETH amount without executing the transaction
             exchangeRepository.getRequiredTokenCost(currency, getActiveCredentials(), tokenAmount)
                     .thenAccept(costInfo -> {
                         isLoading.postValue(false);
@@ -439,7 +448,7 @@ public class MainViewModel extends AndroidViewModel {
             isLoading.setValue(true);
 
             final String displayAmount = humanReadableAmount;
-            final String displayCurrency = currency.equals("USD") ? "USDT" : "EURC";
+            final String displayCurrency = currency.equals(USDT) ? USDT : EURSC;
 
             exchangeRepository.addLiquidity(currency, getActiveCredentials(), tokenAmount)
                     .thenAccept(result -> {
@@ -525,9 +534,9 @@ public class MainViewModel extends AndroidViewModel {
 
         try {
             int sendCurrencyCode;
-            if (sendCurrency.equals("EUR")) {
+            if (sendCurrency.equals(EURSC)) {
                 sendCurrencyCode = CURRENCY_EUR;
-            } else if (sendCurrency.equals("USD")) {
+            } else if (sendCurrency.equals(USDT)) {
                 sendCurrencyCode = CURRENCY_USD;
             } else {
                 sendCurrencyCode = CURRENCY_EUR;
@@ -653,20 +662,22 @@ public class MainViewModel extends AndroidViewModel {
 
             boolean include = false;
 
-            if ("EUR".equals(currency)) {
-                if (type.equals("EUR_TRANSFER") || type.equals("EUR_TO_USD") || type.equals("EUR_TO_USD_TRANSFER")) {
+            if (EURSC.equals(currency)) {
+                if (type.equals(EUR_TRANSFER) || type.equals(EUR_TO_USD) || type.equals(EUR_TO_USD_TRANSFER)) {
                     include = true;
-                } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 1) {
+                } else if (type.equals(ADD_LIQUIDITY) && transaction.getSentCurrency() == 1) {
                     include = true;
-                } else if (type.equals("USD_TO_EUR") || (type.equals("USD_TO_EUR_TRANSFER") && transaction.getWalletAddressTo().equals(getActiveAccount().getValue().getAddress()))){
+                } else if (type.equals(USD_TO_EUR) || (type.equals(USD_TO_EUR_TRANSFER) && transaction.getWalletAddressTo().equals(getActiveAccount().getValue().getAddress()))){
                     include = true;
                 }
-            } else if ("USD".equals(currency)) {
-                if (type.equals("USD_TRANSFER") || type.equals("USD_TO_EUR_TRANSFER") || type.equals("USD_TO_EUR")) {
+            } else if (USDT.equals(currency)) {
+                if (type.equals(USD_TRANSFER) || type.equals(USD_TO_EUR_TRANSFER) || type.equals(USD_TO_EUR)) {
                     include = true;
-                } else if (type.equals("ADD_LIQUIDITY") && transaction.getSentCurrency() == 2) {
+                } else if (type.equals(ADD_LIQUIDITY) && transaction.getSentCurrency() == 2) {
                     include = true;
-                } else if (type.equals("EUR_TO_USD") || (type.equals("EUR_TO_USD_TRANSFER") && transaction.getWalletAddressTo().equals(getActiveAccount().getValue().getAddress()))){
+                } else if (type.equals(EUR_TO_USD) || (type.equals(EUR_TO_USD_TRANSFER) && transaction.getWalletAddressTo().equals(getActiveAccount().getValue().getAddress()))){
+                    include = true;
+                } else if (type.equals(MINT_USD)) {
                     include = true;
                 }
             }

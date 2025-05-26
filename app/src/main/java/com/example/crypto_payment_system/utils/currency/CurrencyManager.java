@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.utils.currency;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.content.Context;
 
 import com.example.crypto_payment_system.R;
@@ -26,10 +29,10 @@ public class CurrencyManager {
         if (!availableCurrencies.isEmpty()) {
             return; // Already initialized
         }
-        
+
         // Add currencies with their names and flag icons
-        availableCurrencies.add(new Currency("EUR", context.getString(R.string.euro), R.drawable.ic_flag_eur));
-        availableCurrencies.add(new Currency("USD", context.getString(R.string.us_dollar), R.drawable.ic_flag_usd));
+        availableCurrencies.add(new Currency(EURSC, context.getString(R.string.euro), R.drawable.ic_flag_eur));
+        availableCurrencies.add(new Currency(USDT, context.getString(R.string.us_dollar), R.drawable.ic_flag_usd));
     }
 
     /**

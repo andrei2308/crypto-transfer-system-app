@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.utils.adapter.balancePager;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +43,7 @@ public class BalancePagerAdapter extends RecyclerView.Adapter<BalanceViewHolder>
     @Override
     public BalanceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layoutResId;
-        if ("EUR".equals(currencies.get(viewType))) {
+        if (EURSC.equals(currencies.get(viewType))) {
             layoutResId = R.layout.balance_card_eur;
         } else {
             layoutResId = R.layout.balance_card_usd;

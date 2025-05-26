@@ -1,5 +1,9 @@
 package com.example.crypto_payment_system.repositories.token;
 
+import static com.example.crypto_payment_system.config.Constants.ETH;
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import com.example.crypto_payment_system.config.Constants;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.service.token.TokenContractService;
@@ -38,14 +42,14 @@ public class TokenRepositoryImpl implements TokenRepository {
             Map<String, String> addresses = new HashMap<>();
             try {
                 eurcAddress = Constants.EUR_TOKEN_CONTRACT_ADDRESS;
-                addresses.put("EURC", eurcAddress);
+                addresses.put(EURSC, eurcAddress);
 
                 try {
                     usdtAddress = Constants.USD_TOKEN_CONTRACT_ADDRESS;
-                    addresses.put("USDT", usdtAddress);
+                    addresses.put(USDT, usdtAddress);
                 } catch (Exception e) {
                     usdtAddress = "Not available";
-                    addresses.put("USDT", "Not available");
+                    addresses.put(USDT, "Not available");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -71,17 +75,17 @@ public class TokenRepositoryImpl implements TokenRepository {
                 BigInteger walletEthBalance = ethBalance.getBalance();
                 BigInteger contractEthBalance = BigInteger.ZERO;
 
-                balances.put("ETH", new TokenBalance("ETH", "native", walletEthBalance, contractEthBalance));
+                balances.put(ETH, new TokenBalance(ETH, "native", walletEthBalance, contractEthBalance));
 
                 // Get EUR token balances
                 BigInteger walletEurcBalance = tokenService.getTokenBalance(walletAddress, eurcAddress);
                 BigInteger contractEurcBalance = tokenService.getContractTokenBalance("getContractEurcBalance", eurcAddress);
-                balances.put("EURC", new TokenBalance("EURC", eurcAddress, walletEurcBalance, contractEurcBalance));
+                balances.put(EURSC, new TokenBalance(EURSC, eurcAddress, walletEurcBalance, contractEurcBalance));
 
                 // Get USD token balances
                 BigInteger walletUsdtBalance = tokenService.getTokenBalance(walletAddress, usdtAddress);
                 BigInteger contractUsdtBalance = tokenService.getContractTokenBalance("getContractUsdtBalance", usdtAddress);
-                balances.put("USDT", new TokenBalance("USDT", usdtAddress, walletUsdtBalance, contractUsdtBalance));
+                balances.put(USDT, new TokenBalance(USDT, usdtAddress, walletUsdtBalance, contractUsdtBalance));
 
             } catch (Exception e) {
                 e.printStackTrace();
