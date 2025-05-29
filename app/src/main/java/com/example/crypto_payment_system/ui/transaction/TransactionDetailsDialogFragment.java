@@ -91,7 +91,7 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         String formattedType = formatTransactionType(transaction.getTransactionType());
         binding.transactionTypeValue.setText(formattedType);
 
-        String amount = formatAmount(transaction.getAmount());
+        String amount = formatAmount(transaction);
         binding.transactionAmountValue.setText(amount);
 
         String formattedDate = formatTimestamp(transaction.getTimestamp());
@@ -119,7 +119,7 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
 
         // View on blockchain explorer (example: Etherscan)
         binding.viewOnExplorerButton.setOnClickListener(v -> {
-            // For example: openUrl("https://etherscan.io/tx/" + transaction.getTransactionHash());
+//            openUrl("https://sepolia.etherscan.io/tx/" + transaction.getTransactionHash());
             Toast.makeText(requireContext(), "To be implemented", Toast.LENGTH_SHORT).show(); // TODO: when migrating to Sepolia
         });
     }
@@ -152,8 +152,9 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         return result.toString();
     }
 
-    private String formatAmount(String amountStr) {
+    private String formatAmount(Transaction transaction) {
         BigDecimal amount;
+        String amountStr = transaction.getAmount();
         try {
             amount = new BigDecimal(amountStr)
                     .divide(new BigDecimal("1000000"));
@@ -161,14 +162,9 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
             amount = BigDecimal.ZERO;
         }
 
-        String sign = "";
-        if (amount.compareTo(BigDecimal.ZERO) > 0) {
-            sign = "+";
-        } else if (amount.compareTo(BigDecimal.ZERO) < 0) {
-            sign = "-";
-        }
+        String currency = transaction.getSentCurrency() == 2 ? "USD" : "EUR";
 
-        return sign + amount.abs().toPlainString() + " " + ETH;
+        return amount.abs().toPlainString() + " " + currency;
     }
 
     private String formatTimestamp(long timestamp) {
