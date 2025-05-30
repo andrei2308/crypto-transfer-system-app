@@ -1,5 +1,7 @@
 package com.example.crypto_payment_system.domain.currency;
 
+import android.util.Log;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
@@ -13,11 +15,15 @@ public class Currency {
     private final int flagIconResourceId;
     private boolean isSelected;
 
-    public Currency(@NonNull String code, @NonNull String name, @DrawableRes int flagIconResourceId) {
+    public Currency(String code, String name, int flagIconResourceId) {
+        Log.d("Currency", "Creating currency: code='" + code + "', name='" + name + "', flagId=" + flagIconResourceId);
+
         this.code = code;
         this.name = name;
         this.flagIconResourceId = flagIconResourceId;
         this.isSelected = false;
+
+        Log.d("Currency", "Currency created successfully: " + this.toString());
     }
 
     public String getCode() {

@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.ui.exchange;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Editable;
@@ -365,7 +368,7 @@ public class ExchangeFragment extends Fragment {
         exchangeRateRepository.getExchangeRate().thenAccept(exchangeRate -> {
             requireActivity().runOnUiThread(() -> {
 
-                if (fromCurrency.getCode().equals("USD")) {
+                if (fromCurrency.getCode().equals(USDT)) {
                     exchangeRate.setRate(1 / exchangeRate.getRate());
                 }
 
@@ -375,10 +378,10 @@ public class ExchangeFragment extends Fragment {
                     viewModel.setCurrentExchangeRate(rate);
 
                     DecimalFormat df = new DecimalFormat("#.####");
-                    if (fromCode.equals("EUR")) {
-                        exchangeRateValue.setText(String.format("1 %s = %s %s", "EURSC", df.format(rate), "USDT"));
+                    if (fromCode.equals(EURSC)) {
+                        exchangeRateValue.setText(String.format("1 %s = %s %s", EURSC, df.format(rate), USDT));
                     } else {
-                        exchangeRateValue.setText(String.format("1 %s = %s %s", "USDT", df.format(rate), "EURSC"));
+                        exchangeRateValue.setText(String.format("1 %s = %s %s", USDT, df.format(rate), EURSC));
                     }
 
                     String amount = fromAmountEditText.getText().toString();
@@ -386,10 +389,10 @@ public class ExchangeFragment extends Fragment {
                         try {
                             double inputAmount = Double.parseDouble(amount);
                             double estimatedAmount = inputAmount * rate;
-                            if (fromCode.equals("EUR")) {
-                                estimatedAmountValue.setText(String.format("%.2f %s", estimatedAmount, "USDT"));
+                            if (fromCode.equals(EURSC)) {
+                                estimatedAmountValue.setText(String.format("%.2f %s", estimatedAmount, USDT));
                             } else {
-                                estimatedAmountValue.setText(String.format("%.2f %s", estimatedAmount, "EURSC"));
+                                estimatedAmountValue.setText(String.format("%.2f %s", estimatedAmount, EURSC));
                             }
                         } catch (NumberFormatException e) {
                             estimatedAmountValue.setText("--");
@@ -435,10 +438,10 @@ public class ExchangeFragment extends Fragment {
 
         String toCurrencyCode = "";
 
-        if (fromCurrency.equals("EUR")) {
-            toCurrencyCode = "USDT";
+        if (fromCurrency.equals(EURSC)) {
+            toCurrencyCode = USDT;
         } else {
-            toCurrencyCode = "EURSC";
+            toCurrencyCode = EURSC;
         }
 
         try {
@@ -587,16 +590,16 @@ public class ExchangeFragment extends Fragment {
     private void updateBalanceUI(Map<String, TokenBalance> balances) {
         progressBar.setVisibility(View.GONE);
 
-        if (balances.containsKey("EURC")) {
-            eurBalanceValue.setText(balances.get("EURC").getFormattedWalletBalance() + " EUR");
+        if (balances.containsKey(EURSC)) {
+            eurBalanceValue.setText(balances.get(EURSC).getFormattedWalletBalance() + " " + EURSC);
         } else {
-            eurBalanceValue.setText("0 EUR");
+            eurBalanceValue.setText("0" + EURSC);
         }
 
-        if (balances.containsKey("USDT")) {
-            usdBalanceValue.setText(balances.get("USDT").getFormattedWalletBalance() + " USD");
+        if (balances.containsKey(USDT)) {
+            usdBalanceValue.setText(balances.get(USDT).getFormattedWalletBalance() + " " + USDT);
         } else {
-            usdBalanceValue.setText("0 USD");
+            usdBalanceValue.setText("0 " + USDT);
         }
     }
 

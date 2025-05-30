@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.ui.mintFunds;
 
+import static com.example.crypto_payment_system.config.Constants.ETH;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -107,7 +110,7 @@ public class MintFragment extends Fragment {
 
     private void setupCurrencySpinner() {
         List<Currency> currencies = new ArrayList<>();
-        Currency usdCurrency = CurrencyManager.getCurrencyByCode("USD");
+        Currency usdCurrency = CurrencyManager.getCurrencyByCode(USDT);
         if (usdCurrency != null) {
             currencies.add(usdCurrency);
         }
@@ -122,7 +125,7 @@ public class MintFragment extends Fragment {
 
     private void updateCurrencySpinner() {
         List<Currency> currencies = new ArrayList<>();
-        Currency usdCurrency = CurrencyManager.getCurrencyByCode("USD");
+        Currency usdCurrency = CurrencyManager.getCurrencyByCode(USDT);
         if (usdCurrency != null) {
             currencies.add(usdCurrency);
         }
@@ -290,14 +293,14 @@ public class MintFragment extends Fragment {
     private void updateBalanceUI(Map<String, TokenBalance> balances) {
         progressBar.setVisibility(View.GONE);
 
-        if (balances.containsKey("ETH")) {
-            ethBalanceValue.setText(balances.get("ETH").getFormattedWalletBalance() + " ETH");
+        if (balances.containsKey(ETH)) {
+            ethBalanceValue.setText(balances.get(ETH).getFormattedWalletBalance() + " ETH");
         } else {
             ethBalanceValue.setText("0 ETH");
         }
 
-        if (balances.containsKey("USDT")) {
-            usdBalanceValue.setText(balances.get("USDT").getFormattedWalletBalance() + " USD");
+        if (balances.containsKey(USDT)) {
+            usdBalanceValue.setText(balances.get(USDT).getFormattedWalletBalance() + " USD");
         } else {
             usdBalanceValue.setText("0 USD");
         }
@@ -320,13 +323,11 @@ public class MintFragment extends Fragment {
 
             isTransactionInProgress = true;
 
-            String currency = "USD";
-
             viewModel.resetTransactionResult();
 
             setupTransactionObserver();
 
-            viewModel.mintTokens(currency, String.valueOf(amount));
+            viewModel.mintTokens(USDT, String.valueOf(amount));
 
         } catch (NumberFormatException e) {
             mintAmountEditText.setError("Please enter a valid amount");

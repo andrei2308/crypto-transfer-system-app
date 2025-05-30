@@ -1,430 +1,611 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
-    android:padding="16dp"
-    tools:context=".ui.liquidity.AddLiquidityFragment">
+    android:background="@color/backgroundGradient"
+    android:fillViewport="true"
+    android:padding="20dp">
 
-    <TextView
-        android:id="@+id/liquidityTitleTextView"
-        style="@style/Widget.App.TextView.Title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="start"
-        android:padding="8dp"
-        android:text="@string/add_liquidity"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Wallet Balance Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/walletBalanceCardView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@color/colorSurface"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/liquidityTitleTextView">
+        android:paddingBottom="32dp"
+        tools:context=".ui.liquidity.AddLiquidityFragment">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Enhanced Header with Icon -->
+        <LinearLayout
+            android:id="@+id/liquidityHeaderContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
-                android:id="@+id/walletIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/wallet_balance"
-                android:src="@drawable/ic_wallet"
-                app:layout_constraintBottom_toBottomOf="@id/walletBalanceLabel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/colorPrimary" />
+                android:id="@+id/liquidityIllustration"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_liquidity_illustration"
+                app:tint="@color/liquidityPrimary" />
 
             <TextView
-                android:id="@+id/walletBalanceLabel"
-                style="@style/Widget.App.TextView.Subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/wallet_balance"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@id/walletIcon"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/walletDivider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/dividerColor"
-                app:layout_constraintTop_toBottomOf="@id/walletBalanceLabel" />
-
-            <ImageView
-                android:id="@+id/eurFlagIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="12dp"
-                android:contentDescription="@string/eur"
-                android:src="@drawable/ic_flag_eur"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/walletDivider" />
-
-            <TextView
-                android:id="@+id/eurBalanceLabel"
-                style="@style/Widget.App.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/eur"
-                app:layout_constraintBottom_toBottomOf="@id/eurFlagIcon"
-                app:layout_constraintStart_toEndOf="@id/eurFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/eurFlagIcon" />
-
-            <TextView
-                android:id="@+id/eurBalanceValue"
-                style="@style/Widget.App.TextView"
+                android:id="@+id/liquidityTitleTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/_0_00_eur"
-                android:textAlignment="textEnd"
-                android:textColor="@color/textPrimary"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/eurBalanceLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/eurBalanceLabel" />
-
-            <ImageView
-                android:id="@+id/usdFlagIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="12dp"
-                android:contentDescription="@string/usd"
-                android:src="@drawable/ic_flag_usd"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/eurFlagIcon" />
-
-            <TextView
-                android:id="@+id/usdBalanceLabel"
-                style="@style/Widget.App.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/usd"
-                app:layout_constraintBottom_toBottomOf="@id/usdFlagIcon"
-                app:layout_constraintStart_toEndOf="@id/usdFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/usdFlagIcon" />
-
-            <TextView
-                android:id="@+id/usdBalanceValue"
-                style="@style/Widget.App.TextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/_0_00_usd"
-                android:textAlignment="textEnd"
-                android:textColor="@color/textPrimary"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/usdBalanceLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/usdBalanceLabel" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Contract Balance Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/contractBalanceCardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:cardBackgroundColor="@color/colorSurface"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/walletBalanceCardView">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
-
-            <ImageView
-                android:id="@+id/contractIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/contract_balance"
-                android:src="@drawable/ic_ethereum"
-                app:layout_constraintBottom_toBottomOf="@id/contractBalanceLabel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/colorPrimary" />
-
-            <TextView
-                android:id="@+id/contractBalanceLabel"
-                style="@style/Widget.App.TextView.Subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/contract_balance"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@id/contractIcon"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/contractDivider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/dividerColor"
-                app:layout_constraintTop_toBottomOf="@id/contractBalanceLabel" />
-
-            <ImageView
-                android:id="@+id/contractEurFlagIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="12dp"
-                android:contentDescription="@string/eur"
-                android:src="@drawable/ic_flag_eur"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/contractDivider" />
-
-            <TextView
-                android:id="@+id/contractEurBalanceLabel"
-                style="@style/Widget.App.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/eur"
-                app:layout_constraintBottom_toBottomOf="@id/contractEurFlagIcon"
-                app:layout_constraintStart_toEndOf="@id/contractEurFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/contractEurFlagIcon" />
-
-            <TextView
-                android:id="@+id/contractEurBalanceValue"
-                style="@style/Widget.App.TextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/_0_00_eur"
-                android:textAlignment="textEnd"
-                android:textColor="@color/textPrimary"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/contractEurBalanceLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/contractEurBalanceLabel" />
-
-            <ImageView
-                android:id="@+id/contractUsdFlagIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="12dp"
-                android:contentDescription="@string/usd"
-                android:src="@drawable/ic_flag_usd"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/contractEurFlagIcon" />
-
-            <TextView
-                android:id="@+id/contractUsdBalanceLabel"
-                style="@style/Widget.App.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/usd"
-                app:layout_constraintBottom_toBottomOf="@id/contractUsdFlagIcon"
-                app:layout_constraintStart_toEndOf="@id/contractUsdFlagIcon"
-                app:layout_constraintTop_toTopOf="@id/contractUsdFlagIcon" />
-
-            <TextView
-                android:id="@+id/contractUsdBalanceValue"
-                style="@style/Widget.App.TextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/_0_00_usd"
-                android:textAlignment="textEnd"
-                android:textColor="@color/textPrimary"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/contractUsdBalanceLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/contractUsdBalanceLabel" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Add Liquidity Input Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/addLiquidityCardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:cardBackgroundColor="@color/colorSurface"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/contractBalanceCardView">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
-
-            <ImageView
-                android:id="@+id/addLiquidityIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/add_liquidity"
-                android:src="@drawable/ic_fund"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/colorPrimary" />
-
-            <TextView
-                android:id="@+id/addLiquidityLabel"
-                style="@style/Widget.App.TextView.Subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
                 android:text="@string/add_liquidity"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/liquidityPrimary"
+                android:textSize="28sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/addLiquidityIcon"
-                app:layout_constraintStart_toEndOf="@id/addLiquidityIcon"
-                app:layout_constraintTop_toTopOf="@id/addLiquidityIcon" />
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
 
-            <View
-                android:id="@+id/addLiquidityDivider"
+        <!-- Enhanced Wallet Balance Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/walletBalanceCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/cardBackground"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="@color/cardBorder"
+            app:strokeWidth="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/liquidityHeaderContainer">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/dividerColor"
-                app:layout_constraintTop_toBottomOf="@id/addLiquidityLabel" />
-
-            <TextView
-                android:id="@+id/currencyLabel"
-                style="@style/Widget.App.TextView"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/currency"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/addLiquidityDivider" />
+                android:padding="20dp"
+                android:background="@drawable/liquidity_wallet_card_gradient">
 
-            <Spinner
-                android:id="@+id/currencySpinner"
-                style="@style/Widget.App.Spinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="@+id/currencyLabel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/currencyLabel"
-                app:layout_constraintTop_toTopOf="@+id/currencyLabel" />
+                <ImageView
+                    android:id="@+id/walletIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/wallet_balance"
+                    android:src="@drawable/ic_wallet"
+                    android:background="@drawable/liquidity_wallet_icon_background"
+                    android:padding="6dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/liquidityPrimary" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/amountInputLayout"
-                style="@style/Widget.App.TextInputLayout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/currencyLabel"
-                app:startIconDrawable="@drawable/ic_money"
-                app:startIconTint="@color/colorPrimary">
+                <TextView
+                    android:id="@+id/walletBalanceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/wallet_balance"
+                    android:textColor="@color/darkSlate"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/walletIcon"
+                    app:layout_constraintTop_toTopOf="@id/walletIcon"
+                    app:layout_constraintBottom_toBottomOf="@id/walletIcon" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/amountEditText"
+                <View
+                    android:id="@+id/walletDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/dividerColorLight"
+                    app:layout_constraintTop_toBottomOf="@id/walletIcon" />
+
+                <!-- Enhanced EUR Balance -->
+                <LinearLayout
+                    android:id="@+id/eurBalanceContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/amount_to_add"
-                    android:inputType="numberDecimal"
-                    android:maxLength="6"
-                    android:textColor="@color/textPrimary" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/liquidity_balance_item_background"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toBottomOf="@id/walletDivider">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addLiquidityButton"
-                style="@style/Widget.App.Button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:icon="@drawable/ic_fund"
-                android:text="@string/add_liquidity"
-                app:iconGravity="textStart"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/amountInputLayout" />
+                    <ImageView
+                        android:id="@+id/eurFlagIcon"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:contentDescription="@string/eur"
+                        android:src="@drawable/ic_flag_eur"
+                        android:padding="4dp"
+                        android:background="@drawable/currency_icon_eur_background" />
 
-            <!-- Add the loading overlay for the button -->
-            <FrameLayout
-                android:id="@+id/buttonProgressContainer"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/button_loading_background"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/addLiquidityButton"
-                app:layout_constraintEnd_toEndOf="@+id/addLiquidityButton"
-                app:layout_constraintStart_toStartOf="@+id/addLiquidityButton"
-                app:layout_constraintTop_toTopOf="@+id/addLiquidityButton">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                        <TextView
+                            android:id="@+id/eurBalanceLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/eur"
+                            android:textSize="16sp"
+                            android:textColor="@color/darkSlate"
+                            android:textStyle="bold" />
 
-                    <ProgressBar
-                        android:id="@+id/buttonProgressBar"
-                        style="?android:attr/progressBarStyleSmall"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginEnd="8dp"
-                        android:indeterminateTint="@color/textOnPrimary"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/loadingTextView"
-                        app:layout_constraintHorizontal_chainStyle="packed"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Euro"
+                            android:textSize="12sp"
+                            android:textColor="@color/textMuted" />
+                    </LinearLayout>
 
                     <TextView
-                        android:id="@+id/loadingTextView"
+                        android:id="@+id/eurBalanceValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/processing"
-                        android:textColor="@color/textOnPrimary"
-                        android:textSize="16sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/buttonProgressBar"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </FrameLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
+                        android:text="@string/_0_00_eur"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/liquiditySecondary" />
+                </LinearLayout>
 
-    <!-- Main Progress Bar -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminateTint="@color/colorPrimary"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+                <!-- Enhanced USD Balance -->
+                <LinearLayout
+                    android:id="@+id/usdBalanceContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/liquidity_balance_item_background"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toBottomOf="@id/eurBalanceContainer">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                    <ImageView
+                        android:id="@+id/usdFlagIcon"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:contentDescription="@string/usd"
+                        android:src="@drawable/ic_flag_usd"
+                        android:padding="4dp"
+                        android:background="@drawable/currency_icon_usd_background" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:id="@+id/usdBalanceLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/usd"
+                            android:textSize="16sp"
+                            android:textColor="@color/darkSlate"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="US Dollar"
+                            android:textSize="12sp"
+                            android:textColor="@color/textMuted" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/usdBalanceValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/_0_00_usd"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/liquiditySecondary" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Enhanced Contract Balance Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/contractBalanceCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/cardBackground"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="@color/cardBorder"
+            app:strokeWidth="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/walletBalanceCardView">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:background="@drawable/liquidity_contract_card_gradient">
+
+                <ImageView
+                    android:id="@+id/contractIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/contract_balance"
+                    android:src="@drawable/ic_ethereum"
+                    android:background="@drawable/liquidity_contract_icon_background"
+                    android:padding="6dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/liquidityAccent" />
+
+                <TextView
+                    android:id="@+id/contractBalanceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/contract_balance"
+                    android:textColor="@color/darkSlate"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/contractIcon"
+                    app:layout_constraintTop_toTopOf="@id/contractIcon"
+                    app:layout_constraintBottom_toBottomOf="@id/contractIcon" />
+
+                <View
+                    android:id="@+id/contractDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/dividerColorLight"
+                    app:layout_constraintTop_toBottomOf="@id/contractIcon" />
+
+                <!-- Enhanced Contract EUR Balance -->
+                <LinearLayout
+                    android:id="@+id/contractEurBalanceContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/liquidity_balance_item_background"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toBottomOf="@id/contractDivider">
+
+                    <ImageView
+                        android:id="@+id/contractEurFlagIcon"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:contentDescription="@string/eur"
+                        android:src="@drawable/ic_flag_eur"
+                        android:padding="4dp"
+                        android:background="@drawable/currency_icon_eur_background" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:id="@+id/contractEurBalanceLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/eur"
+                            android:textSize="16sp"
+                            android:textColor="@color/darkSlate"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Contract Pool"
+                            android:textSize="12sp"
+                            android:textColor="@color/textMuted" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/contractEurBalanceValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/_0_00_eur"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/liquidityAccent" />
+                </LinearLayout>
+
+                <!-- Enhanced Contract USD Balance -->
+                <LinearLayout
+                    android:id="@+id/contractUsdBalanceContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/liquidity_balance_item_background"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toBottomOf="@id/contractEurBalanceContainer">
+
+                    <ImageView
+                        android:id="@+id/contractUsdFlagIcon"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:contentDescription="@string/usd"
+                        android:src="@drawable/ic_flag_usd"
+                        android:padding="4dp"
+                        android:background="@drawable/currency_icon_usd_background" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="16dp">
+
+                        <TextView
+                            android:id="@+id/contractUsdBalanceLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/usd"
+                            android:textSize="16sp"
+                            android:textColor="@color/darkSlate"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Contract Pool"
+                            android:textSize="12sp"
+                            android:textColor="@color/textMuted" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/contractUsdBalanceValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/_0_00_usd"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/liquidityAccent" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Enhanced Add Liquidity Input Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/addLiquidityCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/cardBackground"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:strokeColor="@color/cardBorder"
+            app:strokeWidth="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/contractBalanceCardView">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:background="@drawable/liquidity_add_card_gradient">
+
+                <ImageView
+                    android:id="@+id/addLiquidityIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/add_liquidity"
+                    android:src="@drawable/ic_fund"
+                    android:background="@drawable/liquidity_add_icon_background"
+                    android:padding="6dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/liquidityTertiary" />
+
+                <TextView
+                    android:id="@+id/addLiquidityLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/add_liquidity"
+                    android:textColor="@color/darkSlate"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/addLiquidityIcon"
+                    app:layout_constraintTop_toTopOf="@id/addLiquidityIcon"
+                    app:layout_constraintBottom_toBottomOf="@id/addLiquidityIcon" />
+
+                <View
+                    android:id="@+id/addLiquidityDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/dividerColorLight"
+                    app:layout_constraintTop_toBottomOf="@id/addLiquidityIcon" />
+
+                <TextView
+                    android:id="@+id/currencyLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/currency"
+                    android:textSize="16sp"
+                    android:textColor="@color/darkSlate"
+                    android:textStyle="bold"
+                    android:drawableStart="@drawable/ic_currency"
+                    android:drawablePadding="8dp"
+                    app:drawableTint="@color/liquidityTertiary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/addLiquidityDivider" />
+
+                <LinearLayout
+                    android:id="@+id/currencySpinnerContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/liquidity_spinner_background"
+                    android:padding="12dp"
+                    app:layout_constraintTop_toBottomOf="@id/currencyLabel">
+
+                    <Spinner
+                        android:id="@+id/currencySpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="40dp"
+                        android:backgroundTint="@android:color/transparent" />
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/amountInputLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxStrokeColor="@color/inputBorderColor"
+                    app:boxBackgroundColor="@color/inputBackground"
+                    app:startIconDrawable="@drawable/ic_money"
+                    app:startIconTint="@color/liquidityTertiary"
+                    app:hintTextColor="@color/textMuted"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/currencySpinnerContainer">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/amountEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/amount_to_add"
+                        android:inputType="numberDecimal"
+                        android:maxLength="6"
+                        android:textColor="@color/darkSlate"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addLiquidityButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/add_liquidity"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:background="@drawable/liquidity_button_gradient"
+                    app:cornerRadius="20dp"
+                    app:icon="@drawable/ic_fund"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconSize="24dp"
+                    app:iconTint="@color/white"
+                    android:elevation="12dp"
+                    android:stateListAnimator="@null"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/amountInputLayout" />
+
+                <!-- Enhanced Loading Overlay for Button -->
+                <FrameLayout
+                    android:id="@+id/buttonProgressContainer"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@drawable/liquidity_loading_button_gradient"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@+id/addLiquidityButton"
+                    app:layout_constraintEnd_toEndOf="@+id/addLiquidityButton"
+                    app:layout_constraintStart_toStartOf="@+id/addLiquidityButton"
+                    app:layout_constraintTop_toTopOf="@+id/addLiquidityButton">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ProgressBar
+                            android:id="@+id/buttonProgressBar"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginEnd="8dp"
+                            android:indeterminateTint="@color/white"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/loadingTextView"
+                            app:layout_constraintHorizontal_chainStyle="packed"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/loadingTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/processing"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/buttonProgressBar"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
+
+                <!-- Enhanced Security Note -->
+                <LinearLayout
+                    android:id="@+id/liquiditySecurityNote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/liquidity_security_note_background"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    app:layout_constraintTop_toBottomOf="@id/addLiquidityButton"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_security"
+                        app:tint="@color/liquidityPrimary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Funds are added to the liquidity pool securely"
+                        android:textSize="13sp"
+                        android:textColor="@color/textSecondary"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Main Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/liquidityPrimary"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

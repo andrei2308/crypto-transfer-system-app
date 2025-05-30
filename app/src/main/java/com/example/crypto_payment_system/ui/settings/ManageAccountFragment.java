@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.ui.settings;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,19 +70,19 @@ public class ManageAccountFragment extends Fragment {
         List<String> preferredCurrencies = new ArrayList<>(
                 Arrays.asList(user.getPreferredCurrency().split(",")));
 
-        checkBoxEUR.setChecked(preferredCurrencies.contains("EUR"));
-        checkBoxUSD.setChecked(preferredCurrencies.contains("USD"));
+        checkBoxEUR.setChecked(preferredCurrencies.contains(EURSC));
+        checkBoxUSD.setChecked(preferredCurrencies.contains(USDT));
     }
 
     private void savePreferredCurrencies() {
         List<String> selectedCurrencies = new ArrayList<>();
 
         if (checkBoxEUR.isChecked()) {
-            selectedCurrencies.add("EUR");
+            selectedCurrencies.add(EURSC);
         }
 
         if (checkBoxUSD.isChecked()) {
-            selectedCurrencies.add("USD");
+            selectedCurrencies.add(USDT);
         }
 
         if (selectedCurrencies.isEmpty()) {

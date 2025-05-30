@@ -1,5 +1,9 @@
 package com.example.crypto_payment_system.ui.home;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
+import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -140,8 +144,8 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
 
         TextView fromCurrencyLabel = binding.fromCurrencyLabel;
         TextView toCurrencyLabel = binding.toCurrencyLabel;
-        fromCurrencyLabel.setText("EUR Amount");
-        toCurrencyLabel.setText("USD Equivalent");
+        fromCurrencyLabel.setText("EURSC amount");
+        toCurrencyLabel.setText("USDT equivalent");
 
         binding.quickFromCurrencySpinner.setVisibility(View.GONE);
         binding.quickToCurrencySpinner.setVisibility(View.GONE);
@@ -158,7 +162,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
                 if (s != null && !s.toString().isEmpty()) {
                     calculateEurToUsdRate();
                 } else {
-                    quickEstimatedAmountValue.setText("0.00 USD");
+                    quickEstimatedAmountValue.setText("0.00 " + USDT);
                 }
             }
         });
@@ -175,7 +179,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     private void calculateEurToUsdRate() {
         String amount = Objects.requireNonNull(quickFromAmountEditText.getText()).toString();
         if (amount.isEmpty()) {
-            quickEstimatedAmountValue.setText("0.00 USD");
+            quickEstimatedAmountValue.setText("0.00 " + USDT);
             return;
         }
 
@@ -190,9 +194,9 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             double inputAmount = Double.parseDouble(amount);
             double estimatedAmount = inputAmount * rate;
             DecimalFormat df = new DecimalFormat("#,##0.00");
-            quickEstimatedAmountValue.setText(df.format(estimatedAmount) + " USD");
+            quickEstimatedAmountValue.setText(df.format(estimatedAmount) + " " + USDT);
         } catch (NumberFormatException e) {
-            quickEstimatedAmountValue.setText("0.00 USD");
+            quickEstimatedAmountValue.setText("0.00 " + USDT);
         }
     }
 
@@ -204,7 +208,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         viewModel.setCurrentExchangeRate(rate);
 
         DecimalFormat df = new DecimalFormat("#.####");
-        quickExchangeRateValue.setText(String.format("1 EUR = %s USD", df.format(rate)));
+        quickExchangeRateValue.setText(String.format("1 EURSC = %s USDT", df.format(rate)));
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         lastUpdatedText.setText("Last updated: " + sdf.format(new Date()));
@@ -216,7 +220,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
         viewModel.getFilteredTransactions().observe(getViewLifecycleOwner(), transactions -> {
             if (transactions != null) {
                 List<Transaction> recentTransactions = transactions.size() > 5 ?
-                        transactions.subList(0, 5) : transactions;
+                        transactions.subList(0, 5) : transactions.subList(0,transactions.size());
                 transactionAdapter.submitList(recentTransactions);
 
                 boolean isEmpty = transactions.isEmpty();
@@ -272,15 +276,15 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             String[] currencies = currentUser.getPreferredCurrency().split(",");
             for (String currency : currencies) {
                 String trimmedCurrency = currency.trim().toUpperCase();
-                if ("EUR".equals(trimmedCurrency) || "USD".equals(trimmedCurrency)) {
+                if (EURSC.equals(trimmedCurrency) || USDT.equals(trimmedCurrency)) {
                     preferredCurrencies.add(trimmedCurrency);
                 }
             }
         }
 
         if (preferredCurrencies.isEmpty()) {
-            preferredCurrencies.add("EUR");
-            preferredCurrencies.add("USD");
+            preferredCurrencies.add(EURSC);
+            preferredCurrencies.add(USDT);
         }
 
         balancePagerAdapter = new BalancePagerAdapter(
@@ -303,7 +307,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                String selectedCurrency = position == 0 ? "EUR" : "USD";
+                String selectedCurrency = position == 0 ? EURSC : USDT;
                 viewModel.setSelectedCurrency(selectedCurrency);
 
                 if (transactionAdapter != null) {
@@ -348,15 +352,15 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             String[] currencies = preferredCurrenciesStr.split(",");
             for (String currency : currencies) {
                 String trimmedCurrency = currency.trim().toUpperCase();
-                if ("EUR".equals(trimmedCurrency) || "USD".equals(trimmedCurrency)) {
+                if (EURSC.equals(trimmedCurrency) || USDT.equals(trimmedCurrency)) {
                     preferredCurrencies.add(trimmedCurrency);
                 }
             }
         }
 
         if (preferredCurrencies.isEmpty()) {
-            preferredCurrencies.add("EUR");
-            preferredCurrencies.add("USD");
+            preferredCurrencies.add(EURSC);
+            preferredCurrencies.add(USDT);
         }
         return preferredCurrencies;
     }

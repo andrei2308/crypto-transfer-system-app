@@ -4,6 +4,8 @@ import static android.content.ContentValues.TAG;
 
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
 
 import android.util.Log;
 
@@ -105,17 +107,17 @@ public class UserRepositoryImpl implements UserRepository {
                         return CURRENCY_EUR;
                     }
                     if (currencyList.contains(sendCurrency)) {
-                        if (sendCurrency.equals("EUR")) {
+                        if (sendCurrency.equals(EURSC)) {
                             return CURRENCY_EUR;
-                        } else if (sendCurrency.equals("USD")) {
+                        } else if (sendCurrency.equals(USDT)) {
                             return CURRENCY_USD;
                         } else {
                             return CURRENCY_EUR;
                         }
                     } else {
-                        if (sendCurrency.equals("EUR")) {
+                        if (sendCurrency.equals(EURSC)) {
                             return CURRENCY_EUR;
-                        } else if (sendCurrency.equals("USD")) {
+                        } else if (sendCurrency.equals(USDT)) {
                             return CURRENCY_USD;
                         } else {
                             return CURRENCY_EUR;

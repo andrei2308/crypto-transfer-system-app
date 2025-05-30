@@ -1,5 +1,9 @@
 package com.example.crypto_payment_system.utils.adapter.transaction;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.MINT_USD;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +31,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
     private final String currentUserAddress;
     private List<String> prefferedCurrencies = new ArrayList<>();
 
-    private String currentSelectedCurrency = "EUR";
+    private String currentSelectedCurrency = EURSC;
 
     public interface TransactionClickListener {
         void onTransactionClick(Transaction transaction);
@@ -71,7 +75,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         private final TransactionClickListener listener;
         private final String currentUserAddress;
         private List<String> prefferedCurrencies = new ArrayList<>();
-        private String currentSelectedCurrency = "EUR";
+        private String currentSelectedCurrency = EURSC;
 
         public TransactionViewHolder(@NonNull View itemView, TransactionClickListener listener, String currentUserAddress, List<String> prefferedCurrencies) {
             super(itemView);
@@ -105,31 +109,33 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             boolean isOutgoing = transaction.getWalletAddress().equalsIgnoreCase(currentUserAddress);
             if (!transaction.getWalletAddressTo().equals(transaction.getWalletAddress())) {
                 if (transaction.getSentCurrency() == 1 && transaction.getWalletAddress().equals(currentUserAddress)) {
-                    currency += " EUR";
+                    currency += " " + EURSC;
                 } else if (transaction.getSentCurrency() == 2 && transaction.getWalletAddress().equals(currentUserAddress)) {
-                    currency += " USD";
+                    currency += " " + USDT;
                 } else if (transaction.getReceivedCurrency() == 1 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
-                    currency += " EUR";
-                    if (!prefferedCurrencies.contains("EUR")) {
+                    currency += " " + EURSC;
+                    if (!prefferedCurrencies.contains(EURSC)) {
                         exchangeRate = transaction.getExchangeRate();
                     }
                 } else if (transaction.getReceivedCurrency() == 2 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
-                    currency += " USD";
-                    if (!prefferedCurrencies.contains("USD")) {
+                    currency += " " + USDT;
+                    if (!prefferedCurrencies.contains(USDT)) {
                         exchangeRate = transaction.getExchangeRate();
                     }
+                } else if (transaction.getTransactionType().equals(MINT_USD)){
+                    currency += " " + USDT;
                 }
             } else {
-                if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("EUR")) {
-                    currency += " EUR";
-                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("USD")) {
-                    currency += " USD";
-                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("EUR")) {
-                    currency += "EUR";
+                if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals(EURSC)) {
+                    currency += " " + EURSC;
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals(USDT)) {
+                    currency += " " + USDT;
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals(EURSC)) {
+                    currency += " " + EURSC;
                     isOutgoing = false;
                     exchangeRate = transaction.getExchangeRate();
-                } else if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("USD")) {
-                    currency += "USD";
+                } else if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals(USDT)) {
+                    currency += " " + USDT;
                     isOutgoing = false;
                     exchangeRate = transaction.getExchangeRate();
                 }
@@ -189,13 +195,13 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
                     sign = "+";
                 }
             } else {
-                if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("EUR")) {
+                if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals(EURSC)) {
                     sign = "-";
-                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("USD")) {
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals(USDT)) {
                     sign = "-";
-                } else if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals("USD")) {
+                } else if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals(USDT)) {
                     sign = "+";
-                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals("EUR")) {
+                } else if (transaction.getSentCurrency() == 2 && currentSelectedCurrency.equals(EURSC)) {
                     sign = "+";
                 } else {
                     sign = "";

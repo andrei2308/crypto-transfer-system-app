@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.utils.adapter.balancePager;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -29,13 +32,13 @@ public class BalanceViewHolder extends RecyclerView.ViewHolder {
         viewModel.getTokenBalances().observe(lifecycleOwner, tokenBalances -> {
             if (tokenBalances != null) {
                 String formattedBalance = "0.00";
-                if (currency.equals("EUR") && tokenBalances.containsKey("EURC")) {
-                    TokenBalance eurBalance = tokenBalances.get("EURC");
+                if (currency.equals(EURSC) && tokenBalances.containsKey(EURSC)) {
+                    TokenBalance eurBalance = tokenBalances.get(EURSC);
                     if (eurBalance != null) {
                         formattedBalance = eurBalance.getFormattedWalletBalance();
                     }
-                } else if (currency.equals("USD") && tokenBalances.containsKey("USDT")) {
-                    TokenBalance usdBalance = tokenBalances.get("USDT");
+                } else if (currency.equals(USDT) && tokenBalances.containsKey(USDT)) {
+                    TokenBalance usdBalance = tokenBalances.get(USDT);
                     if (usdBalance != null) {
                         formattedBalance = usdBalance.getFormattedWalletBalance();
                     }

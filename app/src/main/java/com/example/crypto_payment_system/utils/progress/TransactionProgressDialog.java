@@ -66,7 +66,6 @@ public class TransactionProgressDialog extends Dialog {
         progressText = findViewById(R.id.progressText);
         transactionHashText = findViewById(R.id.transactionHashText);
 
-        // Add null checks for debugging
         if (statusText == null) {
             throw new RuntimeException("statusText is null - check if R.id.statusText exists in dialog_transaction_progress.xml");
         }

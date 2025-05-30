@@ -10,11 +10,6 @@
             android:icon="@drawable/ic_home"
             android:iconTint="@color/colorPrimary"
             android:title="@string/home" />
-        <item
-            android:id="@+id/nav_transactions"
-            android:icon="@drawable/ic_transactions"
-            android:iconTint="@color/colorPrimary"
-            android:title="@string/transactions" />
     </group>
 
     <item android:title="@string/account1">

@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.repositories.api;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.util.Base64;
 import android.util.Log;
 
@@ -124,8 +127,8 @@ public class ExchangeRateRepositoryImpl implements ExchangeRateRepository {
                             if (jsonObject.has("eurUsd")) {
                                 ExchangeRate rate = new ExchangeRate();
                                 rate.setRate(jsonObject.getDouble("eurUsd"));
-                                rate.setFromCurrency("EUR");
-                                rate.setToCurrency("USD");
+                                rate.setFromCurrency(EURSC);
+                                rate.setToCurrency(USDT);
 
                                 if (jsonObject.has("lastUpdated")) {
                                     long timestamp = jsonObject.getLong("lastUpdated");

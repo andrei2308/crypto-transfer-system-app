@@ -1,6 +1,15 @@
 package com.example.crypto_payment_system.repositories.exchange;
 
+import static com.example.crypto_payment_system.config.Constants.ADD_LIQUIDITY;
 import static com.example.crypto_payment_system.config.Constants.CONTRACT_ADDRESS;
+import static com.example.crypto_payment_system.config.Constants.EUR_TO_USD;
+import static com.example.crypto_payment_system.config.Constants.EUR_TO_USD_TRANSFER;
+import static com.example.crypto_payment_system.config.Constants.EUR_TRANSFER;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+import static com.example.crypto_payment_system.config.Constants.USD_TOKEN_CONTRACT_ADDRESS;
+import static com.example.crypto_payment_system.config.Constants.USD_TO_EUR;
+import static com.example.crypto_payment_system.config.Constants.USD_TO_EUR_TRANSFER;
+import static com.example.crypto_payment_system.config.Constants.USD_TRANSFER;
 
 import com.example.crypto_payment_system.service.firebase.firestore.FirestoreService;
 import com.example.crypto_payment_system.service.web3.Web3Service;
@@ -36,10 +45,10 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
     public CompletableFuture<TransactionResult> addLiquidity(String currency, Credentials credentials, String tokenUnitAmount) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                String tokenAddress = currency.equals("USD") ?
+                String tokenAddress = currency.equals(USDT) ?
                         tokenRepository.getUsdtAddress() : tokenRepository.getEurcAddress();
 
-                int currencyCode = currency.equals("USD") ? 2 : 1;
+                int currencyCode = currency.equals(USDT) ? 2 : 1;
 
                 BigInteger amountToAdd = new BigInteger(tokenUnitAmount);
 
@@ -49,7 +58,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 boolean success = exchangeInfo.get().getReceipt().isStatusOK();
 
                 if (success) {
-                    firestoreService.saveTransaction(credentials.getAddress(), "ADD_LIQUIDITY",
+                    firestoreService.saveTransaction(credentials.getAddress(), ADD_LIQUIDITY,
                             tokenAddress, tokenUnitAmount, txHash, CONTRACT_ADDRESS, exchangeInfo.get().getExchangeRate(), currencyCode, currencyCode);
                 }
 
@@ -82,7 +91,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 boolean success = exchangeInfo.get().getReceipt().isStatusOK();
 
                 if (success) {
-                    firestoreService.saveTransaction(credentials.getAddress(), "EUR_TO_USD",
+                    firestoreService.saveTransaction(credentials.getAddress(), EUR_TO_USD,
                             tokenAddress, tokenAmount, txHash, credentials.getAddress(), exchangeInfo.get().getExchangeRate(), exchangeInfo.get().getSendCurrency(), exchangeInfo.get().getReceiveCurrency());
                 }
 
@@ -111,7 +120,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 boolean success = exchangeInfo.get().getReceipt().isStatusOK();
 
                 if (success) {
-                    firestoreService.saveTransaction(credentials.getAddress(), "USD_TO_EUR",
+                    firestoreService.saveTransaction(credentials.getAddress(), USD_TO_EUR,
                             tokenAddress, tokenAmount, txHash, credentials.getAddress(), exchangeInfo.get().getExchangeRate(), exchangeInfo.get().getSendCurrency(), exchangeInfo.get().getReceiveCurrency());
                 }
 
@@ -133,10 +142,10 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
 
                 if (sendCurrency == 2) {
                     tokenAddress = tokenRepository.getUsdtAddress();
-                    transactionType = receiveCurrency == 1 ? "USD_TO_EUR_TRANSFER" : "USD_TRANSFER";
+                    transactionType = receiveCurrency == 1 ? USD_TO_EUR_TRANSFER : USD_TRANSFER;
                 } else {
                     tokenAddress = tokenRepository.getEurcAddress();
-                    transactionType = receiveCurrency == 2 ? "EUR_TO_USD_TRANSFER" : "EUR_TRANSFER";
+                    transactionType = receiveCurrency == 2 ? EUR_TO_USD_TRANSFER : EUR_TRANSFER;
                 }
 
                 String txHash = exchangeContract.sendMoney(amountToSend, address, sendCurrency, receiveCurrency, credentials);
@@ -169,7 +178,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 BigInteger mintAmount = new BigInteger(amount);
                 String txHash = "";
 
-                if (currency.equals("USD")) {
+                if (currency.equals(USDT)) {
                     BigInteger requiredEth = exchangeContract.getRequiredEthForUsd(mintAmount, credentials);
                     System.out.println(requiredEth);
                     BigInteger ethToSend = (requiredEth.multiply(BigInteger.valueOf(105)).divide(BigInteger.valueOf(100)));
@@ -180,6 +189,10 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 CompletableFuture<EventParser.ExchangeInfo> exchangeInfo = web3Service.waitForTransactionReceipt(txHash);
 
                 boolean success = exchangeInfo.get().getReceipt().isStatusOK();
+                if(success) {
+                    firestoreService.saveTransaction("0", "MINT_USD",
+                            USD_TOKEN_CONTRACT_ADDRESS, amount, txHash, credentials.getAddress(), "1", -1, 1);
+                }
                 return new TransactionResult(success, txHash, success ?
                         "Tokens minted successfully" : "Token minting failed");
 
@@ -199,7 +212,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
             try {
                 BigInteger mintAmount = new BigInteger(amount);
 
-                if (currency.equals("USD")) {
+                if (currency.equals(USDT)) {
                     BigInteger requiredEth = exchangeContract.getRequiredEthForUsd(mintAmount, credentials);
 
                     BigInteger ethWithBuffer = requiredEth.multiply(BigInteger.valueOf(105)).divide(BigInteger.valueOf(100));

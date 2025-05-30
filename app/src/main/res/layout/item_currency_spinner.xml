@@ -28,7 +28,7 @@
         app:layout_constraintStart_toEndOf="@id/currencyFlagIcon"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/currencyName"
-        tools:text="EUR" />
+        tools:text="EURSC" />
 
     <TextView
         android:id="@+id/currencyName"
