@@ -12,7 +12,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.crypto_payment_system.R;
-import com.example.crypto_payment_system.view.activity.MainActivity;
+import com.example.crypto_payment_system.view.activity.CryptoPaymentApplication;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class BalancePagerAdapter extends RecyclerView.Adapter<BalanceViewHolder>
     public BalancePagerAdapter(Context context, RefreshClickListener refreshClickListener, List<String> preferredCurrencies) {
         this.context = context;
         this.lifecycleOwner = (LifecycleOwner) context;
-        this.viewModel = ((MainActivity) context).getViewModel();
+        this.viewModel = ((CryptoPaymentApplication) context).getViewModel();
         this.refreshClickListener = refreshClickListener;
         this.currencies = preferredCurrencies;
     }

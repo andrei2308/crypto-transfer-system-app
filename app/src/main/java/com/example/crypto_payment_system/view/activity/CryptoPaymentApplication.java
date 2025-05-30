@@ -49,6 +49,7 @@ import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
 import com.example.crypto_payment_system.ui.sendMoney.SendMoneyFragment;
 import com.example.crypto_payment_system.ui.settings.ManageAccountFragment;
 import com.example.crypto_payment_system.utils.adapter.account.AccountAdapter;
+import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
@@ -60,7 +61,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class CryptoPaymentApplication extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private MainViewModel viewModel;
     private final static String TAG = "MAIN";
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerToggle.syncState();
 
         setupSubmenu();
+        CurrencyManager.initialize(this);
 
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -426,11 +428,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                 viewModel.switchAccount(newAddress);
 
-                                Toast.makeText(MainActivity.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CryptoPaymentApplication.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
                                 previouslySelectedAddress[0] = newAddress;
 
                             } catch (JSONException e) {
-                                Toast.makeText(MainActivity.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CryptoPaymentApplication.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }
                     }

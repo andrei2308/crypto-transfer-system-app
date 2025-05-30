@@ -1,6 +1,5 @@
 package com.example.crypto_payment_system.ui.transaction;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.crypto_payment_system.R;
-import com.example.crypto_payment_system.domain.transaction.Transaction;
 import com.example.crypto_payment_system.ui.home.HomeFragment;
-import com.example.crypto_payment_system.view.activity.MainActivity;
 import com.google.android.material.button.MaterialButton;
 
 public class TransactionResultFragment extends Fragment {
