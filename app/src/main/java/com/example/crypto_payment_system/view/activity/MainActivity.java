@@ -318,7 +318,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Menu menu = navigationView.getMenu();
 
         menu.findItem(R.id.nav_send_money).setEnabled(enable);
-        menu.findItem(R.id.nav_transactions).setEnabled(enable);
         menu.findItem(R.id.nav_mint_tokens).setEnabled(enable);
 
         MenuItem addLiquidityItem = menu.findItem(R.id.nav_add_liquidity);
@@ -334,7 +333,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (!enable) {
             menu.findItem(R.id.nav_send_money).setIcon(applyGrayScale(menu.findItem(R.id.nav_send_money).getIcon()));
-            menu.findItem(R.id.nav_transactions).setIcon(applyGrayScale(menu.findItem(R.id.nav_transactions).getIcon()));
             menu.findItem(R.id.nav_mint_tokens).setIcon(applyGrayScale(menu.findItem(R.id.nav_mint_tokens).getIcon()));
         }
     }
@@ -503,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (!isConnected && (id == R.id.nav_send_money || id == R.id.nav_transactions || id == R.id.nav_mint_tokens || id == R.id.nav_add_liquidity)) {
+        if (!isConnected && (id == R.id.nav_send_money || id == R.id.nav_mint_tokens || id == R.id.nav_add_liquidity)) {
             Toast.makeText(this, R.string.please_connect_to_ethereum_first, Toast.LENGTH_SHORT).show();
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
@@ -536,8 +534,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_send_money) {
             showSubmenu();
             return true;
-        } else if (id == R.id.nav_transactions) {
-            Toast.makeText(this, "Transactions feature coming soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_mint_tokens) {
             navigateToFragment(new MintFragment());
         } else if (id == R.id.nav_add_liquidity) {
