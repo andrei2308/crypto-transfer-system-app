@@ -80,15 +80,11 @@ public class TransactionResultFragment extends Fragment {
         timestampText.setText(android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", timestamp));
         messageText.setText(message);
 
-        // Complete rewrite of the OK button click listener
         okButton.setOnClickListener(v -> {
-            // First get the FragmentManager
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
             
-            // Clear the entire back stack
             fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             
-            // Navigate to home
             fragmentManager.beginTransaction()
                     .replace(R.id.content_main, HomeFragment.newInstance())
                     .commit();

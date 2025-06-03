@@ -26,7 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ManageAccountFragment extends Fragment {
-
+    private static final String ARG_NEW_USER = "is_new_user";
+    public boolean isNewUser = false;
     private MainViewModel viewModel;
     private CheckBox checkBoxEUR;
     private CheckBox checkBoxUSD;
@@ -50,6 +51,22 @@ public class ManageAccountFragment extends Fragment {
         saveButton.setOnClickListener(v -> savePreferredCurrencies());
 
         return root;
+    }
+
+    public static ManageAccountFragment newInstance(boolean isNewUser){
+        ManageAccountFragment fragment = new ManageAccountFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_NEW_USER, isNewUser);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            isNewUser = getArguments().getBoolean(ARG_NEW_USER, false);
+        }
     }
 
     private void updateUI(User user) {
@@ -95,5 +112,9 @@ public class ManageAccountFragment extends Fragment {
         viewModel.updatePreferredCurrency(preferredCurrency);
 
         Toast.makeText(getContext(), R.string.preferences_saved, Toast.LENGTH_SHORT).show();
+        if(isNewUser)
+        {
+            requireActivity().getSupportFragmentManager().popBackStack();
+        }
     }
 }

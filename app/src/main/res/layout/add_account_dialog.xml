@@ -60,6 +60,21 @@
                 android:inputType="textPassword"
                 android:textColor="@color/textPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
+        <!-- Add these views to your existing dialog layout -->
+        <ProgressBar
+            android:id="@+id/networkCheckProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/networkStatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:visibility="gone" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
