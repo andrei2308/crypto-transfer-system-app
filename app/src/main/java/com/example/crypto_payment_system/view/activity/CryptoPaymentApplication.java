@@ -2,6 +2,8 @@ package com.example.crypto_payment_system.view.activity;
 
 import static com.example.crypto_payment_system.config.Constants.CONTRACT_CREATOR_ADDRESS;
 
+import static org.web3j.crypto.WalletUtils.isValidPrivateKey;
+
 import android.annotation.SuppressLint;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -39,8 +41,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.crypto_payment_system.BuildConfig;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.databinding.ActivityMainBinding;
+import com.example.crypto_payment_system.domain.account.AccountNetworkInfo;
+import com.example.crypto_payment_system.domain.account.NetworkVerificationCallback;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
 import com.example.crypto_payment_system.ui.home.HomeFragment;
@@ -56,9 +61,20 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONException;
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.utils.Convert;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CryptoPaymentApplication extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -81,13 +97,16 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
     private TextView loadingText;
     Button connectButton;
     private Handler loadingDelayHandler = new Handler(Looper.getMainLooper());
-    private static final int MIN_LOADING_DURATION_MS = 2000;
+    private static final int MIN_LOADING_DURATION_MS = 4000;
     private long loadingStartTime;
+    private AccountAdapter accountArrayAdapter;
 
     private boolean initialDataLoaded = false;
     private boolean isInitialConnection = true;
     private boolean isDataLoading = false;
     private AtomicInteger dataLoadingCounter = new AtomicInteger(0);
+    private ExecutorService executorService = Executors.newFixedThreadPool(2);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,7 +246,8 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
         viewModel.isNewUser().observe(this, isNew -> {
             if (isNew) {
                 hideLoadingOverlay();
-                navigateToFragment(new ManageAccountFragment());
+                ManageAccountFragment manageAccountFragment = ManageAccountFragment.newInstance(true);
+                navigateToFragment(manageAccountFragment);
             }
         });
 
@@ -378,7 +398,9 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
 
             accountSelectionView.setOnTouchListener((v, event) -> false);
 
-            ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
+            accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
+
+            accountArrayAdapter.setOnAccountDeleteListener(this::showDeleteAccountDialog);
 
             accountsSpinner.setAdapter(accountArrayAdapter);
 
@@ -476,6 +498,70 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
         }
     }
 
+    private void showDeleteAccountDialog(WalletAccount account, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Account");
+
+        String message = String.format(
+                "Are you sure you want to delete the account?\n\n" +
+                        "Name: %s\n" +
+                        "Address: %s\n\n" +
+                        "This action cannot be undone.",
+                account.getName(),
+                formatAddress(account.getAddress())
+        );
+
+        builder.setMessage(message);
+
+        builder.setPositiveButton("Yes, Delete", (dialog, which) -> {
+            deleteAccount(account, position);
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        builder.setCancelable(true);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(
+                getColor(android.R.color.holo_red_dark)
+        );
+    }
+
+
+    private void deleteAccount(WalletAccount account, int position) {
+        try {
+            if (accountArrayAdapter != null && accountArrayAdapter.getCount() <= 1) {
+                Toast.makeText(this, "Cannot delete the last account. Add another account first.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            boolean success = viewModel.removeAccount(account.getAddress());
+
+            if (success) {
+                Toast.makeText(this,
+                        String.format("Account '%s' deleted successfully", account.getName()),
+                        Toast.LENGTH_SHORT).show();
+
+
+                WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
+                if (activeAccount != null && activeAccount.getAddress().equals(account.getAddress())) {
+                    Log.d(TAG, "Deleted active account, ViewModel will select new active account");
+                }
+
+            } else {
+                Toast.makeText(this, "Failed to delete account", Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Error deleting account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error deleting account", e);
+        }
+    }
+
     private void setupSubmenu() {
         FrameLayout submenuContainer = findViewById(R.id.submenu_container);
         submenuView = getLayoutInflater().inflate(R.layout.send_money_submenu, submenuContainer, false);
@@ -546,7 +632,7 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
         return true;
     }
 
-    private void navigateToHomeFragment() {
+    public void navigateToHomeFragment() {
         clearFragmentBackStack();
         mainContentLayout.setVisibility(View.VISIBLE);
 
@@ -600,8 +686,17 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
 
         TextInputEditText accountNameEditText = dialogView.findViewById(R.id.accountNameEditText);
         TextInputEditText privateKeyEditText = dialogView.findViewById(R.id.privateKeyEditText);
+        ProgressBar networkCheckProgress = dialogView.findViewById(R.id.networkCheckProgress);
+        TextView networkStatusText = dialogView.findViewById(R.id.networkStatusText);
 
-        builder.setPositiveButton("Add", (dialog, which) -> {
+        builder.setPositiveButton("Add", null);
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button addButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        addButton.setOnClickListener(v -> {
             String name = Objects.requireNonNull(accountNameEditText.getText()).toString().trim();
             String privateKey = Objects.requireNonNull(privateKeyEditText.getText()).toString().trim();
 
@@ -615,23 +710,169 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
                 return;
             }
 
-            boolean success;
-            try {
-                success = viewModel.addAccount(name, privateKey);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
+            if (!isValidPrivateKey(privateKey)) {
+                Toast.makeText(this, "Invalid private key", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            addButton.setEnabled(false);
+            networkCheckProgress.setVisibility(View.VISIBLE);
+            networkStatusText.setText("Verifying account on network...");
+            networkStatusText.setVisibility(View.VISIBLE);
+
+            verifyAccountOnNetwork(privateKey, new NetworkVerificationCallback() {
+                @Override
+                public void onSuccess(String walletAddress, AccountNetworkInfo networkInfo) {
+                    runOnUiThread(() -> {
+                        networkCheckProgress.setVisibility(View.GONE);
+                        networkStatusText.setVisibility(View.GONE);
+                        showNetworkConfirmation(name, privateKey, walletAddress, networkInfo, dialog);
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() -> {
+                        networkCheckProgress.setVisibility(View.GONE);
+                        networkStatusText.setText("Network verification failed: " + error);
+                        networkStatusText.setTextColor(getColor(android.R.color.holo_red_dark));
+                        addButton.setEnabled(true);
+                        Toast.makeText(CryptoPaymentApplication.this, "Cannot verify account on network. Please check your private key.", Toast.LENGTH_LONG).show();
+                    });
+                }
+            });
+        });
+    }
+
+    private boolean isValidPrivateKey(String privateKey) {
+        try {
+            String cleanKey = privateKey.startsWith("0x") ? privateKey.substring(2) : privateKey;
+
+            if (cleanKey.length() != 64) {
+                return false;
+            }
+
+            BigInteger keyValue = new BigInteger(cleanKey, 16);
+            BigInteger secp256k1Order = new BigInteger("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141", 16);
+
+            if (keyValue.equals(BigInteger.ZERO) || keyValue.compareTo(secp256k1Order) >= 0) {
+                return false;
+            }
+
+            Credentials credentials = Credentials.create(privateKey);
+            String address = credentials.getAddress();
+
+            return address != null && address.startsWith("0x") && address.length() == 42;
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void verifyAccountOnNetwork(String privateKey, NetworkVerificationCallback callback) {
+        executorService.execute(() -> {
+            try {
+                Credentials credentials = Credentials.create(privateKey);
+                String walletAddress = credentials.getAddress();
+                AccountNetworkInfo networkInfo = checkAccountOnBlockchain(walletAddress);
+                callback.onSuccess(walletAddress, networkInfo);
+            } catch (Exception e) {
+                callback.onError(e.getMessage());
+            }
+        });
+    }
+
+    private AccountNetworkInfo checkAccountOnBlockchain(String address) throws Exception {
+        Web3j web3j = Web3j.build(new HttpService(BuildConfig.ALCHEMY_NODE));
+
+        try {
+            EthGetBalance balanceResponse = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
+            BigInteger balance = balanceResponse.getBalance();
+
+            EthGetTransactionCount txCountResponse = web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).send();
+            BigInteger transactionCount = txCountResponse.getTransactionCount();
+
+            boolean hasActivity = transactionCount.compareTo(BigInteger.ZERO) > 0;
+            BigDecimal ethBalance = Convert.fromWei(new BigDecimal(balance), Convert.Unit.ETHER);
+
+            if (!hasActivity && ethBalance.compareTo(BigDecimal.ZERO) == 0) {
+                throw new Exception("Account has never been used on the blockchain");
+            }
+
+            return new AccountNetworkInfo(
+                    address,
+                    ethBalance,
+                    transactionCount.longValue(),
+                    hasActivity,
+                    "Sepolia Testnet"
+            );
+        } finally {
+            web3j.shutdown();
+        }
+    }
+
+    private void showNetworkConfirmation(String name, String privateKey, String address,
+                                         AccountNetworkInfo networkInfo, AlertDialog parentDialog) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Account Verified");
+
+        @SuppressLint("DefaultLocale") String message = String.format(
+                "Account successfully verified on %s:\n\n" +
+                        "Address: %s\n" +
+                        "Balance: %s\n" +
+                        "Transactions: %d\n" +
+                        "Status: %s\n\n" +
+                        "Add this account to your wallet?",
+                networkInfo.getNetworkName(),
+                formatAddress(networkInfo.getAddress()),
+                networkInfo.getFormattedBalance(),
+                networkInfo.getTransactionCount(),
+                networkInfo.hasActivity() ? "Active" : "New Account"
+        );
+
+        builder.setMessage(message);
+        builder.setIcon(R.drawable.ic_check_circle_green);
+
+        builder.setPositiveButton("Add Account", (dialog, which) -> {
+            addVerifiedAccount(name, privateKey, networkInfo);
+            parentDialog.dismiss();
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            Button addButton = parentDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            addButton.setEnabled(true);
+            TextView networkStatusText = parentDialog.findViewById(R.id.networkStatusText);
+            if (networkStatusText != null) {
+                networkStatusText.setVisibility(View.GONE);
+            }
+            dialog.dismiss();
+        });
+
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private String formatAddress(String address) {
+        if (address.length() > 10) {
+            return address.substring(0, 6) + "..." + address.substring(address.length() - 4);
+        }
+        return address;
+    }
+
+    private void addVerifiedAccount(String name, String privateKey, AccountNetworkInfo networkInfo) {
+        try {
+            boolean success = viewModel.addAccount(name, privateKey);
             if (success) {
-                Toast.makeText(this, R.string.account_added_successfully, Toast.LENGTH_SHORT).show();
+                String message = String.format("Account '%s' added successfully!\nBalance: %s",
+                        name, networkInfo.getFormattedBalance());
+                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, R.string.account_already_exists, Toast.LENGTH_SHORT).show();
             }
-        });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        } catch (JSONException e) {
+            Toast.makeText(this, "Failed to add account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showSubmenu() {
@@ -788,7 +1029,7 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
     }
 
     /**
-     * Hide loading overlay with a minimum delay to ensure it's visible for at least 2 seconds
+     * Hide loading overlay with a minimum delay to ensure it's visible for at least 4 seconds
      */
     private void hideLoadingOverlay() {
         if (loadingOverlay == null) {
@@ -847,6 +1088,9 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
         if (loadingDelayHandler != null) {
             loadingDelayHandler.removeCallbacksAndMessages(null);
             loadingDelayHandler = null;
+            if (executorService != null && !executorService.isShutdown()) {
+                executorService.shutdown();
+            }
         }
     }
 

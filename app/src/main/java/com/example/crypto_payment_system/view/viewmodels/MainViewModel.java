@@ -414,7 +414,7 @@ public class MainViewModel extends AndroidViewModel {
                         result = new TransactionResult(
                                 true,
                                 result.getTransactionHash(),
-                                "Successfully added " + displayAmount + " " + displayCurrency + " as liquidity"
+                                "Successfully minted " + displayAmount + " " + displayCurrency
                         );
                     }
                     transactionResult.postValue(result);
