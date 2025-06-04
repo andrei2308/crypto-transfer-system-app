@@ -108,17 +108,15 @@ public class WalletManager {
         Credentials credentials = Credentials.create(privateKey);
         String address = credentials.getAddress();
 
-        // Check if account already exists
         for (WalletAccount account : accounts) {
             if (account.getAddress().equals(address)) {
-                return null; // Account already exists
+                return null;
             }
         }
 
         WalletAccount newAccount = new WalletAccount(name, address, privateKey);
         accounts.add(newAccount);
 
-        // If this is the first account, make it active
         if (accounts.size() == 1) {
             activeAccount = newAccount;
             activeAccountLiveData.postValue(activeAccount);
@@ -133,18 +131,16 @@ public class WalletManager {
      * Switch to a different account
      *
      * @param address Address of the account to switch to
-     * @return true if successful, false if account not found
      */
-    public boolean switchAccount(String address) throws JSONException {
+    public void switchAccount(String address) throws JSONException {
         for (WalletAccount account : accounts) {
             if (account.getAddress().equals(address)) {
                 activeAccount = account;
                 activeAccountLiveData.postValue(activeAccount);
                 saveAccounts();
-                return true;
+                return;
             }
         }
-        return false;
     }
 
     /**
@@ -160,7 +156,6 @@ public class WalletManager {
             if (account.getAddress().equals(address)) {
                 iterator.remove();
 
-                // If we removed the active account, switch to another one
                 if (activeAccount != null && activeAccount.getAddress().equals(address)) {
                     activeAccount = accounts.isEmpty() ? null : accounts.get(0);
                     activeAccountLiveData.postValue(activeAccount);

@@ -94,14 +94,11 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         }
 
         public void bind(final Transaction transaction) {
-            // Set the date
             Date date = new Date(transaction.getTimestamp());
             dateIndicatorText.setText(DateFormat.format("dd", date).toString());
             
-            // Merchant name (using hash as merchant name)
             merchantNameTextView.setText(shortenHash(transaction.getTransactionHash()));
 
-            // Set transaction type
             transactionTypeTextView.setText(formatTransactionType(transaction.getTransactionType()));
 
             String currency = "";

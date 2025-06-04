@@ -97,8 +97,9 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
     private TextView loadingText;
     Button connectButton;
     private Handler loadingDelayHandler = new Handler(Looper.getMainLooper());
-    private static final int MIN_LOADING_DURATION_MS = 2000;
+    private static final int MIN_LOADING_DURATION_MS = 4000;
     private long loadingStartTime;
+    private AccountAdapter accountArrayAdapter;
 
     private boolean initialDataLoaded = false;
     private boolean isInitialConnection = true;
@@ -397,7 +398,9 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
 
             accountSelectionView.setOnTouchListener((v, event) -> false);
 
-            ArrayAdapter<WalletAccount> accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
+            accountArrayAdapter = new AccountAdapter(this, new ArrayList<>());
+
+            accountArrayAdapter.setOnAccountDeleteListener(this::showDeleteAccountDialog);
 
             accountsSpinner.setAdapter(accountArrayAdapter);
 
@@ -492,6 +495,70 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
         } catch (Exception e) {
             Log.e(TAG, "Error setting up account selection", e);
             Toast.makeText(this, "Error setting up account selection", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showDeleteAccountDialog(WalletAccount account, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Account");
+
+        String message = String.format(
+                "Are you sure you want to delete the account?\n\n" +
+                        "Name: %s\n" +
+                        "Address: %s\n\n" +
+                        "This action cannot be undone.",
+                account.getName(),
+                formatAddress(account.getAddress())
+        );
+
+        builder.setMessage(message);
+
+        builder.setPositiveButton("Yes, Delete", (dialog, which) -> {
+            deleteAccount(account, position);
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        builder.setCancelable(true);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(
+                getColor(android.R.color.holo_red_dark)
+        );
+    }
+
+
+    private void deleteAccount(WalletAccount account, int position) {
+        try {
+            if (accountArrayAdapter != null && accountArrayAdapter.getCount() <= 1) {
+                Toast.makeText(this, "Cannot delete the last account. Add another account first.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            boolean success = viewModel.removeAccount(account.getAddress());
+
+            if (success) {
+                Toast.makeText(this,
+                        String.format("Account '%s' deleted successfully", account.getName()),
+                        Toast.LENGTH_SHORT).show();
+
+
+                WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
+                if (activeAccount != null && activeAccount.getAddress().equals(account.getAddress())) {
+                    Log.d(TAG, "Deleted active account, ViewModel will select new active account");
+                }
+
+            } else {
+                Toast.makeText(this, "Failed to delete account", Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (Exception e) {
+            Toast.makeText(this, "Error deleting account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error deleting account", e);
         }
     }
 
@@ -962,7 +1029,7 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
     }
 
     /**
-     * Hide loading overlay with a minimum delay to ensure it's visible for at least 2 seconds
+     * Hide loading overlay with a minimum delay to ensure it's visible for at least 4 seconds
      */
     private void hideLoadingOverlay() {
         if (loadingOverlay == null) {
