@@ -116,9 +116,9 @@ public class UserRepositoryImpl implements UserRepository {
                         }
                     } else {
                         if (sendCurrency.equals(EURSC)) {
-                            return CURRENCY_EUR;
-                        } else if (sendCurrency.equals(USDT)) {
                             return CURRENCY_USD;
+                        } else if (sendCurrency.equals(USDT)) {
+                            return CURRENCY_EUR;
                         } else {
                             return CURRENCY_EUR;
                         }

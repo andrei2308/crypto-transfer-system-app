@@ -44,7 +44,7 @@ public class Constants {
 
 
     public static final String EUR_TOKEN_CONTRACT_ADDRESS = "0x08210F9170F89Ab7658F0B5E3fF39b0E03C594D4";
-    public static final String USD_TOKEN_CONTRACT_ADDRESS = "0x5c3E80d8218f9e382CeBB017f4F3270f1AE2D8Fc";
+    public static final String USD_TOKEN_CONTRACT_ADDRESS = "0xfe494Dd2f6b8ba3dFAc7265A1Fb0fB41b537BD5D";
 
-    public static final String CONTRACT_ADDRESS = "0xb74710F2C45fB43949502cE7f702Cde35F4f1aCf";
+    public static final String CONTRACT_ADDRESS = "0xc97991CdF6F581Cf34C9a0975aa0dA6F00992799";
 }

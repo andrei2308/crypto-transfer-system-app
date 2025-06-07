@@ -191,7 +191,7 @@ public class ExchangeRepositoryImpl implements ExchangeRepository{
                 boolean success = exchangeInfo.get().getReceipt().isStatusOK();
                 if(success) {
                     firestoreService.saveTransaction("0", "MINT_USD",
-                            USD_TOKEN_CONTRACT_ADDRESS, amount, txHash, credentials.getAddress(), "1", -1, 2);
+                            USD_TOKEN_CONTRACT_ADDRESS, amount, txHash, credentials.getAddress(), "100000000", -1, 2);
                 }
                 return new TransactionResult(success, txHash, success ?
                         "Tokens minted successfully" : "Token minting failed");
