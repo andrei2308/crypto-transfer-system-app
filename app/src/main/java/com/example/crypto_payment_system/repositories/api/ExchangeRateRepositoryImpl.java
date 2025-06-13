@@ -11,17 +11,22 @@ import androidx.annotation.NonNull;
 import com.example.crypto_payment_system.config.ApiConfig;
 import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.service.api.ExchangeRateApiService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import okhttp3.Call;
 import okhttp3.Credentials;
@@ -31,13 +36,6 @@ import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Implementation of ExchangeRateRepository that fetches data from the API
@@ -101,7 +99,7 @@ public class ExchangeRateRepositoryImpl implements ExchangeRateRepository {
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .build();
-        String fullUrl = ApiConfig.BASE_URL + "rate";
+        String fullUrl = ApiConfig.BASE_URL + ApiConfig.EXCHANGE_RATE_ENDPOINT;
 
         String credentials = Credentials.basic(ApiConfig.USERNAME, ApiConfig.PASSWORD);
 

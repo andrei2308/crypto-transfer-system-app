@@ -10,6 +10,6 @@ public class ApiConfig {
     
     public static final String USERNAME = BuildConfig.BACKEND_USERNAME;
     public static final String PASSWORD = BuildConfig.BACKEND_PASSWORD;
-    
-    public static final String EXCHANGE_RATE_ENDPOINT = "rate";
+
+    public static final String EXCHANGE_RATE_ENDPOINT = "api/rates";
 } 
