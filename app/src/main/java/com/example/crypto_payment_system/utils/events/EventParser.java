@@ -43,7 +43,6 @@ public class EventParser {
         public boolean isExchange() { return isExchange; }
     }
 
-    @SuppressWarnings("unchecked")
     private static <T extends Type> TypeReference<T> createTypeReference(Class<T> type) {
         return TypeReference.create(type);
     }

@@ -79,7 +79,6 @@ public class MintFragment extends Fragment {
         ethBalanceValue = view.findViewById(R.id.ethBalanceValue);
         eurBalanceValue = view.findViewById(R.id.eurBalanceValue);
         usdBalanceValue = view.findViewById(R.id.usdBalanceValue);
-        Button refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
 
         setupCurrencySpinner();
 
@@ -90,8 +89,6 @@ public class MintFragment extends Fragment {
             }
             mintFunds();
         });
-
-        refreshBalanceButton.setOnClickListener(v -> refreshBalances());
 
         observeViewModel();
 

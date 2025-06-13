@@ -267,27 +267,6 @@
                             android:textStyle="bold"
                             android:textColor="@color/mintSecondary" />
                     </LinearLayout>
-
-                    <!-- Enhanced Refresh Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/refreshBalanceButton"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="@string/refresh"
-                        android:textSize="13sp"
-                        android:textColor="@color/mintPrimary"
-                        android:layout_marginTop="16dp"
-                        android:minWidth="0dp"
-                        android:paddingHorizontal="16dp"
-                        app:icon="@drawable/ic_refresh"
-                        app:iconSize="16dp"
-                        app:iconTint="@color/mintPrimary"
-                        app:iconPadding="6dp"
-                        app:cornerRadius="12dp"
-                        app:rippleColor="@color/mintPrimaryLight"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/usdBalanceContainer" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 

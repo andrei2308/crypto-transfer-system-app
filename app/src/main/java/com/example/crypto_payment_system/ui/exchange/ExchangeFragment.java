@@ -61,7 +61,6 @@ public class ExchangeFragment extends Fragment {
 
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
-    private Button refreshBalanceButton;
     private boolean isSelectionInProgress = false;
 
     private Observer<TransactionResult> transactionObserver;
@@ -94,9 +93,6 @@ public class ExchangeFragment extends Fragment {
 
         eurBalanceValue = view.findViewById(R.id.eurBalanceValue);
         usdBalanceValue = view.findViewById(R.id.usdBalanceValue);
-        refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
-
-        refreshBalanceButton.setOnClickListener(v -> refreshBalances());
 
         setupCurrencySpinners();
 

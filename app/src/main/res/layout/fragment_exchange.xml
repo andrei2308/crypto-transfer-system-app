@@ -246,23 +246,6 @@
                             android:drawableStart="@drawable/ic_time"
                             android:drawablePadding="6dp"
                             app:drawableTint="@color/textSecondary" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/refreshBalanceButton"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:text="@string/refresh"
-                            android:textSize="13sp"
-                            android:textColor="@color/primaryBlue"
-                            android:minWidth="0dp"
-                            android:paddingHorizontal="16dp"
-                            app:icon="@drawable/ic_refresh"
-                            app:iconSize="16dp"
-                            app:iconTint="@color/primaryBlue"
-                            app:iconPadding="6dp"
-                            app:cornerRadius="12dp"
-                            app:rippleColor="@color/primaryBlueLight" />
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
