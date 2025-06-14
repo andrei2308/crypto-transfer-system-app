@@ -3,8 +3,6 @@ package com.example.crypto_payment_system.ui.mintFunds;
 import static com.example.crypto_payment_system.config.Constants.ETH;
 import static com.example.crypto_payment_system.config.Constants.USDT;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +21,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.config.biometric.classes.TransactionAuthManager;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
@@ -50,6 +49,7 @@ public class MintFragment extends Fragment {
     private TextView usdBalanceValue;
     private Observer<TransactionResult> transactionObserver;
     private TransactionProgressDialog progressDialog;
+    private TransactionAuthManager authManager;
 
     private boolean isTransactionInProgress = false;
 
@@ -57,6 +57,7 @@ public class MintFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        authManager = new TransactionAuthManager(requireActivity());
     }
 
     @Nullable
@@ -318,17 +319,27 @@ public class MintFragment extends Fragment {
                 return;
             }
 
-            isTransactionInProgress = true;
+            authManager.authorizeMinting(amountStr, USDT, new TransactionAuthManager.AuthCallback() {
+                @Override
+                public void onAuthorized() {
+                    isTransactionInProgress = true;
 
-            viewModel.resetTransactionResult();
+                    viewModel.resetTransactionResult();
 
-            setupTransactionObserver();
+                    setupTransactionObserver();
 
-            viewModel.mintTokens(USDT, String.valueOf(amount));
+                    viewModel.mintTokens(USDT, String.valueOf(amount));
+                }
+
+                @Override
+                public void onDenied(String reason) {
+                    Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                }
+            });
 
         } catch (NumberFormatException e) {
             mintAmountEditText.setError("Please enter a valid amount");
-            isTransactionInProgress = false; // Reset flag on error
+            isTransactionInProgress = false;
         }
     }
 

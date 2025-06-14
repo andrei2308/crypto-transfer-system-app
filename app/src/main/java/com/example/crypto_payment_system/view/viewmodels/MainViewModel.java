@@ -22,17 +22,15 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.crypto_payment_system.BuildConfig;
-import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.config.ApiConfig;
 import com.example.crypto_payment_system.contracts.ExchangeContract;
 import com.example.crypto_payment_system.contracts.ExchangeContractImpl;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
 import com.example.crypto_payment_system.domain.account.WalletManager;
+import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
-import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepositoryImpl;
 import com.example.crypto_payment_system.repositories.exchange.ExchangeRepository;
@@ -116,10 +114,6 @@ public class MainViewModel extends AndroidViewModel {
 
         walletManager = new WalletManager(application);
 
-        if (walletManager.getAccounts().isEmpty()) {
-            walletManager.addAccount(application.getString(R.string.default_account), BuildConfig.ETHEREUM_PRIVATE_KEY);
-        }
-
         walletManager.getActiveAccountLiveData().observeForever(account -> {
             if (account != null && web3Service.isConnected()) {
                 loadUserData(account.getAddress());
@@ -172,7 +166,6 @@ public class MainViewModel extends AndroidViewModel {
                     isNewUser.postValue(isNew);
 
                     if (!isNew) {
-                        // Existing user, get their data
                         userRepository.getUserData(walletAddress)
                                 .thenAccept(user -> {
                                     currentUser.postValue(user);
@@ -189,8 +182,13 @@ public class MainViewModel extends AndroidViewModel {
      *
      * @return true if successful, false if account already exists
      */
-    public boolean addAccount(String name, String privateKey) throws JSONException {
-        WalletAccount newAccount = walletManager.addAccount(name, privateKey);
+    public boolean addAccount(String name, String privateKey) {
+        WalletAccount newAccount = null;
+        try {
+            newAccount = walletManager.addAccount(name, privateKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return newAccount != null;
     }
 
@@ -217,7 +215,11 @@ public class MainViewModel extends AndroidViewModel {
      * Get the current active credentials for Ethereum transactions
      */
     public Credentials getActiveCredentials() {
-        return walletManager.getActiveCredentials();
+        try {
+            return walletManager.getActiveCredentials();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

@@ -3,8 +3,6 @@ package com.example.crypto_payment_system.ui.liquidity;
 import static com.example.crypto_payment_system.config.Constants.EURSC;
 import static com.example.crypto_payment_system.config.Constants.USDT;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +21,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.config.biometric.classes.TransactionAuthManager;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
@@ -59,6 +58,13 @@ public class AddLiquidityFragment extends Fragment {
     private Observer<TransactionResult> transactionObserver;
     private TransactionProgressDialog progressDialog;
     private boolean isTransactionInProgress = false;
+    private TransactionAuthManager authManager;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        authManager = new TransactionAuthManager(requireActivity());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -208,15 +214,26 @@ public class AddLiquidityFragment extends Fragment {
     }
 
     private void addLiquidity(String currency, String amount) {
-        isTransactionInProgress = true;
 
-        viewModel.resetTransactionResult();
+        authManager.authorizeLiquidityTransfer(amount, currency, new TransactionAuthManager.AuthCallback() {
+            @Override
+            public void onAuthorized() {
+                isTransactionInProgress = true;
 
-        setupTransactionObserver();
+                viewModel.resetTransactionResult();
 
-        showTransactionProgressDialog();
+                setupTransactionObserver();
 
-        viewModel.addLiquidity(currency, amount);
+                showTransactionProgressDialog();
+
+                viewModel.addLiquidity(currency, amount);
+            }
+
+            @Override
+            public void onDenied(String reason) {
+                Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showTransactionProgressDialog() {
