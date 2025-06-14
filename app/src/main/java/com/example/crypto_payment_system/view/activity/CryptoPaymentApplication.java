@@ -2,8 +2,6 @@ package com.example.crypto_payment_system.view.activity;
 
 import static com.example.crypto_payment_system.config.Constants.CONTRACT_CREATOR_ADDRESS;
 
-import static org.web3j.crypto.WalletUtils.isValidPrivateKey;
-
 import android.annotation.SuppressLint;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
@@ -19,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -861,17 +858,13 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
     }
 
     private void addVerifiedAccount(String name, String privateKey, AccountNetworkInfo networkInfo) {
-        try {
-            boolean success = viewModel.addAccount(name, privateKey);
-            if (success) {
-                String message = String.format("Account '%s' added successfully!\nBalance: %s",
-                        name, networkInfo.getFormattedBalance());
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, R.string.account_already_exists, Toast.LENGTH_SHORT).show();
-            }
-        } catch (JSONException e) {
-            Toast.makeText(this, "Failed to add account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        boolean success = viewModel.addAccount(name, privateKey);
+        if (success) {
+            String message = String.format("Account '%s' added successfully!\nBalance: %s",
+                    name, networkInfo.getFormattedBalance());
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, R.string.account_already_exists, Toast.LENGTH_SHORT).show();
         }
     }
 

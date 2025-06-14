@@ -2,6 +2,9 @@ package com.example.crypto_payment_system.domain.account;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.util.Base64;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -11,12 +14,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.web3j.crypto.Credentials;
 
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+
 /**
  * Manager class to handle multiple Ethereum wallet accounts
+ * Enhanced with basic encryption (no biometric requirement)
  */
 public class WalletManager {
     private final List<WalletAccount> accounts = new ArrayList<>();
@@ -26,10 +36,76 @@ public class WalletManager {
     private final SharedPreferences preferences;
     private static final String PREF_ACCOUNTS = "ethereum_accounts";
     private static final String PREF_ACTIVE_ACCOUNT = "active_account";
+    private static final String KEYSTORE_ALIAS = "wallet_encryption_key_v2";
 
     public WalletManager(Context context) throws JSONException {
         preferences = context.getSharedPreferences("wallet_prefs", Context.MODE_PRIVATE);
         loadSavedAccounts();
+    }
+
+    /**
+     * Get or create encryption key (NO biometric requirement)
+     */
+    private SecretKey getOrCreateEncryptionKey() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+        keyStore.load(null);
+
+        if (!keyStore.containsAlias(KEYSTORE_ALIAS)) {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+
+            KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(
+                    KEYSTORE_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setUserAuthenticationRequired(false)
+                    .build();
+
+            keyGenerator.init(keyGenParameterSpec);
+            keyGenerator.generateKey();
+        }
+
+        return (SecretKey) keyStore.getKey(KEYSTORE_ALIAS, null);
+    }
+
+    /**
+     * Encrypt private key
+     */
+    private String encryptPrivateKey(String privateKey) throws Exception {
+        SecretKey secretKey = getOrCreateEncryptionKey();
+
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        byte[] iv = cipher.getIV();
+        byte[] encryptedData = cipher.doFinal(privateKey.getBytes());
+
+        byte[] combined = new byte[iv.length + encryptedData.length];
+        System.arraycopy(iv, 0, combined, 0, iv.length);
+        System.arraycopy(encryptedData, 0, combined, iv.length, encryptedData.length);
+
+        return Base64.encodeToString(combined, Base64.DEFAULT);
+    }
+
+    /**
+     * Decrypt private key (always accessible)
+     */
+    private String decryptPrivateKey(String encryptedData) throws Exception {
+        SecretKey secretKey = getOrCreateEncryptionKey();
+
+        byte[] combined = Base64.decode(encryptedData, Base64.DEFAULT);
+
+        byte[] iv = new byte[12];
+        byte[] encrypted = new byte[combined.length - 12];
+        System.arraycopy(combined, 0, iv, 0, 12);
+        System.arraycopy(combined, 12, encrypted, 0, encrypted.length);
+
+        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+        GCMParameterSpec spec = new GCMParameterSpec(128, iv);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
+
+        byte[] decryptedData = cipher.doFinal(encrypted);
+        return new String(decryptedData);
     }
 
     /**
@@ -50,18 +126,15 @@ public class WalletManager {
                 );
                 accounts.add(account);
 
-                // Set active account if it matches the saved active account
                 if (account.getAddress().equals(activeAccountAddress)) {
                     activeAccount = account;
                 }
             }
 
-            // If no active account was found but we have accounts, set the first one active
             if (activeAccount == null && !accounts.isEmpty()) {
                 activeAccount = accounts.get(0);
             }
 
-            // Update LiveData
             accountsLiveData.postValue(accounts);
             activeAccountLiveData.postValue(activeAccount);
 
@@ -80,7 +153,7 @@ public class WalletManager {
                 JSONObject accountObj = new JSONObject();
                 accountObj.put("name", account.getName());
                 accountObj.put("address", account.getAddress());
-                accountObj.put("privateKey", account.getPrivateKey());
+                accountObj.put("privateKey", account.getPrivateKey()); // Already encrypted
                 jsonArray.put(accountObj);
             }
 
@@ -99,12 +172,8 @@ public class WalletManager {
 
     /**
      * Add a new account
-     *
-     * @param name       User-friendly name for the account
-     * @param privateKey Ethereum private key
-     * @return The newly created account, or null if account already exists
      */
-    public WalletAccount addAccount(String name, String privateKey) throws JSONException {
+    public WalletAccount addAccount(String name, String privateKey) throws Exception {
         Credentials credentials = Credentials.create(privateKey);
         String address = credentials.getAddress();
 
@@ -114,7 +183,9 @@ public class WalletManager {
             }
         }
 
-        WalletAccount newAccount = new WalletAccount(name, address, privateKey);
+        String encryptedPrivateKey = encryptPrivateKey(privateKey);
+
+        WalletAccount newAccount = new WalletAccount(name, address, encryptedPrivateKey);
         accounts.add(newAccount);
 
         if (accounts.size() == 1) {
@@ -129,8 +200,6 @@ public class WalletManager {
 
     /**
      * Switch to a different account
-     *
-     * @param address Address of the account to switch to
      */
     public void switchAccount(String address) throws JSONException {
         for (WalletAccount account : accounts) {
@@ -145,9 +214,6 @@ public class WalletManager {
 
     /**
      * Remove an account
-     *
-     * @param address Address of the account to remove
-     * @return true if successful, false if account not found
      */
     public boolean removeAccount(String address) throws JSONException {
         Iterator<WalletAccount> iterator = accounts.iterator();
@@ -170,13 +236,26 @@ public class WalletManager {
     }
 
     /**
-     * Get the active account's Credentials
+     * Get the active account's Credentials (always accessible)
      */
-    public Credentials getActiveCredentials() {
+    public Credentials getActiveCredentials() throws Exception {
         if (activeAccount != null) {
-            return Credentials.create(activeAccount.getPrivateKey());
+            String decryptedPrivateKey = decryptPrivateKey(activeAccount.getPrivateKey());
+            return Credentials.create(decryptedPrivateKey);
         }
         return null;
+    }
+
+    /**
+     * Get decrypted private key for any account (always accessible)
+     */
+    public String getDecryptedPrivateKey(String accountName) throws Exception {
+        for (WalletAccount account : accounts) {
+            if (account.getName().equals(accountName)) {
+                return decryptPrivateKey(account.getPrivateKey());
+            }
+        }
+        throw new Exception("Account not found: " + accountName);
     }
 
     /**
@@ -205,5 +284,26 @@ public class WalletManager {
      */
     public LiveData<WalletAccount> getActiveAccountLiveData() {
         return activeAccountLiveData;
+    }
+
+    /**
+     * Set active account
+     */
+    public void setActiveAccount(WalletAccount account) throws JSONException {
+        activeAccount = account;
+        activeAccountLiveData.postValue(activeAccount);
+        saveAccounts();
+    }
+
+    /**
+     * Check if account exists
+     */
+    public boolean accountExists(String name) {
+        for (WalletAccount account : accounts) {
+            if (account.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

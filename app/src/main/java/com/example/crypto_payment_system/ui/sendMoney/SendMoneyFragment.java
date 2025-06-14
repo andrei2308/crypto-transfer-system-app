@@ -3,8 +3,6 @@ package com.example.crypto_payment_system.ui.sendMoney;
 import static com.example.crypto_payment_system.config.Constants.EURSC;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +20,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
+import com.example.crypto_payment_system.config.biometric.classes.TransactionAuthManager;
 import com.example.crypto_payment_system.domain.account.User;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
@@ -49,8 +48,14 @@ public class SendMoneyFragment extends Fragment {
     private CurrencyAdapter currencyAdapter;
     private Observer<TransactionResult> transactionObserver;
     private TransactionProgressDialog progressDialog;
-
     private boolean isTransactionInProgress = false;
+    private TransactionAuthManager authManager;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        authManager = new TransactionAuthManager(requireActivity());
+    }
 
     @Nullable
     @Override
@@ -324,6 +329,7 @@ public class SendMoneyFragment extends Fragment {
                 return;
             }
 
+
             Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
             if (selectedCurrency == null) {
                 selectedCurrency = CurrencyManager.getCurrencyByCode(EURSC);
@@ -331,20 +337,29 @@ public class SendMoneyFragment extends Fragment {
 
             String currency = selectedCurrency.getCode();
 
-            BigDecimal decimalAmount = BigDecimal.valueOf(amount);
-            BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
-            String formattedAmount = tokenUnits.toBigInteger().toString();
+            authManager.authorizeTokenTransfer(amountStr, currency, address, new TransactionAuthManager.AuthCallback() {
+                @Override
+                public void onAuthorized() {
+                    BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+                    BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
+                    String formattedAmount = tokenUnits.toBigInteger().toString();
 
-            isTransactionInProgress = true;
+                    isTransactionInProgress = true;
 
-            viewModel.resetTransactionResult();
+                    viewModel.resetTransactionResult();
 
-            setupTransactionObserver(amount, currency, address);
+                    setupTransactionObserver(amount, currency, address);
 
-            showTransactionProgressDialog();
+                    showTransactionProgressDialog();
 
-            viewModel.sendMoney(address, currency, formattedAmount);
+                    viewModel.sendMoney(address, currency, formattedAmount);
+                }
 
+                @Override
+                public void onDenied(String reason) {
+                    Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                }
+            });
         } catch (NumberFormatException e) {
             amountTeit.setError("Please enter a valid number");
             isTransactionInProgress = false;

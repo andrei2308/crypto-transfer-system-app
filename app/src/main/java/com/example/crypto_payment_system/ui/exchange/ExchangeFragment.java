@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.config.ApiConfig;
+import com.example.crypto_payment_system.config.biometric.classes.TransactionAuthManager;
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
@@ -58,15 +59,19 @@ public class ExchangeFragment extends Fragment {
     private CurrencyAdapter fromCurrencyAdapter;
     private CurrencyAdapter toCurrencyAdapter;
     private FrameLayout buttonProgressContainer;
-
     private TextView eurBalanceValue;
     private TextView usdBalanceValue;
     private boolean isSelectionInProgress = false;
-
     private Observer<TransactionResult> transactionObserver;
     private TransactionProgressDialog progressDialog;
-
     private boolean isTransactionInProgress = false;
+    private TransactionAuthManager transactionAuthManager;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        transactionAuthManager = new TransactionAuthManager(requireActivity());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -455,15 +460,25 @@ public class ExchangeFragment extends Fragment {
             return;
         }
 
-        isTransactionInProgress = true;
+        transactionAuthManager.authorizeTokenSwap(amount, fromCurrency, new TransactionAuthManager.AuthCallback() {
+            @Override
+            public void onAuthorized() {
+                isTransactionInProgress = true;
 
-        viewModel.resetTransactionResult();
+                viewModel.resetTransactionResult();
 
-        setupTransactionObserver();
+                setupTransactionObserver();
 
-        showTransactionProgressDialog();
+                showTransactionProgressDialog();
 
-        viewModel.exchangeBasedOnPreference(fromCurrency, amount);
+                viewModel.exchangeBasedOnPreference(fromCurrency, amount);
+            }
+
+            @Override
+            public void onDenied(String reason) {
+                Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showTransactionProgressDialog() {
