@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundGradient">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="32dp">
+
+            <!-- Enhanced Fiat Transfer Header with Illustration -->
+            <ImageView
+                android:id="@+id/fiatTransferIllustration"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fiatTransferTitleTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Fiat Transfer"
+                android:textColor="@color/primaryBlue"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/fiatTransferIllustration"
+                app:layout_constraintTop_toTopOf="@id/fiatTransferIllustration" />
+
+            <TextView
+                android:id="@+id/fiatTransferSubtitleTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Send money globally with crypto speed"
+                android:textColor="@color/textSecondary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/fiatTransferTitleTextView"
+                app:layout_constraintTop_toBottomOf="@id/fiatTransferTitleTextView" />
+
+            <!-- Section Title -->
+            <TextView
+                android:id="@+id/transferDetailsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Transfer Details"
+                android:textColor="@color/darkSlate"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fiatTransferIllustration" />
+
+            <!-- Recipient Information Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/recipientCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/cardBackground"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="6dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/transferDetailsLabel"
+                app:strokeColor="@color/cardBorder"
+                app:strokeWidth="1dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_gradient_background"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/recipientIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/icon_background_circle_purple"
+                        android:padding="6dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/primaryPurple" />
+
+                    <TextView
+                        android:id="@+id/recipientLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Recipient Information"
+                        android:textColor="@color/darkSlate"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@id/recipientIcon"
+                        app:layout_constraintStart_toEndOf="@id/recipientIcon"
+                        app:layout_constraintTop_toTopOf="@id/recipientIcon" />
+
+                    <!-- Recipient Address Input -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/recipientAddressInputLayout"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        app:boxBackgroundColor="@color/inputBackground"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxStrokeColor="@color/inputBorderColor"
+                        app:hintTextColor="@color/textMuted"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/recipientLabel">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/recipient_address_teit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Recipient Address"
+                            android:inputType="text"
+                            android:textColor="@color/darkSlate"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Currency Selection Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/currencyCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/cardBackground"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="6dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recipientCard"
+                app:strokeColor="@color/cardBorder"
+                app:strokeWidth="1dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_gradient_background"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/currencyIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/icon_background_circle"
+                        android:padding="6dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/accentOrange" />
+
+                    <TextView
+                        android:id="@+id/currencyLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Currency to Send"
+                        android:textColor="@color/darkSlate"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@id/currencyIcon"
+                        app:layout_constraintStart_toEndOf="@id/currencyIcon"
+                        app:layout_constraintTop_toTopOf="@id/currencyIcon" />
+
+                    <!-- Currency to Send -->
+                    <TextView
+                        android:id="@+id/currencyHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Select currency"
+                        android:textColor="@color/textMuted"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/currencyLabel" />
+
+                    <Spinner
+                        android:id="@+id/currency_spinner"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/enhanced_spinner_gradient_background"
+                        android:paddingHorizontal="16dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/currencyHint" />
+
+                    <!-- Info Text -->
+                    <LinearLayout
+                        android:id="@+id/currencyInfoContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/currency_spinner">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_info"
+                            app:tint="@color/primaryBlue" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Recipient's available accounts will be detected automatically"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Amount Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/amountCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/cardBackground"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="6dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/currencyCard"
+                app:strokeColor="@color/cardBorder"
+                app:strokeWidth="1dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_gradient_background"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/amountIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/icon_background_circle_green"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_money"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/successGreen" />
+
+                    <TextView
+                        android:id="@+id/amountLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Transfer Amount"
+                        android:textColor="@color/darkSlate"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@id/amountIcon"
+                        app:layout_constraintStart_toEndOf="@id/amountIcon"
+                        app:layout_constraintTop_toTopOf="@id/amountIcon" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/amountInputLayout"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        app:boxBackgroundColor="@color/inputBackground"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxStrokeColor="@color/inputBorderColor"
+                        app:endIconMode="custom"
+                        app:endIconTint="@color/primaryBlue"
+                        app:hintTextColor="@color/textMuted"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/amountLabel">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/amount_teit"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Amount to send"
+                            android:inputType="numberDecimal"
+                            android:maxLength="10"
+                            android:textColor="@color/darkSlate"
+                            android:textSize="16sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Transfer Summary Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/summaryCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/cardBackground"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="6dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/amountCard"
+                app:strokeColor="@color/cardBorder"
+                app:strokeWidth="1dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/card_gradient_background"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/summaryIcon"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:padding="6dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/primaryBlue" />
+
+                    <TextView
+                        android:id="@+id/summaryLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Transfer Summary"
+                        android:textColor="@color/darkSlate"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@id/summaryIcon"
+                        app:layout_constraintStart_toEndOf="@id/summaryIcon"
+                        app:layout_constraintTop_toTopOf="@id/summaryIcon" />
+
+                    <!-- Summary Details -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/summaryLabel">
+
+                        <!-- Transfer Fee Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Transfer Fee"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/transferFeeText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$2.99"
+                                android:textColor="@color/darkSlate"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Processing Time Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Processing Time"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2-5 minutes"
+                                android:textColor="@color/successGreen"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Initiate Transfer Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/initiate_transfer_btn"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/primary_button_gradient"
+                android:elevation="12dp"
+                android:stateListAnimator="@null"
+                android:text="Initiate Transfer"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="20dp"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:iconSize="24dp"
+                app:iconTint="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/summaryCard" />
+
+            <!-- Security Note -->
+            <LinearLayout
+                android:id="@+id/securityNoteContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/security_note_background"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/initiate_transfer_btn">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_security"
+                    app:tint="@color/successGreen" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Powered by Stripe • Bank-level security"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Button Progress Container -->
+            <FrameLayout
+                android:id="@+id/buttonProgressContainer"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/loading_button_gradient"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/initiate_transfer_btn"
+                app:layout_constraintEnd_toEndOf="@+id/initiate_transfer_btn"
+                app:layout_constraintStart_toStartOf="@+id/initiate_transfer_btn"
+                app:layout_constraintTop_toTopOf="@+id/initiate_transfer_btn">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ProgressBar
+                        android:id="@+id/buttonProgressBar"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginEnd="8dp"
+                        android:indeterminateTint="@color/white"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/loadingTextView"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/loadingTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Processing..."
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/buttonProgressBar"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/primaryBlue"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     id 'com.google.gms.google-services'
 }
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -9,9 +10,29 @@ if (localPropertiesFile.exists()) {
         localProperties.load(reader)
     }
 }
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.bouncycastle:bcprov-jdk15on:1.70'
+        // Exclude the old variant
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+    }
+}
+
 android {
     namespace 'com.example.crypto_payment_system'
     compileSdk 35
+
+    packagingOptions {
+        pickFirst 'META-INF/LICENSE'
+        pickFirst 'META-INF/LICENSE.txt'
+        pickFirst 'META-INF/NOTICE'
+        pickFirst 'META-INF/NOTICE.txt'
+        pickFirst 'org/bouncycastle/LICENSE'
+        pickFirst 'org/bouncycastle/x509/CertPathReviewerMessages_de.properties'
+        pickFirst 'org/bouncycastle/x509/CertPathReviewerMessages.properties'
+        pickFirst '**/CertPathReviewerMessages*.properties'
+    }
 
     defaultConfig {
         applicationId "com.example.crypto_payment_system"
@@ -33,7 +54,6 @@ android {
 
         def backendPassword = localProperties.getProperty('backend.password', '')
         buildConfigField "String", "BACKEND_PASSWORD", "\"${backendPassword}\""
-
     }
 
     buildTypes {
@@ -56,7 +76,6 @@ android {
 }
 
 dependencies {
-
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
@@ -65,22 +84,33 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    implementation ('org.web3j:core:4.12.3-android')
+    // Web3j with exclusions
+    implementation('org.web3j:core:4.12.3-android') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+    }
+    implementation('org.web3j:abi:4.9.7') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+    }
+    implementation('org.web3j:crypto:4.9.7') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+    }
+
+    // Explicitly add the correct Bouncy Castle version
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'org.slf4j:slf4j-simple:1.7.36'
-    // Jackson dependencies for JSON processing (needed by web3j)
+
+    // Jackson dependencies
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.2'
-    // RxJava dependencies - IMPORTANT for web3j
+
+    // RxJava dependencies
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    // interaction by abi
-    implementation 'org.web3j:abi:4.9.7'
-    // crypto for sending transactions
-    implementation 'org.web3j:crypto:4.9.7'
 
     implementation platform('com.google.firebase:firebase-bom:33.11.0')
     implementation 'com.google.firebase:firebase-analytics'
@@ -93,4 +123,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     implementation 'androidx.biometric:biometric:1.1.0'
+
+    // Stripe with Bouncy Castle exclusion
+    implementation('com.stripe:stripe-android:20.35.0') {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+        exclude group: 'org.bouncycastle'
+    }
 }
