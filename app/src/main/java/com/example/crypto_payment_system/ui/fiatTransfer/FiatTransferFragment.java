@@ -31,69 +31,94 @@ import com.example.crypto_payment_system.domain.stripe.PaymentIntentResponse;
 import com.example.crypto_payment_system.repositories.api.StripeRepository;
 import com.example.crypto_payment_system.repositories.api.StripeRepositoryImpl;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
+import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.paymentsheet.PaymentSheet;
 import com.stripe.android.paymentsheet.PaymentSheetResult;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Fragment for handling fiat transfers with Stripe integration
+ */
 public class FiatTransferFragment extends Fragment {
-
-    private MainViewModel viewModel;
-    private StripeRepository stripeRepository;
-    private TextInputEditText recipientAddressTeit;
+    private static final String TAG = "FiatTransferFragment";
+    private static final long PROGRESS_UPDATE_DELAY = 1000L;
+    private static final long STATUS_CHECK_INTERVAL = 2000L;
+    private static final long DIALOG_DISMISS_DELAY = 2000L;
+    private final AtomicBoolean isTransactionInProgress = new AtomicBoolean(false);
     private TextInputEditText amountTeit;
     private Spinner currencySpinner;
-    private CurrencyAdapter currencyAdapter;
     private Button initiateTransferBtn;
     private FrameLayout buttonProgressContainer;
     private ProgressBar progressBar;
-
-    private TransactionProgressDialog progressDialog;
-    private boolean isTransactionInProgress = false;
+    private final AtomicBoolean isBlockchainOperationInProgress = new AtomicBoolean(false);
+    // Handlers
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
+    private final Handler statusCheckHandler = new Handler(Looper.getMainLooper());
     private TransactionAuthManager authManager;
-    private Observer<TransactionResult> transactionObserver;
     private PaymentSheet paymentSheet;
+    // UI Components
+    private TextInputEditText recipientAddressTeit;
+    // Data and Logic Components
+    private MainViewModel viewModel;
+    private StripeRepository stripeRepository;
     private String currentPaymentIntentId;
-    private Handler handler = new Handler(Looper.getMainLooper());
-    private Handler statusCheckHandler = new Handler(Looper.getMainLooper());
+    private CurrencyAdapter currencyAdapter;
+    // Transaction State
+    private TransactionProgressDialog progressDialog;
+    private Observer<TransactionResult> transactionObserver;
+    private Observer<ConfirmationRequest> confirmationObserver;
+    private String pendingAmount;
+    private String pendingRecipient;
     private Runnable statusCheckRunnable;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        authManager = new TransactionAuthManager(requireActivity());
-
-        // TODO: Move this to BuildConfig or secure configuration
-        PaymentConfiguration.init(requireContext(), "pk_test_51Rcoc4Qv2MLQq3uKltqQP5Fsf5Oq7hcBVtbhkzdEndhKKlx0kAKrTAQhlAxhdJyUbdqOM3BMY6nLTNKRlTKrDsi300kI54yv35");
-
-        stripeRepository = new StripeRepositoryImpl(ApiConfig.BASE_URL,
-                ApiConfig.USERNAME,
-                ApiConfig.PASSWORD);
-
-        paymentSheet = new PaymentSheet(this, this::onPaymentSheetResult);
+        initializeComponents();
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_fiat_transfer, container, false);
 
         viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-
         CurrencyManager.initialize(requireContext());
 
         initializeViews(root);
         setupListeners();
+        setupObservers();
 
         return root;
+    }
+
+    private void initializeComponents() {
+        authManager = new TransactionAuthManager(requireActivity());
+
+        String stripePublishableKey = "pk_test_51Rcoc4Qv2MLQq3uKltqQP5Fsf5Oq7hcBVtbhkzdEndhKKlx0kAKrTAQhlAxhdJyUbdqOM3BMY6nLTNKRlTKrDsi300kI54yv35";
+        PaymentConfiguration.init(requireContext(), stripePublishableKey);
+
+        stripeRepository = new StripeRepositoryImpl(
+                ApiConfig.BASE_URL,
+                ApiConfig.USERNAME,
+                ApiConfig.PASSWORD
+        );
+
+        paymentSheet = new PaymentSheet(this, this::onPaymentSheetResult);
     }
 
     private void initializeViews(View root) {
@@ -108,11 +133,32 @@ public class FiatTransferFragment extends Fragment {
     }
 
     private void setupListeners() {
-        initiateTransferBtn.setOnClickListener(v -> {
-            if (validateInputs() && !isTransactionInProgress) {
-                initiateTransfer();
+        initiateTransferBtn.setOnClickListener(v -> handleTransferClick());
+    }
+
+    private void setupObservers() {
+        viewModel.getTransactionConfirmation().observe(getViewLifecycleOwner(), confirmationRequest -> {
+            if (confirmationRequest != null) {
+                showConfirmationDialog(confirmationRequest);
             }
         });
+    }
+
+    private void showConfirmationDialog(ConfirmationRequest request) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Confirm Transaction")
+                .setMessage(request.getMessage())
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    showTransactionProgressDialog();
+                    updateProgressIfShowing(TransactionProgressDialog.TransactionState.SUBMITTING);
+
+                    request.getOnConfirm().run();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    handleMintingCanceled();
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void initializeCurrencySpinner() {
@@ -130,210 +176,97 @@ public class FiatTransferFragment extends Fragment {
         }
     }
 
-    private void showTransactionProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-
-        progressDialog = new TransactionProgressDialog(requireContext());
-
-        try {
-            progressDialog.show();
-            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
-
-            simulateTransactionProgress();
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            isTransactionInProgress = false;
-        }
-    }
-
-    private void simulateTransactionProgress() {
-
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
-        }
-
-        initiateTransferBtn.postDelayed(() -> {
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.SUBMITTING);
-            }
-        }, 1000);
-
-        initiateTransferBtn.postDelayed(() -> {
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.PENDING);
-            }
-        }, 2000);
-
-        initiateTransferBtn.postDelayed(() -> {
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMING);
-            }
-        }, 4000);
-    }
-
-    private void initiateTransfer() {
-        isTransactionInProgress = true;
-        showLoadingState(true);
-
-        String recipientAddress = Objects.requireNonNull(recipientAddressTeit.getText()).toString().trim();
-        String amountStr = Objects.requireNonNull(amountTeit.getText()).toString().trim();
-        Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
-
-        if (selectedCurrency == null) {
-            showLoadingState(false);
-            Toast.makeText(requireContext(), "Please select a currency", Toast.LENGTH_SHORT).show();
-            isTransactionInProgress = false;
+    private void handleTransferClick() {
+        if (!validateInputs()) {
             return;
         }
 
-        double amount = Double.parseDouble(amountStr);
-
-        String currencyForStripe = "";
-
-        if (selectedCurrency.getCode().equals(EURSC)) {
-            currencyForStripe = "eur";
-        } else if (selectedCurrency.getCode().equals(USDT)) {
-            currencyForStripe = "usd";
+        if (!isTransactionInProgress.compareAndSet(false, true)) {
+            Toast.makeText(requireContext(),
+                    "Transaction already in progress",
+                    Toast.LENGTH_SHORT).show();
+            return;
         }
 
+        initiateTransfer();
+    }
+
+    private void initiateTransfer() {
+        showLoadingState(true);
+
+        TransferDetails details = extractTransferDetails();
+        if (details == null) {
+            resetTransactionState();
+            return;
+        }
+
+        createPaymentIntent(details);
+    }
+
+    private TransferDetails extractTransferDetails() {
+        try {
+            String recipientAddress = Objects.requireNonNull(recipientAddressTeit.getText())
+                    .toString().trim();
+            String amountStr = Objects.requireNonNull(amountTeit.getText())
+                    .toString().trim();
+            Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
+
+            if (selectedCurrency == null) {
+                showError("Please select a currency");
+                return null;
+            }
+
+            double amount = Double.parseDouble(amountStr);
+            String stripeCurrency = mapToStripeCurrency(selectedCurrency.getCode());
+
+            return new TransferDetails(recipientAddress, amount, stripeCurrency, selectedCurrency);
+        } catch (Exception e) {
+            Log.e(TAG, "Error extracting transfer details", e);
+            showError("Invalid transfer details");
+            return null;
+        }
+    }
+
+    private String mapToStripeCurrency(String currencyCode) {
+        switch (currencyCode) {
+            case EURSC:
+                return "eur";
+            case USDT:
+                return "usd";
+            default:
+                return "usd";
+        }
+    }
+
+    private void createPaymentIntent(TransferDetails details) {
         CreatePaymentIntentRequest request = new CreatePaymentIntentRequest(
-                amount,
-                currencyForStripe,
-                recipientAddress
+                details.amount,
+                details.stripeCurrency,
+                details.recipientAddress
         );
 
-        Toast.makeText(requireContext(),
-                "Creating payment for " + amountStr + " " + selectedCurrency.getCode(),
-                Toast.LENGTH_SHORT).show();
+        showMessage(String.format("Creating payment for %.2f %s",
+                details.amount, details.currency.getCode()));
 
         stripeRepository.createPaymentIntent(request)
-                .thenAccept(response -> {
-                    requireActivity().runOnUiThread(() -> {
-                        showLoadingState(false);
-                        currentPaymentIntentId = response.getPaymentIntentId();
-                        presentPaymentSheet(response);
-                    });
-                })
+                .thenAccept(response -> runOnUiThread(() -> handlePaymentIntentSuccess(response)))
                 .exceptionally(throwable -> {
-                    requireActivity().runOnUiThread(() -> {
-                        showLoadingState(false);
-                        Log.e("FiatTransfer", "Payment intent creation failed", throwable);
-                        Toast.makeText(requireContext(),
-                                "Failed to initiate payment: " + throwable.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                        isTransactionInProgress = false;
-                    });
+                    runOnUiThread(() -> handlePaymentIntentError(throwable));
                     return null;
                 });
     }
 
-    private void onPaymentSheetResult(PaymentSheetResult paymentSheetResult) {
-        if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
-            Toast.makeText(requireContext(), "Payment submitted successfully!", Toast.LENGTH_SHORT).show();
-            showTransactionProgressDialog();
-            startPaymentStatusMonitoring();
-
-        } else if (paymentSheetResult instanceof PaymentSheetResult.Canceled) {
-            Toast.makeText(requireContext(), "Payment canceled", Toast.LENGTH_SHORT).show();
-            isTransactionInProgress = false;
-            currentPaymentIntentId = null;
-
-        } else if (paymentSheetResult instanceof PaymentSheetResult.Failed) {
-            PaymentSheetResult.Failed failed = (PaymentSheetResult.Failed) paymentSheetResult;
-            Toast.makeText(requireContext(),
-                    "Payment failed: " + failed.getError().getLocalizedMessage(),
-                    Toast.LENGTH_LONG).show();
-            isTransactionInProgress = false;
-            currentPaymentIntentId = null;
-        }
+    private void handlePaymentIntentSuccess(PaymentIntentResponse response) {
+        showLoadingState(false);
+        currentPaymentIntentId = response.getPaymentIntentId();
+        presentPaymentSheet(response);
     }
 
-    private void startPaymentStatusMonitoring() {
-        if (currentPaymentIntentId == null) return;
-
-        statusCheckRunnable = new Runnable() {
-            @Override
-            public void run() {
-                checkPaymentStatus();
-                statusCheckHandler.postDelayed(this, 2000);
-            }
-        };
-
-        statusCheckHandler.postDelayed(statusCheckRunnable, 1000);
-    }
-
-    private void checkPaymentStatus() {
-        if (currentPaymentIntentId == null) return;
-
-        stripeRepository.getPaymentIntentStatus(currentPaymentIntentId)
-                .thenAccept(response -> {
-                    requireActivity().runOnUiThread(() -> {
-                        updateProgressDialogBasedOnStatus(response.getStatus());
-                    });
-                })
-                .exceptionally(throwable -> {
-                    Log.e("FiatTransfer", "Failed to check payment status", throwable);
-                    return null;
-                });
-    }
-
-    private void updateProgressDialogBasedOnStatus(String status) {
-        if (progressDialog == null || !progressDialog.isShowing()) return;
-
-        switch (status) {
-            case "requires_payment_method":
-            case "requires_confirmation":
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.SUBMITTING);
-                break;
-
-            case "processing":
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.PENDING);
-                break;
-
-            case "requires_capture":
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMING);
-                break;
-
-            case "succeeded":
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.CONFIRMED);
-                stopPaymentStatusMonitoring();
-                handler.postDelayed(() -> {
-                    if (progressDialog != null && progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                    }
-                    isTransactionInProgress = false;
-                    currentPaymentIntentId = null;
-                    Toast.makeText(requireContext(),
-                            "Transfer completed successfully!",
-                            Toast.LENGTH_LONG).show();
-                }, 2000);
-                break;
-
-            case "canceled":
-            case "failed":
-                progressDialog.updateState(TransactionProgressDialog.TransactionState.FAILED);
-                stopPaymentStatusMonitoring();
-                handler.postDelayed(() -> {
-                    if (progressDialog != null && progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                    }
-                    isTransactionInProgress = false;
-                    currentPaymentIntentId = null;
-                    Toast.makeText(requireContext(),
-                            "Transfer failed. Please try again.",
-                            Toast.LENGTH_LONG).show();
-                }, 2000);
-                break;
-        }
-    }
-
-    private void stopPaymentStatusMonitoring() {
-        if (statusCheckRunnable != null) {
-            statusCheckHandler.removeCallbacks(statusCheckRunnable);
-            statusCheckRunnable = null;
-        }
+    private void handlePaymentIntentError(Throwable throwable) {
+        showLoadingState(false);
+        Log.e(TAG, "Payment intent creation failed", throwable);
+        showError("Failed to initiate payment: " + throwable.getMessage());
+        resetTransactionState();
     }
 
     private void presentPaymentSheet(PaymentIntentResponse response) {
@@ -348,19 +281,232 @@ public class FiatTransferFragment extends Fragment {
         );
     }
 
-    private void showLoadingState(boolean isLoading) {
-        if (isLoading) {
-            initiateTransferBtn.setVisibility(View.INVISIBLE);
-            buttonProgressContainer.setVisibility(View.VISIBLE);
-        } else {
-            initiateTransferBtn.setVisibility(View.VISIBLE);
-            buttonProgressContainer.setVisibility(View.GONE);
+    private void onPaymentSheetResult(PaymentSheetResult result) {
+        if (result instanceof PaymentSheetResult.Completed) {
+            handlePaymentCompleted();
+        } else if (result instanceof PaymentSheetResult.Canceled) {
+            handlePaymentCanceled();
+        } else if (result instanceof PaymentSheetResult.Failed) {
+            handlePaymentFailed((PaymentSheetResult.Failed) result);
+        }
+    }
+
+    private void handlePaymentCompleted() {
+        showMessage("Payment submitted successfully!");
+
+        pendingAmount = Objects.requireNonNull(amountTeit.getText()).toString();
+        pendingRecipient = Objects.requireNonNull(recipientAddressTeit.getText()).toString().trim();
+
+        isBlockchainOperationInProgress.set(true);
+
+        executeMintAndTransfer();
+
+        startPaymentStatusMonitoring();
+    }
+
+    private void executeMintAndTransfer() {
+        if (transactionObserver != null) {
+            viewModel.getTransactionResult().removeObserver(transactionObserver);
+        }
+
+        transactionObserver = new Observer<TransactionResult>() {
+            private boolean isMintingPhase = true;
+
+            @Override
+            public void onChanged(TransactionResult result) {
+                if (result == null) return;
+
+                if (isMintingPhase) {
+                    handleMintingResult(result);
+                } else {
+                    handleTransferResult(result);
+                }
+            }
+
+            private void handleMintingResult(TransactionResult result) {
+                if (result.isSuccess()) {
+                    if (result.getTransactionHash() != null && progressDialog != null) {
+                        progressDialog.setTransactionHash(result.getTransactionHash());
+                    }
+
+                    updateProgressIfShowing(TransactionProgressDialog.TransactionState.PENDING);
+                    showMessage("Tokens minted successfully. Initiating transfer...");
+
+                    isMintingPhase = false;
+                    double amount = Double.parseDouble(pendingAmount);
+                    BigDecimal decimalAmount = BigDecimal.valueOf(amount);
+                    BigDecimal tokenUnits = decimalAmount.multiply(BigDecimal.valueOf(1_000_000));
+                    String formattedAmount = tokenUnits.toBigInteger().toString();
+
+                    uiHandler.postDelayed(() -> {
+                        updateProgressIfShowing(TransactionProgressDialog.TransactionState.SUBMITTING);
+                        viewModel.sendMoney(pendingRecipient.toLowerCase(), USDT, formattedAmount);
+                    }, 500);
+                } else {
+                    handleBlockchainOperationFailure("Minting failed: " + result.getMessage());
+                    viewModel.getTransactionResult().removeObserver(this);
+                    isBlockchainOperationInProgress.set(false);
+                }
+            }
+
+            private void handleTransferResult(TransactionResult result) {
+                if (result.isSuccess()) {
+                    if (result.getTransactionHash() != null && progressDialog != null) {
+                        progressDialog.setTransactionHash(result.getTransactionHash());
+                    }
+
+                    updateProgressIfShowing(TransactionProgressDialog.TransactionState.CONFIRMING);
+
+                    uiHandler.postDelayed(() -> {
+                        updateProgressIfShowing(TransactionProgressDialog.TransactionState.CONFIRMED);
+                        showMessage("Transfer completed successfully!");
+
+                        viewModel.getTransactionResult().removeObserver(this);
+                        transactionObserver = null;
+
+                        isBlockchainOperationInProgress.set(false);
+
+                        uiHandler.postDelayed(() -> {
+                            dismissProgressDialog();
+                            resetTransactionState();
+                        }, DIALOG_DISMISS_DELAY);
+                    }, 1000);
+                } else {
+                    handleBlockchainOperationFailure("Transfer failed: " + result.getMessage());
+                    viewModel.getTransactionResult().removeObserver(this);
+                    transactionObserver = null;
+                    isBlockchainOperationInProgress.set(false);
+                }
+            }
+        };
+
+        viewModel.getTransactionResult().observe(getViewLifecycleOwner(), transactionObserver);
+
+        viewModel.mintTokens(USDT, pendingAmount);
+    }
+
+    private void handleMintingCanceled() {
+        isBlockchainOperationInProgress.set(false);
+        dismissProgressDialog();
+        resetTransactionState();
+        showMessage("Transaction canceled");
+    }
+
+    private void handleBlockchainOperationFailure(String errorMessage) {
+        Log.e(TAG, errorMessage);
+        updateProgressIfShowing(TransactionProgressDialog.TransactionState.FAILED);
+        stopPaymentStatusMonitoring();
+
+        uiHandler.postDelayed(() -> {
+            dismissProgressDialog();
+            resetTransactionState();
+            showError(errorMessage);
+        }, DIALOG_DISMISS_DELAY);
+    }
+
+    private void handlePaymentCanceled() {
+        showMessage("Payment canceled");
+        resetTransactionState();
+    }
+
+    private void handlePaymentFailed(PaymentSheetResult.Failed failed) {
+        showError("Payment failed: " + failed.getError().getLocalizedMessage());
+        resetTransactionState();
+    }
+
+    private void showTransactionProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+
+        try {
+            progressDialog = new TransactionProgressDialog(requireContext());
+            progressDialog.show();
+            progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing transaction dialog", e);
+            showError("Error displaying transaction progress");
+            resetTransactionState();
+        }
+    }
+
+    private void updateProgressIfShowing(TransactionProgressDialog.TransactionState state) {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.updateState(state);
+        }
+    }
+
+    private void startPaymentStatusMonitoring() {
+        if (currentPaymentIntentId == null) return;
+
+        statusCheckRunnable = new Runnable() {
+            @Override
+            public void run() {
+                checkPaymentStatus();
+                statusCheckHandler.postDelayed(this, STATUS_CHECK_INTERVAL);
+            }
+        };
+
+        statusCheckHandler.postDelayed(statusCheckRunnable, PROGRESS_UPDATE_DELAY);
+    }
+
+    private void checkPaymentStatus() {
+        if (currentPaymentIntentId == null) return;
+
+        stripeRepository.getPaymentIntentStatus(currentPaymentIntentId)
+                .thenAccept(response -> runOnUiThread(() ->
+                        updateProgressDialogBasedOnStatus(response.getStatus())))
+                .exceptionally(throwable -> {
+                    Log.e(TAG, "Failed to check payment status", throwable);
+                    return null;
+                });
+    }
+
+    private void updateProgressDialogBasedOnStatus(String status) {
+        if (progressDialog == null || !progressDialog.isShowing()) return;
+
+        if (isBlockchainOperationInProgress.get()) {
+            return;
+        }
+
+        PaymentStatus paymentStatus = PaymentStatus.fromString(status);
+        progressDialog.updateState(paymentStatus.getProgressState());
+
+        if (paymentStatus.isFinal()) {
+            handleFinalPaymentStatus(paymentStatus);
+        }
+    }
+
+    private void handleFinalPaymentStatus(PaymentStatus status) {
+        stopPaymentStatusMonitoring();
+
+        if (!isBlockchainOperationInProgress.get()) {
+            uiHandler.postDelayed(() -> {
+                dismissProgressDialog();
+                resetTransactionState();
+
+                if (status == PaymentStatus.SUCCEEDED) {
+                    showMessage("Payment completed successfully!");
+                } else {
+                    showError("Payment failed. Please try again.");
+                }
+            }, DIALOG_DISMISS_DELAY);
+        }
+    }
+
+    private void stopPaymentStatusMonitoring() {
+        if (statusCheckRunnable != null) {
+            statusCheckHandler.removeCallbacks(statusCheckRunnable);
+            statusCheckRunnable = null;
         }
     }
 
     private boolean validateInputs() {
-        String recipientAddress = Objects.requireNonNull(recipientAddressTeit.getText()).toString().trim();
-        String amountStr = Objects.requireNonNull(amountTeit.getText()).toString().trim();
+        String recipientAddress = Objects.requireNonNull(recipientAddressTeit.getText())
+                .toString().trim();
+        String amountStr = Objects.requireNonNull(amountTeit.getText())
+                .toString().trim();
 
         if (recipientAddress.isEmpty()) {
             recipientAddressTeit.setError("Please enter recipient address");
@@ -384,29 +530,134 @@ public class FiatTransferFragment extends Fragment {
         }
 
         if (currencySpinner.getSelectedItem() == null) {
-            Toast.makeText(requireContext(), "Please select a currency", Toast.LENGTH_SHORT).show();
+            showMessage("Please select a currency");
             return false;
         }
 
         return true;
     }
 
-    @Override
-    public void onDestroyView() {
-        stopPaymentStatusMonitoring();
-        handler.removeCallbacksAndMessages(null);
-        statusCheckHandler.removeCallbacksAndMessages(null);
+    private void showLoadingState(boolean isLoading) {
+        initiateTransferBtn.setVisibility(isLoading ? View.INVISIBLE : View.VISIBLE);
+        buttonProgressContainer.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+    }
 
-        if (transactionObserver != null) {
-            viewModel.getTransactionResult().removeObserver(transactionObserver);
-            transactionObserver = null;
-        }
+    private void resetTransactionState() {
+        isTransactionInProgress.set(false);
+        isBlockchainOperationInProgress.set(false);
+        currentPaymentIntentId = null;
+    }
+
+    private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
             progressDialog = null;
         }
-        isTransactionInProgress = false;
-        currentPaymentIntentId = null;
+    }
+
+    private void runOnUiThread(Runnable action) {
+        if (getActivity() != null) {
+            requireActivity().runOnUiThread(action);
+        }
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showError(String error) {
+        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        cleanup();
         super.onDestroyView();
+    }
+
+    private void cleanup() {
+        stopPaymentStatusMonitoring();
+        uiHandler.removeCallbacksAndMessages(null);
+        statusCheckHandler.removeCallbacksAndMessages(null);
+
+        if (transactionObserver != null && viewModel != null) {
+            viewModel.getTransactionResult().removeObserver(transactionObserver);
+            transactionObserver = null;
+        }
+
+        if (confirmationObserver != null && viewModel != null) {
+            viewModel.getTransactionConfirmation().removeObserver(confirmationObserver);
+            confirmationObserver = null;
+        }
+
+        dismissProgressDialog();
+        resetTransactionState();
+    }
+
+    /**
+     * Enum for payment status mapping
+     */
+    private enum PaymentStatus {
+        REQUIRES_PAYMENT_METHOD("requires_payment_method",
+                TransactionProgressDialog.TransactionState.SUBMITTING, false),
+        REQUIRES_CONFIRMATION("requires_confirmation",
+                TransactionProgressDialog.TransactionState.SUBMITTING, false),
+        PROCESSING("processing",
+                TransactionProgressDialog.TransactionState.PENDING, false),
+        REQUIRES_CAPTURE("requires_capture",
+                TransactionProgressDialog.TransactionState.CONFIRMING, false),
+        SUCCEEDED("succeeded",
+                TransactionProgressDialog.TransactionState.CONFIRMED, true),
+        CANCELED("canceled",
+                TransactionProgressDialog.TransactionState.FAILED, true),
+        FAILED("failed",
+                TransactionProgressDialog.TransactionState.FAILED, true);
+
+        private final String status;
+        private final TransactionProgressDialog.TransactionState progressState;
+        private final boolean isFinal;
+
+        PaymentStatus(String status,
+                      TransactionProgressDialog.TransactionState progressState,
+                      boolean isFinal) {
+            this.status = status;
+            this.progressState = progressState;
+            this.isFinal = isFinal;
+        }
+
+        static PaymentStatus fromString(String status) {
+            for (PaymentStatus ps : values()) {
+                if (ps.status.equals(status)) {
+                    return ps;
+                }
+            }
+            return FAILED;
+        }
+
+        TransactionProgressDialog.TransactionState getProgressState() {
+            return progressState;
+        }
+
+        boolean isFinal() {
+            return isFinal;
+        }
+    }
+
+    /**
+     * Data class for transfer details
+     */
+    private static class TransferDetails {
+        final String recipientAddress;
+        final double amount;
+        final String stripeCurrency;
+        final Currency currency;
+
+        TransferDetails(String recipientAddress, double amount,
+                        String stripeCurrency, Currency currency) {
+            this.recipientAddress = recipientAddress;
+            this.amount = amount;
+            this.stripeCurrency = stripeCurrency;
+            this.currency = currency;
+        }
     }
 }
