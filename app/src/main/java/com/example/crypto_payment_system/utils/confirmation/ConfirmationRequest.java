@@ -16,4 +16,9 @@ public class ConfirmationRequest {
     public void confirm() {
         onConfirm.run();
     }
+
+    public Runnable getOnConfirm() {
+        return onConfirm;
+    }
+
 }

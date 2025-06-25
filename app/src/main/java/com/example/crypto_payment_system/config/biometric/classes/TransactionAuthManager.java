@@ -105,6 +105,13 @@ public class TransactionAuthManager {
         biometricPrompt.authenticate(promptInfo);
     }
 
+    public void authorizeCardPayment(String amount, String tokenSymbol, AuthCallback callback) {
+        String title = "Authorize card transfer";
+        String subTitle = "Fiat payment";
+        String details = "Pay " + amount;
+        authorizeTransaction(title, subTitle, details, callback);
+    }
+
     /**
      * Authorize token transfer
      */

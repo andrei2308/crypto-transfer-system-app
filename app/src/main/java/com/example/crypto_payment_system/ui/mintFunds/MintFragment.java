@@ -121,29 +121,6 @@ public class MintFragment extends Fragment {
         }
     }
 
-    private void updateCurrencySpinner() {
-        List<Currency> currencies = new ArrayList<>();
-        Currency usdCurrency = CurrencyManager.getCurrencyByCode(USDT);
-        if (usdCurrency != null) {
-            currencies.add(usdCurrency);
-        }
-
-        currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
-        mintCurrencySpinner.setAdapter(currencyAdapter);
-
-        if (!currencies.isEmpty()) {
-            mintCurrencySpinner.setSelection(0);
-        }
-    }
-
-    private void updateCurrencySpinner(String preferredCurrencies) {
-        updateCurrencySpinner();
-    }
-
-    private void resetCurrencySpinner() {
-        updateCurrencySpinner();
-    }
-
     private void observeViewModel() {
         viewModel.resetTransactionConfirmation();
 

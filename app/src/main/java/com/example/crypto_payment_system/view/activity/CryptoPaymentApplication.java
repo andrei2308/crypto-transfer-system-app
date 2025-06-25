@@ -45,6 +45,7 @@ import com.example.crypto_payment_system.domain.account.AccountNetworkInfo;
 import com.example.crypto_payment_system.domain.account.NetworkVerificationCallback;
 import com.example.crypto_payment_system.domain.account.WalletAccount;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
+import com.example.crypto_payment_system.ui.fiatTransfer.FiatTransferFragment;
 import com.example.crypto_payment_system.ui.home.HomeFragment;
 import com.example.crypto_payment_system.ui.liquidity.AddLiquidityFragment;
 import com.example.crypto_payment_system.ui.mintFunds.MintFragment;
@@ -623,6 +624,8 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
             navigateToFragment(new MintFragment());
         } else if (id == R.id.nav_add_liquidity) {
             navigateToFragment(new AddLiquidityFragment());
+        } else if (id == R.id.nav_demo) {
+            navigateToFragment(new FiatTransferFragment());
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

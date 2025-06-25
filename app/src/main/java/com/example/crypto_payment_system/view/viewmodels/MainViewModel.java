@@ -694,6 +694,10 @@ public class MainViewModel extends AndroidViewModel {
 
     private List<ListenerRegistration> transactionListeners = new ArrayList<>();
 
+    public void clearTransactionConfirmation() {
+        transactionConfirmation.setValue(null);
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
