@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/primaryBlue"
+        android:pathData="M12,2C13.1,2 14,2.9 14,4C14,5.1 13.1,6 12,6C10.9,6 10,5.1 10,4C10,2.9 10.9,2 12,2ZM21,9V7L15,3.5C14.8,3.4 14.6,3.3 14.4,3.3L12,4.5L9.6,3.3C9.4,3.3 9.2,3.4 9,3.5L3,7V9L12,13.5L21,9ZM3,15.5V17.5L9,20.5C9.2,20.6 9.4,20.7 9.6,20.7L12,19.5L14.4,20.7C14.6,20.7 14.8,20.6 15,20.5L21,17.5V15.5L12,20L3,15.5Z" />
+    <!-- Bank symbol -->
+    <path
+        android:fillColor="@color/accentOrange"
+        android:pathData="M2,20H22V22H2V20ZM4,18H6V14H4V18ZM8,18H10V12H8V18ZM12,18H14V10H12V18ZM16,18H18V8H16V18ZM20,18H22V6H20V18Z" />
+</vector>

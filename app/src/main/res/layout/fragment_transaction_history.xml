@@ -4,24 +4,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite">
+    android:background="#F5F7FA">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
-            <!-- Header -->
+            <!-- Header Section with Background -->
+            <View
+                android:id="@+id/headerBackground"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@drawable/gradient_header"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Header Controls -->
             <ImageButton
                 android:id="@+id/backButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/exchange_arrow_ripple"
                 android:src="@drawable/ic_arrow_back"
+                android:padding="12dp"
+                app:tint="@color/colorWhite"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -32,107 +44,211 @@
                 android:layout_marginStart="16dp"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:elevation="4dp"
+                android:textColor="@color/colorWhite"
                 app:layout_constraintBottom_toBottomOf="@id/backButton"
                 app:layout_constraintStart_toEndOf="@id/backButton"
                 app:layout_constraintTop_toTopOf="@id/backButton" />
 
-            <!-- Statistics Cards -->
+            <!-- Statistics Card with improved design -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/statisticsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                app:cardCornerRadius="12dp"
-                app:layout_constraintTop_toBottomOf="@id/backButton">
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="120dp"
+                app:cardBackgroundColor="@color/colorWhite"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:padding="24dp">
 
-                    <TextView
-                        android:id="@+id/totalSentLabel"
-                        android:layout_width="wrap_content"
+                    <!-- Sent Section -->
+                    <LinearLayout
+                        android:id="@+id/sentSection"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Total Sent"
-                        android:textColor="@color/textSecondary"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toStartOf="@+id/centerDivider"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent">
 
-                    <TextView
-                        android:id="@+id/totalSentValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/colorNegative"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/icon_background_circle_purple"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_arrow_upward"
+                            app:tint="#E53935" />
+
+                        <TextView
+                            android:id="@+id/totalSentLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="Total Sent"
+                            android:textColor="#757575"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/totalSentValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="#E53935"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- Center Vertical Divider -->
+                    <View
+                        android:id="@+id/centerDivider"
+                        android:layout_width="1dp"
+                        android:layout_height="0dp"
+                        android:background="#E0E0E0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/totalSentLabel" />
-
-                    <TextView
-                        android:id="@+id/totalReceivedLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Total Received"
-                        android:textColor="@color/textSecondary"
+                        app:layout_constraintBottom_toBottomOf="@id/sentSection"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="@id/sentSection" />
 
-                    <TextView
-                        android:id="@+id/totalReceivedValue"
-                        android:layout_width="wrap_content"
+                    <!-- Received Section -->
+                    <LinearLayout
+                        android:id="@+id/receivedSection"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/colorPositive"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:orientation="vertical"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/totalReceivedLabel" />
+                        app:layout_constraintStart_toEndOf="@+id/centerDivider"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/icon_background_circle_green"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_arrow_downward"
+                            app:tint="#43A047" />
+
+                        <TextView
+                            android:id="@+id/totalReceivedLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="Total Received"
+                            android:textColor="#757575"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/totalReceivedValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="#43A047"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
 
                     <View
                         android:id="@+id/divider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginTop="16dp"
-                        android:background="@color/colorGray200"
-                        app:layout_constraintTop_toBottomOf="@id/totalSentValue" />
+                        android:layout_marginTop="24dp"
+                        android:background="#E0E0E0"
+                        app:layout_constraintTop_toBottomOf="@id/sentSection" />
 
-                    <TextView
-                        android:id="@+id/transactionCountLabel"
-                        android:layout_width="wrap_content"
+                    <!-- Transaction Count Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Total Transactions"
-                        android:textColor="@color/textSecondary"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/divider" />
+                        android:layout_marginTop="20dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintTop_toBottomOf="@id/divider">
 
-                    <TextView
-                        android:id="@+id/transactionCountValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/transactionCountLabel" />
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/icon_background_circle"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_receipt"
+                            app:tint="@color/colorPrimary" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/transactionCountLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total Transactions"
+                                android:textColor="#757575"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/transactionCountValue"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="#212121"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Transactions List -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/transactionsRecyclerView"
+            <!-- Transactions Section Header -->
+            <TextView
+                android:id="@+id/transactionsHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:text="Recent Transactions"
+                android:textColor="#212121"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/statisticsCard" />
+
+            <!-- Transactions List with Card Background -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:circularflow_radiusInDP="20dp"
-                android:background="@color/colorBackground"
-                android:layout_marginTop="24dp"
-                android:nestedScrollingEnabled="false"
-                app:layout_constraintTop_toBottomOf="@id/statisticsCard"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/colorWhite"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/transactionsHeader">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/transactionsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:padding="8dp" />
+
+            </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
