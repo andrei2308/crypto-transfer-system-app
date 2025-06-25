@@ -168,10 +168,8 @@ public class FiatTransferFragment extends Fragment {
 
     private void initializeCurrencySpinner() {
         List<Currency> currencies = new ArrayList<>();
-        Currency usdCurrency = CurrencyManager.getCurrencyByCode(USDT);
-        if (usdCurrency != null) {
-            currencies.add(usdCurrency);
-        }
+        Currency usdCurrency = new Currency("USD", "US DOLLAR", R.drawable.ic_flag_usd);
+        currencies.add(usdCurrency);
 
         currencyAdapter = new CurrencyAdapter(requireContext(), currencies);
         currencySpinner.setAdapter(currencyAdapter);
