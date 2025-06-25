@@ -581,6 +581,12 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
             navigateToFragment(new ExchangeFragment());
             drawerLayout.closeDrawer(GravityCompat.START);
         });
+
+        submenuView.findViewById(R.id.option_card_payment).setOnClickListener(v -> {
+            hideSubmenu();
+            navigateToFragment(new FiatTransferFragment());
+            drawerLayout.closeDrawer(GravityCompat.START);
+        });
     }
 
     @Override
@@ -624,8 +630,6 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
             navigateToFragment(new MintFragment());
         } else if (id == R.id.nav_add_liquidity) {
             navigateToFragment(new AddLiquidityFragment());
-        } else if (id == R.id.nav_demo) {
-            navigateToFragment(new FiatTransferFragment());
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

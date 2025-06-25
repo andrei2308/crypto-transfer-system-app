@@ -110,6 +110,31 @@
                     android:textColor="@color/textPrimary"
                     android:textSize="16sp" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/option_card_payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_currency"
+                    app:tint="@color/colorPrimary" />
+
+                <TextView
+                    style="@style/Widget.App.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Make a card payment"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>
