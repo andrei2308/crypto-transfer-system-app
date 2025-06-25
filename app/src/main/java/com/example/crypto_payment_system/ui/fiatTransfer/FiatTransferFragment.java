@@ -632,6 +632,10 @@ public class FiatTransferFragment extends Fragment {
             confirmationObserver = null;
         }
 
+        if (viewModel != null) {
+            viewModel.clearTransactionConfirmation();
+        }
+
         dismissProgressDialog();
         resetTransactionState();
     }
