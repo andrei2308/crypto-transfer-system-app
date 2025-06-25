@@ -24,6 +24,7 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:layout_marginTop="8dp"
+                android:src="@drawable/ic_fiat_transfer"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -92,6 +93,7 @@
                         android:layout_height="32dp"
                         android:background="@drawable/icon_background_circle_purple"
                         android:padding="6dp"
+                        android:src="@drawable/ic_receipt"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:tint="@color/primaryPurple" />
@@ -166,6 +168,7 @@
                         android:layout_height="32dp"
                         android:background="@drawable/icon_background_circle"
                         android:padding="6dp"
+                        android:src="@drawable/ic_currency_exchange"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:tint="@color/accentOrange" />
@@ -340,6 +343,7 @@
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:padding="6dp"
+                        android:src="@drawable/ic_summary_document"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:tint="@color/primaryBlue" />
