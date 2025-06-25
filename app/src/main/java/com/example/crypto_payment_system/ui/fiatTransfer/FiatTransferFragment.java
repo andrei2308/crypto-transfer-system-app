@@ -239,21 +239,31 @@ public class FiatTransferFragment extends Fragment {
     }
 
     private void createPaymentIntent(TransferDetails details) {
-        CreatePaymentIntentRequest request = new CreatePaymentIntentRequest(
-                details.amount,
-                details.stripeCurrency,
-                details.recipientAddress
-        );
+        authManager.authorizeCardPayment(String.valueOf(details.amount), details.currency.getCode(), new TransactionAuthManager.AuthCallback() {
+            @Override
+            public void onAuthorized() {
+                CreatePaymentIntentRequest request = new CreatePaymentIntentRequest(
+                        details.amount,
+                        details.stripeCurrency,
+                        details.recipientAddress
+                );
 
-        showMessage(String.format("Creating payment for %.2f %s",
-                details.amount, details.currency.getCode()));
+                showMessage(String.format("Creating payment for %.2f %s",
+                        details.amount, details.currency.getCode()));
 
-        stripeRepository.createPaymentIntent(request)
-                .thenAccept(response -> runOnUiThread(() -> handlePaymentIntentSuccess(response)))
-                .exceptionally(throwable -> {
-                    runOnUiThread(() -> handlePaymentIntentError(throwable));
-                    return null;
-                });
+                stripeRepository.createPaymentIntent(request)
+                        .thenAccept(response -> runOnUiThread(() -> handlePaymentIntentSuccess(response)))
+                        .exceptionally(throwable -> {
+                            runOnUiThread(() -> handlePaymentIntentError(throwable));
+                            return null;
+                        });
+            }
+
+            @Override
+            public void onDenied(String reason) {
+                Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void handlePaymentIntentSuccess(PaymentIntentResponse response) {
