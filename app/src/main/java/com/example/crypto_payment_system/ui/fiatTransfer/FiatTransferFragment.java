@@ -30,6 +30,7 @@ import com.example.crypto_payment_system.domain.stripe.CreatePaymentIntentReques
 import com.example.crypto_payment_system.domain.stripe.PaymentIntentResponse;
 import com.example.crypto_payment_system.repositories.api.StripeRepository;
 import com.example.crypto_payment_system.repositories.api.StripeRepositoryImpl;
+import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
@@ -56,31 +57,35 @@ public class FiatTransferFragment extends Fragment {
     private static final long PROGRESS_UPDATE_DELAY = 1000L;
     private static final long STATUS_CHECK_INTERVAL = 2000L;
     private static final long DIALOG_DISMISS_DELAY = 2000L;
+
     private final AtomicBoolean isTransactionInProgress = new AtomicBoolean(false);
     private TextInputEditText amountTeit;
     private Spinner currencySpinner;
     private Button initiateTransferBtn;
     private FrameLayout buttonProgressContainer;
     private ProgressBar progressBar;
-    private final AtomicBoolean isBlockchainOperationInProgress = new AtomicBoolean(false);
-    // Handlers
-    private final Handler uiHandler = new Handler(Looper.getMainLooper());
-    private final Handler statusCheckHandler = new Handler(Looper.getMainLooper());
-    private TransactionAuthManager authManager;
-    private PaymentSheet paymentSheet;
-    // UI Components
-    private TextInputEditText recipientAddressTeit;
+
     // Data and Logic Components
     private MainViewModel viewModel;
     private StripeRepository stripeRepository;
-    private String currentPaymentIntentId;
     private CurrencyAdapter currencyAdapter;
+    private final AtomicBoolean isBlockchainOperationInProgress = new AtomicBoolean(false);
+    // Handlers
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
+
     // Transaction State
     private TransactionProgressDialog progressDialog;
+    private final Handler statusCheckHandler = new Handler(Looper.getMainLooper());
+    // UI Components
+    private TextInputEditText recipientAddressTeit;
+    private TransactionAuthManager authManager;
     private Observer<TransactionResult> transactionObserver;
     private Observer<ConfirmationRequest> confirmationObserver;
     private String pendingAmount;
     private String pendingRecipient;
+    private PaymentSheet paymentSheet;
+    private String currentPaymentIntentId;
+    private String lastTransactionHash;
     private Runnable statusCheckRunnable;
 
     @Override
@@ -261,7 +266,9 @@ public class FiatTransferFragment extends Fragment {
 
             @Override
             public void onDenied(String reason) {
+                showLoadingState(false);
                 Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                resetTransactionState();
             }
         });
     }
@@ -361,8 +368,11 @@ public class FiatTransferFragment extends Fragment {
 
             private void handleTransferResult(TransactionResult result) {
                 if (result.isSuccess()) {
-                    if (result.getTransactionHash() != null && progressDialog != null) {
-                        progressDialog.setTransactionHash(result.getTransactionHash());
+                    if (result.getTransactionHash() != null) {
+                        lastTransactionHash = result.getTransactionHash();
+                        if (progressDialog != null) {
+                            progressDialog.setTransactionHash(result.getTransactionHash());
+                        }
                     }
 
                     updateProgressIfShowing(TransactionProgressDialog.TransactionState.CONFIRMING);
@@ -376,9 +386,10 @@ public class FiatTransferFragment extends Fragment {
 
                         isBlockchainOperationInProgress.set(false);
 
+                        // Navigate to TransactionResultFragment after a short delay
                         uiHandler.postDelayed(() -> {
                             dismissProgressDialog();
-                            resetTransactionState();
+                            navigateToTransactionResult(true, result.getMessage());
                         }, DIALOG_DISMISS_DELAY);
                     }, 1000);
                 } else {
@@ -395,6 +406,27 @@ public class FiatTransferFragment extends Fragment {
         viewModel.mintTokens(USDT, pendingAmount);
     }
 
+    private void navigateToTransactionResult(boolean success, String message) {
+        String displayAmount = pendingAmount + " " + USDT;
+
+        TransactionResultFragment resultFragment = TransactionResultFragment.newInstance(
+                success,
+                lastTransactionHash != null ? lastTransactionHash : "",
+                displayAmount,
+                "Fiat Transfer",
+                System.currentTimeMillis(),
+                message != null ? message : (success ? "Transaction completed successfully" : "Transaction failed")
+        );
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_main, resultFragment)
+                .addToBackStack(null)
+                .commit();
+
+        resetTransactionState();
+    }
+
     private void handleMintingCanceled() {
         isBlockchainOperationInProgress.set(false);
         dismissProgressDialog();
@@ -409,8 +441,7 @@ public class FiatTransferFragment extends Fragment {
 
         uiHandler.postDelayed(() -> {
             dismissProgressDialog();
-            resetTransactionState();
-            showError(errorMessage);
+            navigateToTransactionResult(false, errorMessage);
         }, DIALOG_DISMISS_DELAY);
     }
 
@@ -556,6 +587,7 @@ public class FiatTransferFragment extends Fragment {
         isTransactionInProgress.set(false);
         isBlockchainOperationInProgress.set(false);
         currentPaymentIntentId = null;
+        lastTransactionHash = null;
     }
 
     private void dismissProgressDialog() {
