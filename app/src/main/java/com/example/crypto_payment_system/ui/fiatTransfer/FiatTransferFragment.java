@@ -29,12 +29,12 @@ import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.stripe.CreatePaymentIntentRequest;
 import com.example.crypto_payment_system.domain.stripe.PaymentIntentResponse;
 import com.example.crypto_payment_system.repositories.api.StripeRepository;
-import com.example.crypto_payment_system.repositories.api.StripeRepositoryImpl;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
+import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -117,10 +117,8 @@ public class FiatTransferFragment extends Fragment {
         String stripePublishableKey = "pk_test_51Rcoc4Qv2MLQq3uKltqQP5Fsf5Oq7hcBVtbhkzdEndhKKlx0kAKrTAQhlAxhdJyUbdqOM3BMY6nLTNKRlTKrDsi300kI54yv35";
         PaymentConfiguration.init(requireContext(), stripePublishableKey);
 
-        stripeRepository = new StripeRepositoryImpl(
-                ApiConfig.BASE_URL,
-                ApiConfig.USERNAME,
-                ApiConfig.PASSWORD
+        stripeRepository = RepositoryFactory.createStripeRepository(
+                requireContext(), ApiConfig.BASE_URL, ApiConfig.USERNAME, ApiConfig.PASSWORD
         );
 
         paymentSheet = new PaymentSheet(this, this::onPaymentSheetResult);

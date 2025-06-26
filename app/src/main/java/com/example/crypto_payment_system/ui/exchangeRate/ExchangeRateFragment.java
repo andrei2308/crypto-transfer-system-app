@@ -16,7 +16,7 @@ import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.config.ApiConfig;
 import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
-import com.example.crypto_payment_system.repositories.api.ExchangeRateRepositoryImpl;
+import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
 
 import java.text.DecimalFormat;
 
@@ -35,13 +35,8 @@ public class ExchangeRateFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Initialize repository
-        exchangeRateRepository = new ExchangeRateRepositoryImpl(
-                ApiConfig.BASE_URL,
-                ApiConfig.USERNAME,
-                ApiConfig.PASSWORD
-        );
+
+        exchangeRateRepository = RepositoryFactory.createExchangeRepository(requireContext(), ApiConfig.BASE_URL, ApiConfig.USERNAME, ApiConfig.PASSWORD);
     }
     
     @Nullable
