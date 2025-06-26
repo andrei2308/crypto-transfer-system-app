@@ -1,48 +1,44 @@
 package com.example.crypto_payment_system.domain.exchangeRate;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 /**
  * Model class representing an exchange rate from the server
  */
 public class ExchangeRate {
-    private double rate;
-    private String fromCurrency;
-    private String toCurrency;
-    private String timestamp;
+    private Long id;
+    private double eurUsd;
+    private Long lastUpdated;
 
-    // Getters and setters
-    public double getRate() {
-        return rate;
+    public ExchangeRate() {
     }
 
-    public void setRate(double rate) {
-        this.rate = rate;
+    public ExchangeRate(Long id, double eurUsd, Long lastUpdated) {
+        this.id = id;
+        this.eurUsd = eurUsd;
+        this.lastUpdated = lastUpdated;
     }
 
-    public String getFromCurrency() {
-        return fromCurrency;
+    public double getEurUsd() {
+        return eurUsd;
     }
 
-    public void setFromCurrency(String fromCurrency) {
-        this.fromCurrency = fromCurrency;
+    public void setEurUsd(double eurUsd) {
+        this.eurUsd = eurUsd;
     }
 
-    public String getToCurrency() {
-        return toCurrency;
+    public Long getId() {
+        return id;
     }
 
-    public void setToCurrency(String toCurrency) {
-        this.toCurrency = toCurrency;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public Long getLastUpdated() {
+        return lastUpdated;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setLastUpdated(Long lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
+
 } 

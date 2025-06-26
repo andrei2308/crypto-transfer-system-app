@@ -32,7 +32,6 @@ import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
-import com.example.crypto_payment_system.repositories.api.ExchangeRateRepositoryImpl;
 import com.example.crypto_payment_system.repositories.exchange.ExchangeRepository;
 import com.example.crypto_payment_system.repositories.exchange.ExchangeRepositoryImpl;
 import com.example.crypto_payment_system.repositories.token.TokenRepositoryImpl;
@@ -48,6 +47,7 @@ import com.example.crypto_payment_system.service.token.TokenContractServiceImpl;
 import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
 import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
+import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -105,12 +105,8 @@ public class MainViewModel extends AndroidViewModel {
         ExchangeContract exchangeContract = new ExchangeContractImpl(web3Service, tokenService);
         tokenRepository = new TokenRepositoryImpl(web3Service, tokenService);
         exchangeRepository = new ExchangeRepositoryImpl(web3Service, exchangeContract, tokenRepository, firestoreService);
-        
-        exchangeRateRepository = new ExchangeRateRepositoryImpl(
-                ApiConfig.BASE_URL,
-                ApiConfig.USERNAME,
-                ApiConfig.PASSWORD
-        );
+
+        exchangeRateRepository = RepositoryFactory.createExchangeRepository(application.getApplicationContext(), ApiConfig.BASE_URL, ApiConfig.USERNAME, ApiConfig.PASSWORD);
 
         walletManager = new WalletManager(application);
 

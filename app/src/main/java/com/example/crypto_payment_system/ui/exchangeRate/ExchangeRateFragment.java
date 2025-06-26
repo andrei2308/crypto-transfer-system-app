@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.ui.exchangeRate;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +19,7 @@ import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.config.ApiConfig;
 import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
-import com.example.crypto_payment_system.repositories.api.ExchangeRateRepositoryImpl;
+import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
 
 import java.text.DecimalFormat;
 
@@ -35,13 +38,8 @@ public class ExchangeRateFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // Initialize repository
-        exchangeRateRepository = new ExchangeRateRepositoryImpl(
-                ApiConfig.BASE_URL,
-                ApiConfig.USERNAME,
-                ApiConfig.PASSWORD
-        );
+
+        exchangeRateRepository = RepositoryFactory.createExchangeRepository(requireContext(), ApiConfig.BASE_URL, ApiConfig.USERNAME, ApiConfig.PASSWORD);
     }
     
     @Nullable
@@ -88,10 +86,10 @@ public class ExchangeRateFragment extends Fragment {
         
         getActivity().runOnUiThread(() -> {
             DecimalFormat df = new DecimalFormat("#.####");
-            tvExchangeRate.setText(df.format(exchangeRate.getRate()));
-            tvFromCurrency.setText(exchangeRate.getFromCurrency());
-            tvToCurrency.setText(exchangeRate.getToCurrency());
-            tvTimestamp.setText(exchangeRate.getTimestamp());
+            tvExchangeRate.setText(df.format(exchangeRate.getEurUsd()));
+            tvFromCurrency.setText(EURSC);
+            tvToCurrency.setText(USDT);
+            tvTimestamp.setText(String.valueOf(exchangeRate.getLastUpdated()));
         });
     }
     

@@ -31,11 +31,11 @@ import com.example.crypto_payment_system.config.biometric.classes.TransactionAut
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
-import com.example.crypto_payment_system.repositories.api.ExchangeRateRepositoryImpl;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
+import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -364,17 +364,17 @@ public class ExchangeFragment extends Fragment {
 
         exchangeRateValue.setText("Loading...");
 
-        ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepositoryImpl(ApiConfig.BASE_URL, ApiConfig.USERNAME, ApiConfig.PASSWORD);
+        ExchangeRateRepository exchangeRateRepository = RepositoryFactory.createExchangeRepository(requireContext(), ApiConfig.BASE_URL, ApiConfig.USERNAME, ApiConfig.PASSWORD);
 
         exchangeRateRepository.getExchangeRate().thenAccept(exchangeRate -> {
             requireActivity().runOnUiThread(() -> {
 
                 if (fromCurrency.getCode().equals(USDT)) {
-                    exchangeRate.setRate(1 / exchangeRate.getRate());
+                    exchangeRate.setEurUsd(1 / exchangeRate.getEurUsd());
                 }
 
-                if (exchangeRate != null && exchangeRate.getRate() > 0) {
-                    double rate = exchangeRate.getRate();
+                if (exchangeRate != null && exchangeRate.getEurUsd() > 0) {
+                    double rate = exchangeRate.getEurUsd();
 
                     viewModel.setCurrentExchangeRate(rate);
 
