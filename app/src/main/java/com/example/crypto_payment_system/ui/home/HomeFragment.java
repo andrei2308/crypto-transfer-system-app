@@ -3,15 +3,12 @@ package com.example.crypto_payment_system.ui.home;
 import static com.example.crypto_payment_system.config.Constants.EURSC;
 import static com.example.crypto_payment_system.config.Constants.USDT;
 
-import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,16 +21,13 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.databinding.FragmentHomeBinding;
 import com.example.crypto_payment_system.domain.account.User;
-import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.exchangeRate.ExchangeRate;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
 import com.example.crypto_payment_system.ui.exchange.ExchangeFragment;
 import com.example.crypto_payment_system.ui.transaction.TransactionDetailsDialogFragment;
 import com.example.crypto_payment_system.ui.transaction.TransactionHistoryFragment;
 import com.example.crypto_payment_system.utils.adapter.balancePager.BalancePagerAdapter;
-import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.adapter.transaction.TransactionAdapter;
-import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -203,7 +197,7 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     private void updateExchangeRateUI(ExchangeRate exchangeRate) {
         if (exchangeRate == null) return;
 
-        double rate = exchangeRate.getRate();
+        double rate = exchangeRate.getEurUsd();
 
         viewModel.setCurrentExchangeRate(rate);
 

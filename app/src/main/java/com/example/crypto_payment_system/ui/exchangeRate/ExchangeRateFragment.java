@@ -1,5 +1,8 @@
 package com.example.crypto_payment_system.ui.exchangeRate;
 
+import static com.example.crypto_payment_system.config.Constants.EURSC;
+import static com.example.crypto_payment_system.config.Constants.USDT;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,10 +86,10 @@ public class ExchangeRateFragment extends Fragment {
         
         getActivity().runOnUiThread(() -> {
             DecimalFormat df = new DecimalFormat("#.####");
-            tvExchangeRate.setText(df.format(exchangeRate.getRate()));
-            tvFromCurrency.setText(exchangeRate.getFromCurrency());
-            tvToCurrency.setText(exchangeRate.getToCurrency());
-            tvTimestamp.setText(exchangeRate.getTimestamp());
+            tvExchangeRate.setText(df.format(exchangeRate.getEurUsd()));
+            tvFromCurrency.setText(EURSC);
+            tvToCurrency.setText(USDT);
+            tvTimestamp.setText(String.valueOf(exchangeRate.getLastUpdated()));
         });
     }
     

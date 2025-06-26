@@ -370,11 +370,11 @@ public class ExchangeFragment extends Fragment {
             requireActivity().runOnUiThread(() -> {
 
                 if (fromCurrency.getCode().equals(USDT)) {
-                    exchangeRate.setRate(1 / exchangeRate.getRate());
+                    exchangeRate.setEurUsd(1 / exchangeRate.getEurUsd());
                 }
 
-                if (exchangeRate != null && exchangeRate.getRate() > 0) {
-                    double rate = exchangeRate.getRate();
+                if (exchangeRate != null && exchangeRate.getEurUsd() > 0) {
+                    double rate = exchangeRate.getEurUsd();
 
                     viewModel.setCurrentExchangeRate(rate);
 
