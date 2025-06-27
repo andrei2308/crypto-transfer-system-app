@@ -564,7 +564,6 @@ public class ExchangeFragment extends Fragment {
             }, 2000);
 
             if (result.isSuccess()) {
-                fromAmountEditText.setText("");
                 exchangeRateValue.setText("--");
                 estimatedAmountValue.setText("--");
                 refreshBalances();

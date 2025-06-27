@@ -310,7 +310,6 @@ public class AddLiquidityFragment extends Fragment {
             }, 2000);
 
             if (result.isSuccess()) {
-                amountEditText.setText("");
                 refreshBalances();
             }
         };
