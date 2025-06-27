@@ -8,7 +8,6 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -105,22 +104,24 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             String exchangeRate = "100000000"; // exchange rate with 8 decimals for blockchain
             boolean isOutgoing = transaction.getWalletAddress().equalsIgnoreCase(currentUserAddress);
             if (!transaction.getWalletAddressTo().equals(transaction.getWalletAddress())) {
-                if (transaction.getSentCurrency() == 1 && transaction.getWalletAddress().equals(currentUserAddress)) {
+                if (transaction.getSentCurrency() == 1 && transaction.getWalletAddress().equals(currentUserAddress) && currentSelectedCurrency.equals(EURSC)) {
                     currency += " " + EURSC;
-                } else if (transaction.getSentCurrency() == 2 && transaction.getWalletAddress().equals(currentUserAddress)) {
+                } else if (transaction.getSentCurrency() == 2 && transaction.getWalletAddress().equals(currentUserAddress) && currentSelectedCurrency.equals(USDT)) {
                     currency += " " + USDT;
-                } else if (transaction.getReceivedCurrency() == 1 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
+                } else if (transaction.getReceivedCurrency() == 1 && transaction.getWalletAddressTo().equals(currentUserAddress) && currentSelectedCurrency.equals(EURSC)) {
                     currency += " " + EURSC;
                     if (!prefferedCurrencies.contains(EURSC)) {
                         exchangeRate = transaction.getExchangeRate();
                     }
-                } else if (transaction.getReceivedCurrency() == 2 && transaction.getWalletAddressTo().equals(currentUserAddress)) {
+                } else if (transaction.getReceivedCurrency() == 2 && transaction.getWalletAddressTo().equals(currentUserAddress) && currentSelectedCurrency.equals(USDT)) {
                     currency += " " + USDT;
                     if (!prefferedCurrencies.contains(USDT)) {
                         exchangeRate = transaction.getExchangeRate();
                     }
                 } else if (transaction.getTransactionType().equals(MINT_USD)){
                     currency += " " + USDT;
+                } else {
+                    return;
                 }
             } else {
                 if (transaction.getSentCurrency() == 1 && currentSelectedCurrency.equals(EURSC)) {
