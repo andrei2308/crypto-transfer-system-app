@@ -33,7 +33,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
     private String currentSelectedCurrency = EURSC;
 
     public interface TransactionClickListener {
-        void onTransactionClick(Transaction transaction);
+        void onTransactionClick(Transaction transaction, String amount, int amountColor);
     }
 
     public TransactionAdapter(TransactionClickListener listener, String currentUserAddress) {
@@ -151,9 +151,10 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             }
             amountTextView.setTextColor(ContextCompat.getColor(itemView.getContext(), amountColor));
 
+            String finalAmount = amount;
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onTransactionClick(transaction);
+                    listener.onTransactionClick(transaction, finalAmount, amountColor);
                 }
             });
         }
