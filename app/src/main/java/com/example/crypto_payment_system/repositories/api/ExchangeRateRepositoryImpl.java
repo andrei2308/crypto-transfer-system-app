@@ -59,7 +59,7 @@ public class ExchangeRateRepositoryImpl implements ExchangeRateRepository {
             @Override
             public okhttp3.Response intercept(Chain chain) throws IOException {
                 Request original = chain.request();
-
+                tokenManager.clearToken();
                 if (!tokenManager.isTokenValid()) {
                     try {
                         authRepository.login(serviceUsername, servicePassword).get();

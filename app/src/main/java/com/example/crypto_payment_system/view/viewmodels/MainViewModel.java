@@ -694,6 +694,10 @@ public class MainViewModel extends AndroidViewModel {
         transactionConfirmation.setValue(null);
     }
 
+    public void clearTransactionState() {
+        transactionResult.setValue(null);
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();

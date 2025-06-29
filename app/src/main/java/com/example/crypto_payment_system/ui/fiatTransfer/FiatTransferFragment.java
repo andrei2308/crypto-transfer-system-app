@@ -318,6 +318,11 @@ public class FiatTransferFragment extends Fragment {
     }
 
     private void executeMintAndTransfer() {
+
+        viewModel.clearTransactionConfirmation();
+
+        viewModel.clearTransactionState();
+
         if (transactionObserver != null) {
             viewModel.getTransactionResult().removeObserver(transactionObserver);
         }
