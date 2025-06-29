@@ -35,6 +35,7 @@ import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
 import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
+import com.example.crypto_payment_system.utils.validations.Validate;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -557,6 +558,11 @@ public class FiatTransferFragment extends Fragment {
 
         if (amountStr.isEmpty()) {
             amountTeit.setError("Please enter an amount");
+            return false;
+        }
+
+        if (!Validate.hasAmount(amountStr, USDT, viewModel)) {
+            amountTeit.setError(getString(R.string.insufficient_balance));
             return false;
         }
 

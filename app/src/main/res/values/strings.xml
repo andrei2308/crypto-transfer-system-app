@@ -153,6 +153,7 @@
     <string name="preparing_transaction">Preparing transaction...</string>
     <string name="blockchain_transaction">Blockchain Transaction</string>
     <string name="view_explorer">View Explorer</string>
+    <string name="insufficient_balance">Insufficient funds !</string>
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
         <item>EURSC (Euro stablecoin)</item>

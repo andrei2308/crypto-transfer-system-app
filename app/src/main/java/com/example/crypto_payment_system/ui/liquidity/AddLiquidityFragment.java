@@ -28,6 +28,7 @@ import com.example.crypto_payment_system.ui.transaction.TransactionResultFragmen
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
+import com.example.crypto_payment_system.utils.validations.Validate;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -105,6 +106,10 @@ public class AddLiquidityFragment extends Fragment {
             String amount = Objects.requireNonNull(amountEditText.getText()).toString();
 
             if (selectedCurrency != null && !amount.isEmpty()) {
+                if (!Validate.hasAmount(amount, selectedCurrency.getCode(), viewModel)) {
+                    amountEditText.setError(getString(R.string.insufficient_balance));
+                    return;
+                }
                 addLiquidity(selectedCurrency.getCode(), amount);
             } else if (selectedCurrency == null) {
                 Toast.makeText(requireContext(), R.string.please_select_a_currency, Toast.LENGTH_SHORT).show();

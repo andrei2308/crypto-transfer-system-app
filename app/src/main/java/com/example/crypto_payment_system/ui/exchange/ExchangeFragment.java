@@ -36,6 +36,7 @@ import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
 import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
+import com.example.crypto_payment_system.utils.validations.Validate;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -113,7 +114,11 @@ public class ExchangeFragment extends Fragment {
             String amount = Objects.requireNonNull(fromAmountEditText.getText()).toString();
 
             if (fromCurrency != null && !amount.isEmpty()) {
-                executeExchange(fromCurrency.getCode(), amount);
+                if (Validate.hasAmount(amount, fromCurrency.getCode(), viewModel)) {
+                    executeExchange(fromCurrency.getCode(), amount);
+                } else {
+                    fromAmountEditText.setError(getString(R.string.insufficient_balance));
+                }
             } else {
                 Toast.makeText(requireContext(), R.string.please_select_a_currency_and_enter_an_amount, Toast.LENGTH_SHORT).show();
             }
@@ -360,7 +365,6 @@ public class ExchangeFragment extends Fragment {
         Currency toCurrency = toCurrencyAdapter.getSelectedCurrency();
 
         String fromCode = fromCurrency.getCode();
-        String toCode = toCurrency.getCode();
 
         exchangeRateValue.setText("Loading...");
 
