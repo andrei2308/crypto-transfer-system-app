@@ -367,8 +367,8 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
     }
 
     @Override
-    public void onTransactionClick(Transaction transaction) {
-        TransactionDetailsDialogFragment dialog = TransactionDetailsDialogFragment.newInstance(transaction);
+    public void onTransactionClick(Transaction transaction, String amount, int amountColor) {
+        TransactionDetailsDialogFragment dialog = TransactionDetailsDialogFragment.newInstance(transaction, amount, amountColor);
         dialog.show(requireActivity().getSupportFragmentManager(), "transaction_details");
     }
 

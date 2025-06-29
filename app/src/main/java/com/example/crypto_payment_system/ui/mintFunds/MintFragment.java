@@ -234,7 +234,6 @@ public class MintFragment extends Fragment {
             }, 2000);
 
             if (result.isSuccess()) {
-                mintAmountEditText.setText("");
                 refreshBalances();
             }
         };

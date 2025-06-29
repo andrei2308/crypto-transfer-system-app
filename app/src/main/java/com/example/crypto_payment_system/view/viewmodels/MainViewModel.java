@@ -661,7 +661,7 @@ public class MainViewModel extends AndroidViewModel {
             boolean include = false;
 
             if (EURSC.equals(currency)) {
-                if (type.equals(EUR_TRANSFER) || type.equals(EUR_TO_USD) || type.equals(EUR_TO_USD_TRANSFER)) {
+                if (type.equals(EUR_TRANSFER) || type.equals(EUR_TO_USD) || (type.equals(EUR_TO_USD_TRANSFER) && transaction.getWalletAddress().equals(getActiveAccount().getValue().getAddress()))) {
                     include = true;
                 } else if (type.equals(ADD_LIQUIDITY) && transaction.getSentCurrency() == 1) {
                     include = true;
@@ -669,7 +669,7 @@ public class MainViewModel extends AndroidViewModel {
                     include = true;
                 }
             } else if (USDT.equals(currency)) {
-                if (type.equals(USD_TRANSFER) || type.equals(USD_TO_EUR_TRANSFER) || type.equals(USD_TO_EUR)) {
+                if (type.equals(USD_TRANSFER) || (type.equals(USD_TO_EUR_TRANSFER) && transaction.getWalletAddress().equals(getActiveAccount().getValue().getAddress())) || type.equals(USD_TO_EUR)) {
                     include = true;
                 } else if (type.equals(ADD_LIQUIDITY) && transaction.getSentCurrency() == 2) {
                     include = true;
@@ -692,6 +692,10 @@ public class MainViewModel extends AndroidViewModel {
 
     public void clearTransactionConfirmation() {
         transactionConfirmation.setValue(null);
+    }
+
+    public void clearTransactionState() {
+        transactionResult.setValue(null);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.example.crypto_payment_system.ui.transaction;
 
-import static com.example.crypto_payment_system.config.Constants.ETH;
-
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -9,7 +7,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,19 +18,19 @@ import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.databinding.DialogTransactionDetailsBinding;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class TransactionDetailsDialogFragment extends DialogFragment {
 
     private DialogTransactionDetailsBinding binding;
     private Transaction transaction;
+    private int amountColor;
 
-    public static TransactionDetailsDialogFragment newInstance(Transaction transaction) {
+    public static TransactionDetailsDialogFragment newInstance(Transaction transaction, String amount, int amountColor) {
         TransactionDetailsDialogFragment fragment = new TransactionDetailsDialogFragment();
         Bundle args = new Bundle();
 
-        args.putString("amount", transaction.getAmount());
+        args.putString("amount", amount);
         args.putLong("timestamp", transaction.getTimestamp());
         args.putString("tokenAddress", transaction.getTokenAddress());
         args.putString("transactionHash", transaction.getTransactionHash());
@@ -43,6 +40,7 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         args.putString("exchangeRate", transaction.getExchangeRate());
         args.putInt("sentCurrency", transaction.getSentCurrency());
         args.putInt("receivedCurrency", transaction.getReceivedCurrency());
+        args.putInt("amountColor", amountColor);
 
         fragment.setArguments(args);
         return fragment;
@@ -63,6 +61,7 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
             String exchangeRate = getArguments().getString("exchangeRate","");
             int sentCurrency = getArguments().getInt("sentCurrency");
             int receivedCurrency = getArguments().getInt("receivedCurrency");
+            amountColor = getArguments().getInt("amountColor");
 
             transaction = new Transaction(
                     amount, timestamp, tokenAddress, transactionHash, transactionType, walletAddress,exchangeRate,sentCurrency,receivedCurrency,walletaddressTo
@@ -91,8 +90,10 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         String formattedType = formatTransactionType(transaction.getTransactionType());
         binding.transactionTypeValue.setText(formattedType);
 
-        String amount = formatAmount(transaction);
+        String amount = transaction.getAmount();
+
         binding.transactionAmountValue.setText(amount);
+        binding.transactionAmountValue.setTextColor(amountColor);
 
         String formattedDate = formatTimestamp(transaction.getTimestamp());
         binding.transactionTimestampValue.setText(formattedDate);
@@ -120,7 +121,6 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         // View on blockchain explorer (example: Etherscan)
         binding.viewOnExplorerButton.setOnClickListener(v -> {
 //            openUrl("https://sepolia.etherscan.io/tx/" + transaction.getTransactionHash());
-            Toast.makeText(requireContext(), "To be implemented", Toast.LENGTH_SHORT).show(); // TODO: when migrating to Sepolia
         });
     }
 
@@ -150,21 +150,6 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         }
 
         return result.toString();
-    }
-
-    private String formatAmount(Transaction transaction) {
-        BigDecimal amount;
-        String amountStr = transaction.getAmount();
-        try {
-            amount = new BigDecimal(amountStr)
-                    .divide(new BigDecimal("1000000"));
-        } catch (Exception e) {
-            amount = BigDecimal.ZERO;
-        }
-
-        String currency = transaction.getSentCurrency() == 2 ? "USD" : "EUR";
-
-        return amount.abs().toPlainString() + " " + currency;
     }
 
     private String formatTimestamp(long timestamp) {
