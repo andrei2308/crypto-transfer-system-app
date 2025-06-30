@@ -97,14 +97,14 @@ public class ExchangeRateFragment extends Fragment {
      * Handle API errors
      */
     private void handleError(Throwable throwable) {
-        Log.e(TAG, "Error fetching exchange rate", throwable);
+        Log.e(TAG, getString(R.string.error_fetching_exchange_rate), throwable);
         
         if (getActivity() == null || !isAdded()) return;
         
         getActivity().runOnUiThread(() -> {
-            tvExchangeRate.setText("Error");
-            Toast.makeText(getContext(), 
-                    "Failed to load exchange rate: " + throwable.getMessage(),
+            tvExchangeRate.setText(R.string.error);
+            Toast.makeText(getContext(),
+                    getString(R.string.failed_to_load_exchange_rate) + throwable.getMessage(),
                     Toast.LENGTH_SHORT).show();
         });
     }

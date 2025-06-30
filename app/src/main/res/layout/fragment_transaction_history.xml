@@ -15,7 +15,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Header Section with Background -->
             <View
                 android:id="@+id/headerBackground"
                 android:layout_width="match_parent"
@@ -23,7 +22,6 @@
                 android:background="@drawable/gradient_header"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Header Controls -->
             <ImageButton
                 android:id="@+id/backButton"
                 android:layout_width="48dp"
@@ -50,7 +48,6 @@
                 app:layout_constraintStart_toEndOf="@id/backButton"
                 app:layout_constraintTop_toTopOf="@id/backButton" />
 
-            <!-- Statistics Card with improved design -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/statisticsCard"
                 android:layout_width="match_parent"
@@ -67,7 +64,6 @@
                     android:layout_height="wrap_content"
                     android:padding="24dp">
 
-                    <!-- Sent Section -->
                     <LinearLayout
                         android:id="@+id/sentSection"
                         android:layout_width="0dp"
@@ -91,7 +87,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:text="Total Sent"
+                            android:text="@string/total_sent"
                             android:textColor="#757575"
                             android:textSize="14sp" />
 
@@ -106,7 +102,6 @@
 
                     </LinearLayout>
 
-                    <!-- Center Vertical Divider -->
                     <View
                         android:id="@+id/centerDivider"
                         android:layout_width="1dp"
@@ -117,7 +112,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/sentSection" />
 
-                    <!-- Received Section -->
                     <LinearLayout
                         android:id="@+id/receivedSection"
                         android:layout_width="0dp"
@@ -141,7 +135,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:text="Total Received"
+                            android:text="@string/total_received"
                             android:textColor="#757575"
                             android:textSize="14sp" />
 
@@ -164,7 +158,6 @@
                         android:background="#E0E0E0"
                         app:layout_constraintTop_toBottomOf="@id/sentSection" />
 
-                    <!-- Transaction Count Section -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -192,7 +185,7 @@
                                 android:id="@+id/transactionCountLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Total Transactions"
+                                android:text="@string/total_transactions"
                                 android:textColor="#757575"
                                 android:textSize="14sp" />
 
@@ -220,14 +213,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
-                android:text="Recent Transactions"
+                android:text="@string/recent_transactions"
                 android:textColor="#212121"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/statisticsCard" />
 
-            <!-- Transactions List with Card Background -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

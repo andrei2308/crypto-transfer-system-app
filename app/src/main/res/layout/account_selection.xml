@@ -28,7 +28,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- IMPORTANT: Updated spinner to be fully clickable -->
         <Spinner
             android:id="@+id/accountsSpinner"
             android:layout_width="0dp"

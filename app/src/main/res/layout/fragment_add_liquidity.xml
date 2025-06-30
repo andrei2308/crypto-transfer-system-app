@@ -14,7 +14,6 @@
         android:paddingBottom="32dp"
         tools:context=".ui.liquidity.AddLiquidityFragment">
 
-        <!-- Enhanced Header with Icon -->
         <LinearLayout
             android:id="@+id/liquidityHeaderContainer"
             android:layout_width="match_parent"
@@ -46,7 +45,6 @@
                 android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
-        <!-- Enhanced Wallet Balance Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/walletBalanceCardView"
             android:layout_width="match_parent"
@@ -100,7 +98,6 @@
                     android:background="@color/dividerColorLight"
                     app:layout_constraintTop_toBottomOf="@id/walletIcon" />
 
-                <!-- Enhanced EUR Balance -->
                 <LinearLayout
                     android:id="@+id/eurBalanceContainer"
                     android:layout_width="match_parent"
@@ -140,7 +137,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Euro"
+                            android:text="@string/euro"
                             android:textSize="12sp"
                             android:textColor="@color/textMuted" />
                     </LinearLayout>
@@ -155,7 +152,6 @@
                         android:textColor="@color/liquiditySecondary" />
                 </LinearLayout>
 
-                <!-- Enhanced USD Balance -->
                 <LinearLayout
                     android:id="@+id/usdBalanceContainer"
                     android:layout_width="match_parent"
@@ -195,7 +191,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="US Dollar"
+                            android:text="@string/us_dollar"
                             android:textSize="12sp"
                             android:textColor="@color/textMuted" />
                     </LinearLayout>
@@ -212,7 +208,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Enhanced Contract Balance Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/contractBalanceCardView"
             android:layout_width="match_parent"
@@ -266,7 +261,6 @@
                     android:background="@color/dividerColorLight"
                     app:layout_constraintTop_toBottomOf="@id/contractIcon" />
 
-                <!-- Enhanced Contract EUR Balance -->
                 <LinearLayout
                     android:id="@+id/contractEurBalanceContainer"
                     android:layout_width="match_parent"
@@ -306,7 +300,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Contract Pool"
+                            android:text="@string/contract_pool"
                             android:textSize="12sp"
                             android:textColor="@color/textMuted" />
                     </LinearLayout>
@@ -321,7 +315,6 @@
                         android:textColor="@color/liquidityAccent" />
                 </LinearLayout>
 
-                <!-- Enhanced Contract USD Balance -->
                 <LinearLayout
                     android:id="@+id/contractUsdBalanceContainer"
                     android:layout_width="match_parent"
@@ -361,7 +354,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Contract Pool"
+                            android:text="@string/contract_pool"
                             android:textSize="12sp"
                             android:textColor="@color/textMuted" />
                     </LinearLayout>
@@ -378,7 +371,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Enhanced Add Liquidity Input Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/addLiquidityCardView"
             android:layout_width="match_parent"
@@ -441,8 +433,8 @@
                     android:textSize="16sp"
                     android:textColor="@color/darkSlate"
                     android:textStyle="bold"
-                    android:drawableStart="@drawable/ic_currency"
                     android:drawablePadding="8dp"
+                    app:drawableStartCompat="@drawable/ic_currency"
                     app:drawableTint="@color/liquidityTertiary"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/addLiquidityDivider" />
@@ -517,7 +509,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/amountInputLayout" />
 
-                <!-- Enhanced Loading Overlay for Button -->
                 <FrameLayout
                     android:id="@+id/buttonProgressContainer"
                     android:layout_width="0dp"
@@ -561,7 +552,6 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </FrameLayout>
 
-                <!-- Enhanced Security Note -->
                 <LinearLayout
                     android:id="@+id/liquiditySecurityNote"
                     android:layout_width="wrap_content"
@@ -585,7 +575,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Funds are added to the liquidity pool securely"
+                        android:text="@string/funds_are_added_to_the_liquidity_pool_securely"
                         android:textSize="13sp"
                         android:textColor="@color/textSecondary"
                         android:layout_marginStart="8dp" />
@@ -593,7 +583,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Main Progress Bar -->
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyle"

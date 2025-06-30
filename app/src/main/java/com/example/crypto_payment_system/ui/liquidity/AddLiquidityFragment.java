@@ -98,7 +98,7 @@ public class AddLiquidityFragment extends Fragment {
         addLiquidityButton.setOnClickListener(v -> {
             // Prevent multiple simultaneous transactions
             if (isTransactionInProgress) {
-                Toast.makeText(requireContext(), "Transaction already in progress", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.transaction_already_in_progress, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -236,7 +236,7 @@ public class AddLiquidityFragment extends Fragment {
 
             @Override
             public void onDenied(String reason) {
-                Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.transaction_cancelled + reason, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -254,7 +254,7 @@ public class AddLiquidityFragment extends Fragment {
 
             simulateTransactionProgress();
         } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_showing_transaction_dialog + e.getMessage(), Toast.LENGTH_SHORT).show();
             isTransactionInProgress = false;
         }
     }
@@ -369,11 +369,11 @@ public class AddLiquidityFragment extends Fragment {
         if (balances == null) return;
 
         if (balances.containsKey(EURSC)) {
-            contractEurBalanceValue.setText(balances.get(EURSC).getFormattedContractBalance() + " EUR");
+            contractEurBalanceValue.setText(balances.get(EURSC).getFormattedContractBalance() + " EURSC");
         }
 
         if (balances.containsKey(USDT)) {
-            contractUsdBalanceValue.setText(balances.get(USDT).getFormattedContractBalance() + " USD");
+            contractUsdBalanceValue.setText(balances.get(USDT).getFormattedContractBalance() + " USDT");
         }
     }
 

@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
-    <!-- Enhanced User Icon with Gradient Background and Shadow -->
     <androidx.cardview.widget.CardView
         android:id="@+id/userIconContainer"
         android:layout_width="64dp"
@@ -32,7 +31,6 @@
             app:tint="@color/white" />
     </androidx.cardview.widget.CardView>
 
-    <!-- User Info Container with Enhanced Typography -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -57,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="0x7A1b...8F4d"
+            android:text="@string/_0x7a1b_8f4d"
             android:textColor="@color/textPrimary"
             android:textSize="17sp"
             android:textStyle="bold"
@@ -65,7 +63,6 @@
             android:singleLine="true"
             android:ellipsize="middle" />
 
-        <!-- Enhanced Connected Status with Icon -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,12 +86,11 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Optional Network Selection Button -->
     <com.google.android.material.chip.Chip
         android:id="@+id/networkChip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ethereum Mainnet"
+        android:text="@string/ethereum_sepolia"
         android:textColor="@color/textOnPrimary"
         android:textSize="12sp"
         app:chipBackgroundColor="@color/colorPrimaryLight"

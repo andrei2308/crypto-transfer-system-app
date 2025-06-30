@@ -44,6 +44,6 @@
         android:src="@drawable/ic_delete"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:padding="4dp"
-        android:contentDescription="Delete account" />
+        android:contentDescription="@string/delete_account" />
 
 </LinearLayout>

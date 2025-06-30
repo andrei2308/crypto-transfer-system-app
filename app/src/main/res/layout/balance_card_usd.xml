@@ -5,13 +5,11 @@
     android:layout_height="wrap_content"
     app:cardBackgroundColor="@color/colorBackground">
 
-    <!-- Gradient background for the card -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/balance_card_gradient" />
 
-    <!-- Decorative patterns -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -31,7 +29,6 @@
         android:layout_height="wrap_content"
         android:padding="24dp">
 
-        <!-- Wallet Icon and Balance Label -->
         <androidx.cardview.widget.CardView
             android:id="@+id/iconContainer"
             android:layout_width="40dp"
@@ -65,7 +62,6 @@
             app:layout_constraintTop_toTopOf="@id/iconContainer"
             app:layout_constraintBottom_toBottomOf="@id/iconContainer" />
 
-        <!-- Divider for visual separation -->
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
@@ -74,7 +70,6 @@
             android:background="#30FFFFFF"
             app:layout_constraintTop_toBottomOf="@id/iconContainer" />
 
-        <!-- Balance Display -->
         <LinearLayout
             android:id="@+id/balanceContainer"
             android:layout_width="match_parent"
@@ -83,16 +78,14 @@
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/divider">
 
-            <!-- Currency Label -->
             <TextView
                 android:id="@+id/currencyLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="USDT Balance"
+                android:text="@string/usdt_balance"
                 android:textColor="#E0FFFFFF"
                 android:textSize="14sp" />
 
-            <!-- Large Balance Display -->
             <TextView
                 android:id="@+id/balanceValue"
                 android:layout_width="match_parent"
@@ -102,7 +95,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:text="$ 1,234.56"
+                android:text="@string/_1_234_57"
                 android:textColor="@color/white"
                 android:textSize="32sp"
                 android:textStyle="bold" />
@@ -128,7 +121,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Updated just now"
+                android:text="@string/updated_just_now"
                 android:textColor="#E0FFFFFF"
                 android:textSize="12sp"/>
         </LinearLayout>

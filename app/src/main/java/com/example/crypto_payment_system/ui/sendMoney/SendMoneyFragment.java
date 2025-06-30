@@ -80,7 +80,7 @@ public class SendMoneyFragment extends Fragment {
 
         sendMoneyBtn.setOnClickListener(view -> {
             if (isTransactionInProgress) {
-                Toast.makeText(requireContext(), "Transaction already in progress", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.transaction_already_in_progress, Toast.LENGTH_SHORT).show();
                 return;
             }
             sendMoney();
@@ -194,7 +194,7 @@ public class SendMoneyFragment extends Fragment {
 
             simulateTransactionProgress();
         } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_showing_transaction_dialog + e.getMessage(), Toast.LENGTH_SHORT).show();
             isTransactionInProgress = false;
         }
     }
@@ -363,11 +363,11 @@ public class SendMoneyFragment extends Fragment {
 
                 @Override
                 public void onDenied(String reason) {
-                    Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.transaction_cancelled + reason, Toast.LENGTH_SHORT).show();
                 }
             });
         } catch (NumberFormatException e) {
-            amountTeit.setError("Please enter a valid number");
+            amountTeit.setError(getString(R.string.please_enter_a_valid_amount));
             isTransactionInProgress = false;
         }
     }
@@ -381,11 +381,11 @@ public class SendMoneyFragment extends Fragment {
             buttonProgressContainer.setVisibility(View.VISIBLE);
             buttonProgressContainer.setAlpha(1f);
 
-            System.out.println("ShowLoading called with isLoading = true");
+            System.out.println(getString(R.string.showloading_called_with_isloading_true));
         } else {
             buttonProgressContainer.setVisibility(View.GONE);
 
-            System.out.println("ShowLoading called with isLoading = false");
+            System.out.println(getString(R.string.showloading_called_with_isloading_false));
         }
     }
 }

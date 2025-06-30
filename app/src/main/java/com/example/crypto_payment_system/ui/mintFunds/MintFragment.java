@@ -85,7 +85,7 @@ public class MintFragment extends Fragment {
 
         mintButton.setOnClickListener(v -> {
             if (isTransactionInProgress) {
-                Toast.makeText(requireContext(), "Transaction already in progress", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.transaction_already_in_progress, Toast.LENGTH_SHORT).show();
                 return;
             }
             mintFunds();
@@ -123,10 +123,10 @@ public class MintFragment extends Fragment {
             if (confirmationRequest == null) return;
 
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("Confirm Transaction");
+            builder.setTitle(R.string.confirm_transaction);
             builder.setMessage(confirmationRequest.getMessage());
 
-            builder.setPositiveButton("Confirm", (dialog, which) -> {
+            builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
                 confirmationRequest.confirm();
 
                 showTransactionProgressDialog();
@@ -134,7 +134,7 @@ public class MintFragment extends Fragment {
                 viewModel.resetTransactionConfirmation();
             });
 
-            builder.setNegativeButton("Cancel", (dialog, which) -> {
+            builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
                 isTransactionInProgress = false;
                 viewModel.resetTransactionConfirmation();
             });
@@ -161,7 +161,7 @@ public class MintFragment extends Fragment {
 
             simulateTransactionProgress();
         } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_showing_transaction_dialog + e.getMessage(), Toast.LENGTH_SHORT).show();
             isTransactionInProgress = false;
         }
     }
@@ -279,14 +279,14 @@ public class MintFragment extends Fragment {
         String amountStr = Objects.requireNonNull(mintAmountEditText.getText()).toString().trim();
 
         if (amountStr.isEmpty()) {
-            mintAmountEditText.setError("Please enter the amount to mint");
+            mintAmountEditText.setError(getString(R.string.please_enter_the_amount_to_mint));
             return;
         }
 
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
-                mintAmountEditText.setError("Amount must be greater than zero");
+                mintAmountEditText.setError(getString(R.string.amount_must_be_greater_than_zero));
                 return;
             }
 
@@ -304,12 +304,12 @@ public class MintFragment extends Fragment {
 
                 @Override
                 public void onDenied(String reason) {
-                    Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.transaction_cancelled + reason, Toast.LENGTH_SHORT).show();
                 }
             });
 
         } catch (NumberFormatException e) {
-            mintAmountEditText.setError("Please enter a valid amount");
+            mintAmountEditText.setError(getString(R.string.please_enter_a_valid_amount));
             isTransactionInProgress = false;
         }
     }
