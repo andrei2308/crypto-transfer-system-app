@@ -52,9 +52,7 @@ public class ExchangeRateFragment extends Fragment {
         tvFromCurrency = view.findViewById(R.id.tv_from_currency);
         tvToCurrency = view.findViewById(R.id.tv_to_currency);
         tvTimestamp = view.findViewById(R.id.tv_timestamp);
-        
-        view.findViewById(R.id.btn_refresh).setOnClickListener(v -> fetchExchangeRate());
-        
+
         return view;
     }
     
@@ -68,7 +66,7 @@ public class ExchangeRateFragment extends Fragment {
      * Fetch exchange rate data from the API
      */
     private void fetchExchangeRate() {
-        tvExchangeRate.setText("Loading...");
+        tvExchangeRate.setText(R.string.loading);
         
         exchangeRateRepository.getExchangeRate()
                 .thenAccept(this::updateUI)
@@ -97,14 +95,14 @@ public class ExchangeRateFragment extends Fragment {
      * Handle API errors
      */
     private void handleError(Throwable throwable) {
-        Log.e(TAG, "Error fetching exchange rate", throwable);
+        Log.e(TAG, getString(R.string.error_fetching_exchange_rate), throwable);
         
         if (getActivity() == null || !isAdded()) return;
         
         getActivity().runOnUiThread(() -> {
-            tvExchangeRate.setText("Error");
-            Toast.makeText(getContext(), 
-                    "Failed to load exchange rate: " + throwable.getMessage(),
+            tvExchangeRate.setText(R.string.error);
+            Toast.makeText(getContext(),
+                    getString(R.string.failed_to_load_exchange_rate) + throwable.getMessage(),
                     Toast.LENGTH_SHORT).show();
         });
     }

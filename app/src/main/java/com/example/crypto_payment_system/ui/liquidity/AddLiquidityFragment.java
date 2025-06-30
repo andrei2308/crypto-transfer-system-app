@@ -28,6 +28,7 @@ import com.example.crypto_payment_system.ui.transaction.TransactionResultFragmen
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
+import com.example.crypto_payment_system.utils.validations.Validate;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -97,7 +98,7 @@ public class AddLiquidityFragment extends Fragment {
         addLiquidityButton.setOnClickListener(v -> {
             // Prevent multiple simultaneous transactions
             if (isTransactionInProgress) {
-                Toast.makeText(requireContext(), "Transaction already in progress", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.transaction_already_in_progress, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -105,6 +106,10 @@ public class AddLiquidityFragment extends Fragment {
             String amount = Objects.requireNonNull(amountEditText.getText()).toString();
 
             if (selectedCurrency != null && !amount.isEmpty()) {
+                if (!Validate.hasAmount(amount, selectedCurrency.getCode(), viewModel)) {
+                    amountEditText.setError(getString(R.string.insufficient_balance));
+                    return;
+                }
                 addLiquidity(selectedCurrency.getCode(), amount);
             } else if (selectedCurrency == null) {
                 Toast.makeText(requireContext(), R.string.please_select_a_currency, Toast.LENGTH_SHORT).show();
@@ -231,7 +236,7 @@ public class AddLiquidityFragment extends Fragment {
 
             @Override
             public void onDenied(String reason) {
-                Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.transaction_cancelled + reason, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -249,7 +254,7 @@ public class AddLiquidityFragment extends Fragment {
 
             simulateTransactionProgress();
         } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error showing transaction dialog: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_showing_transaction_dialog + e.getMessage(), Toast.LENGTH_SHORT).show();
             isTransactionInProgress = false;
         }
     }
@@ -364,11 +369,11 @@ public class AddLiquidityFragment extends Fragment {
         if (balances == null) return;
 
         if (balances.containsKey(EURSC)) {
-            contractEurBalanceValue.setText(balances.get(EURSC).getFormattedContractBalance() + " EUR");
+            contractEurBalanceValue.setText(balances.get(EURSC).getFormattedContractBalance() + " EURSC");
         }
 
         if (balances.containsKey(USDT)) {
-            contractUsdBalanceValue.setText(balances.get(USDT).getFormattedContractBalance() + " USD");
+            contractUsdBalanceValue.setText(balances.get(USDT).getFormattedContractBalance() + " USDT");
         }
     }
 

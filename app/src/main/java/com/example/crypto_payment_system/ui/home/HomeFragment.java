@@ -138,8 +138,8 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
 
         TextView fromCurrencyLabel = binding.fromCurrencyLabel;
         TextView toCurrencyLabel = binding.toCurrencyLabel;
-        fromCurrencyLabel.setText("EURSC amount");
-        toCurrencyLabel.setText("USDT equivalent");
+        fromCurrencyLabel.setText(R.string.eursc_amount);
+        toCurrencyLabel.setText(R.string.usdt_equivalent);
 
         binding.quickFromCurrencySpinner.setVisibility(View.GONE);
         binding.quickToCurrencySpinner.setVisibility(View.GONE);

@@ -7,7 +7,6 @@
     android:clickable="true"
     android:focusable="true">
 
-    <!-- Full-screen semi-transparent overlay -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,14 +14,12 @@
         android:clickable="true"
         android:focusable="true" />
 
-    <!-- Main content card -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="top">
 
-        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,7 +46,6 @@
                 app:tint="@color/textWhite" />
         </RelativeLayout>
 
-        <!-- Options Menu -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -131,7 +127,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Make a card payment"
+                    android:text="@string/make_a_card_payment"
                     android:textColor="@color/textPrimary"
                     android:textSize="16sp" />
             </LinearLayout>

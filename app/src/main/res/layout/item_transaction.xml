@@ -12,20 +12,18 @@
     android:paddingBottom="16dp"
     android:background="?attr/selectableItemBackground">
 
-    <!-- Status Indicator -->
     <TextView
         android:id="@+id/statusIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/colorGray200"
         android:padding="8dp"
-        android:text="Status: executed"
+        android:text="@string/status_executed"
         android:textColor="@color/textSecondary"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Date or Numeric Indicator -->
     <TextView
         android:id="@+id/dateIndicatorText"
         android:layout_width="wrap_content"
@@ -44,12 +42,11 @@
         android:layout_height="wrap_content"
         android:textColor="@color/textSecondary"
         android:textSize="12sp"
-        android:text="APR."
+        android:text="@string/apr"
         app:layout_constraintStart_toStartOf="@id/dateIndicatorText"
         app:layout_constraintEnd_toEndOf="@id/dateIndicatorText"
         app:layout_constraintTop_toBottomOf="@id/dateIndicatorText" />
 
-    <!-- Transaction Merchant Name -->
     <TextView
         android:id="@+id/merchantNameTextView"
         android:layout_width="0dp"
@@ -65,7 +62,6 @@
         app:layout_constraintTop_toBottomOf="@id/statusIndicator"
         tools:text="TedsCoffee Bucuresti RO" />
 
-    <!-- Transaction Type/Location -->
     <TextView
         android:id="@+id/transactionTypeTextView"
         android:layout_width="0dp"
@@ -79,7 +75,6 @@
         app:layout_constraintTop_toBottomOf="@id/merchantNameTextView"
         tools:text="POS_ATM" />
 
-    <!-- Transaction Amount -->
     <TextView
         android:id="@+id/amountTextView"
         android:layout_width="wrap_content"
@@ -92,7 +87,6 @@
         app:layout_constraintBottom_toBottomOf="@id/transactionTypeTextView"
         tools:text="-17,00 RON" />
 
-    <!-- Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

@@ -3,6 +3,7 @@ package com.example.crypto_payment_system.view.viewmodels;
 import static com.example.crypto_payment_system.config.Constants.ADD_LIQUIDITY;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_EUR;
 import static com.example.crypto_payment_system.config.Constants.CURRENCY_USD;
+import static com.example.crypto_payment_system.config.Constants.ETH;
 import static com.example.crypto_payment_system.config.Constants.EURSC;
 import static com.example.crypto_payment_system.config.Constants.EUR_TO_USD;
 import static com.example.crypto_payment_system.config.Constants.EUR_TO_USD_TRANSFER;
@@ -48,6 +49,7 @@ import com.example.crypto_payment_system.service.web3.Web3Service;
 import com.example.crypto_payment_system.service.web3.Web3ServiceImpl;
 import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
+import com.example.crypto_payment_system.utils.validations.Validate;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -380,6 +382,15 @@ public class MainViewModel extends AndroidViewModel {
                         String confirmationMessage = "Converting " + displayAmount + " " + displayCurrency +
                                 " will cost approximately " + ethAmount + " ETH. Proceed?";
 
+                        if (!Validate.hasAmount(String.valueOf(ethAmount), ETH, this)) {
+                            isLoading.postValue(false);
+                            transactionResult.postValue(new TransactionResult(
+                                    false,
+                                    null,
+                                    "Insufficient funds"));
+                            return;
+                        }
+
                         transactionConfirmation.postValue(new ConfirmationRequest(
                                 confirmationMessage,
                                 () -> executeTokenMinting(currency, tokenAmount, displayAmount, displayCurrency)
@@ -404,6 +415,7 @@ public class MainViewModel extends AndroidViewModel {
      * Execute the actual token minting after user confirmation
      */
     private void executeTokenMinting(String currency, String tokenAmount, String displayAmount, String displayCurrency) {
+
         isLoading.setValue(true);
 
         exchangeRepository.mintTokens(currency, getActiveCredentials(), tokenAmount)

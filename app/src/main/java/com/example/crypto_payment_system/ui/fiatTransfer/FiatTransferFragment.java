@@ -35,6 +35,7 @@ import com.example.crypto_payment_system.utils.confirmation.ConfirmationRequest;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
 import com.example.crypto_payment_system.utils.simpleFactory.RepositoryFactory;
+import com.example.crypto_payment_system.utils.validations.Validate;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -149,15 +150,15 @@ public class FiatTransferFragment extends Fragment {
 
     private void showConfirmationDialog(ConfirmationRequest request) {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Confirm Transaction")
+                .setTitle(R.string.confirm_transaction)
                 .setMessage(request.getMessage())
-                .setPositiveButton("Confirm", (dialog, which) -> {
+                .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     showTransactionProgressDialog();
                     updateProgressIfShowing(TransactionProgressDialog.TransactionState.SUBMITTING);
 
                     request.getOnConfirm().run();
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     handleMintingCanceled();
                 })
                 .setCancelable(false)
@@ -184,7 +185,7 @@ public class FiatTransferFragment extends Fragment {
 
         if (!isTransactionInProgress.compareAndSet(false, true)) {
             Toast.makeText(requireContext(),
-                    "Transaction already in progress",
+                    R.string.transaction_already_in_progress,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -213,7 +214,7 @@ public class FiatTransferFragment extends Fragment {
             Currency selectedCurrency = currencyAdapter.getSelectedCurrency();
 
             if (selectedCurrency == null) {
-                showError("Please select a currency");
+                showError(getString(R.string.please_select_a_currency));
                 return null;
             }
 
@@ -222,8 +223,8 @@ public class FiatTransferFragment extends Fragment {
 
             return new TransferDetails(recipientAddress, amount, stripeCurrency, selectedCurrency);
         } catch (Exception e) {
-            Log.e(TAG, "Error extracting transfer details", e);
-            showError("Invalid transfer details");
+            Log.e(TAG, getString(R.string.error_extracting_transfer_details), e);
+            showError(getString(R.string.invalid_transfer_details));
             return null;
         }
     }
@@ -263,7 +264,7 @@ public class FiatTransferFragment extends Fragment {
             @Override
             public void onDenied(String reason) {
                 showLoadingState(false);
-                Toast.makeText(getContext(), "Transaction cancelled: " + reason, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.transaction_cancelled + reason, Toast.LENGTH_SHORT).show();
                 resetTransactionState();
             }
         });
@@ -277,14 +278,14 @@ public class FiatTransferFragment extends Fragment {
 
     private void handlePaymentIntentError(Throwable throwable) {
         showLoadingState(false);
-        Log.e(TAG, "Payment intent creation failed", throwable);
-        showError("Failed to initiate payment: " + throwable.getMessage());
+        Log.e(TAG, getString(R.string.payment_intent_creation_failed), throwable);
+        showError(getString(R.string.failed_to_initiate_payment) + throwable.getMessage());
         resetTransactionState();
     }
 
     private void presentPaymentSheet(PaymentIntentResponse response) {
-        PaymentSheet.Configuration configuration = new PaymentSheet.Configuration.Builder("Crypto Payment System")
-                .merchantDisplayName("Crypto Payment System")
+        PaymentSheet.Configuration configuration = new PaymentSheet.Configuration.Builder(getString(R.string.crypto_payment_system))
+                .merchantDisplayName(getString(R.string.crypto_payment_system))
                 .allowsDelayedPaymentMethods(true)
                 .build();
 
@@ -305,7 +306,7 @@ public class FiatTransferFragment extends Fragment {
     }
 
     private void handlePaymentCompleted() {
-        showMessage("Payment submitted successfully!");
+        showMessage(getString(R.string.payment_submitted_successfully));
 
         pendingAmount = Objects.requireNonNull(amountTeit.getText()).toString();
         pendingRecipient = Objects.requireNonNull(recipientAddressTeit.getText()).toString().trim();
@@ -348,7 +349,7 @@ public class FiatTransferFragment extends Fragment {
                     }
 
                     updateProgressIfShowing(TransactionProgressDialog.TransactionState.PENDING);
-                    showMessage("Tokens minted successfully. Initiating transfer...");
+                    showMessage(getString(R.string.tokens_minted_successfully_initiating_transfer));
 
                     isMintingPhase = false;
                     double amount = Double.parseDouble(pendingAmount);
@@ -361,7 +362,7 @@ public class FiatTransferFragment extends Fragment {
                         viewModel.sendMoney(pendingRecipient.toLowerCase(), USDT, formattedAmount);
                     }, 500);
                 } else {
-                    handleBlockchainOperationFailure("Minting failed: " + result.getMessage());
+                    handleBlockchainOperationFailure(getString(R.string.minting_failed) + result.getMessage());
                     viewModel.getTransactionResult().removeObserver(this);
                     isBlockchainOperationInProgress.set(false);
                 }
@@ -380,7 +381,7 @@ public class FiatTransferFragment extends Fragment {
 
                     uiHandler.postDelayed(() -> {
                         updateProgressIfShowing(TransactionProgressDialog.TransactionState.CONFIRMED);
-                        showMessage("Transfer completed successfully!");
+                        showMessage(getString(R.string.transfer_completed_successfully));
 
                         viewModel.getTransactionResult().removeObserver(this);
                         transactionObserver = null;
@@ -394,7 +395,7 @@ public class FiatTransferFragment extends Fragment {
                         }, DIALOG_DISMISS_DELAY);
                     }, 1000);
                 } else {
-                    handleBlockchainOperationFailure("Transfer failed: " + result.getMessage());
+                    handleBlockchainOperationFailure(getString(R.string.transfer_failed) + result.getMessage());
                     viewModel.getTransactionResult().removeObserver(this);
                     transactionObserver = null;
                     isBlockchainOperationInProgress.set(false);
@@ -414,9 +415,9 @@ public class FiatTransferFragment extends Fragment {
                 success,
                 lastTransactionHash != null ? lastTransactionHash : "",
                 displayAmount,
-                "Fiat Transfer",
+                getString(R.string.fiat_transfer),
                 System.currentTimeMillis(),
-                message != null ? message : (success ? "Transaction completed successfully" : "Transaction failed")
+                message != null ? message : (success ? getString(R.string.transaction_completed_successfully) : getString(R.string.transaction_failed))
         );
 
         requireActivity().getSupportFragmentManager()
@@ -432,7 +433,7 @@ public class FiatTransferFragment extends Fragment {
         isBlockchainOperationInProgress.set(false);
         dismissProgressDialog();
         resetTransactionState();
-        showMessage("Transaction canceled");
+        showMessage(getString(R.string.transaction_cancelled));
     }
 
     private void handleBlockchainOperationFailure(String errorMessage) {
@@ -447,12 +448,12 @@ public class FiatTransferFragment extends Fragment {
     }
 
     private void handlePaymentCanceled() {
-        showMessage("Payment canceled");
+        showMessage(getString(R.string.payment_canceled));
         resetTransactionState();
     }
 
     private void handlePaymentFailed(PaymentSheetResult.Failed failed) {
-        showError("Payment failed: " + failed.getError().getLocalizedMessage());
+        showError(getString(R.string.payment_failed) + failed.getError().getLocalizedMessage());
         resetTransactionState();
     }
 
@@ -467,8 +468,8 @@ public class FiatTransferFragment extends Fragment {
             progressDialog.updateState(TransactionProgressDialog.TransactionState.PREPARING);
 
         } catch (Exception e) {
-            Log.e(TAG, "Error showing transaction dialog", e);
-            showError("Error displaying transaction progress");
+            Log.e(TAG, getString(R.string.error_showing_transaction_dialog), e);
+            showError(getString(R.string.error_displaying_transaction_progress));
             resetTransactionState();
         }
     }
@@ -500,7 +501,7 @@ public class FiatTransferFragment extends Fragment {
                 .thenAccept(response -> runOnUiThread(() ->
                         updateProgressDialogBasedOnStatus(response.getStatus())))
                 .exceptionally(throwable -> {
-                    Log.e(TAG, "Failed to check payment status", throwable);
+                    Log.e(TAG, getString(R.string.failed_to_check_payment_status), throwable);
                     return null;
                 });
     }
@@ -529,9 +530,9 @@ public class FiatTransferFragment extends Fragment {
                 resetTransactionState();
 
                 if (status == PaymentStatus.SUCCEEDED) {
-                    showMessage("Payment completed successfully!");
+                    showMessage(getString(R.string.payment_completed_successfully));
                 } else {
-                    showError("Payment failed. Please try again.");
+                    showError(getString(R.string.payment_failed_please_try_again));
                 }
             }, DIALOG_DISMISS_DELAY);
         }
@@ -551,28 +552,33 @@ public class FiatTransferFragment extends Fragment {
                 .toString().trim();
 
         if (recipientAddress.isEmpty()) {
-            recipientAddressTeit.setError("Please enter recipient address");
+            recipientAddressTeit.setError(getString(R.string.please_enter_recipient_address));
             return false;
         }
 
         if (amountStr.isEmpty()) {
-            amountTeit.setError("Please enter an amount");
+            amountTeit.setError(getString(R.string.please_enter_an_amount));
+            return false;
+        }
+
+        if (!Validate.hasAmount(amountStr, USDT, viewModel)) {
+            amountTeit.setError(getString(R.string.insufficient_balance));
             return false;
         }
 
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
-                amountTeit.setError("Amount must be greater than zero");
+                amountTeit.setError(getString(R.string.amount_must_be_greater_than_zero));
                 return false;
             }
         } catch (NumberFormatException e) {
-            amountTeit.setError("Please enter a valid number");
+            amountTeit.setError(getString(R.string.please_enter_a_valid_number));
             return false;
         }
 
         if (currencySpinner.getSelectedItem() == null) {
-            showMessage("Please select a currency");
+            showMessage(getString(R.string.please_select_a_currency));
             return false;
         }
 

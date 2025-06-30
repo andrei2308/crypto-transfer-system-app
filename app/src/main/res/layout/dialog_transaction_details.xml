@@ -23,7 +23,6 @@
             android:padding="24dp"
             android:background="@drawable/transaction_dialog_gradient">
 
-            <!-- Enhanced Header with Icon -->
             <ImageView
                 android:id="@+id/transactionHeaderIcon"
                 android:layout_width="48dp"
@@ -52,7 +51,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <!-- Enhanced Transaction Type Section -->
             <LinearLayout
                 android:id="@+id/transactionTypeContainer"
                 android:layout_width="match_parent"
@@ -101,7 +99,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Enhanced Amount Section -->
             <LinearLayout
                 android:id="@+id/transactionAmountContainer"
                 android:layout_width="match_parent"
@@ -150,7 +147,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Enhanced Timestamp Section -->
             <LinearLayout
                 android:id="@+id/transactionTimestampContainer"
                 android:layout_width="match_parent"
@@ -199,7 +195,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Enhanced Divider -->
             <View
                 android:id="@+id/divider"
                 android:layout_width="match_parent"
@@ -208,7 +203,6 @@
                 android:background="@drawable/transaction_divider_gradient"
                 app:layout_constraintTop_toBottomOf="@id/transactionTimestampContainer" />
 
-            <!-- Enhanced Technical Details Header -->
             <LinearLayout
                 android:id="@+id/technicalDetailsHeader"
                 android:layout_width="match_parent"
@@ -237,7 +231,6 @@
                     android:layout_marginStart="12dp" />
             </LinearLayout>
 
-            <!-- Enhanced Transaction Hash Section -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/transactionHashCard"
                 android:layout_width="match_parent"
@@ -305,7 +298,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Enhanced Token Address Section -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/tokenAddressCard"
                 android:layout_width="match_parent"
@@ -373,7 +365,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Enhanced Wallet Address Section -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/walletAddressCard"
                 android:layout_width="match_parent"
@@ -441,7 +432,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Enhanced Explorer Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/viewOnExplorerButton"
                 android:layout_width="match_parent"

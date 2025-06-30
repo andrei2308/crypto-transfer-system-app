@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -66,7 +67,7 @@ public class TransactionResultFragment extends Fragment {
 
         if (success) {
             statusIcon.setImageResource(R.drawable.ic_check_circle_green);
-            statusText.setText("Transactions sent successfully");
+            statusText.setText(R.string.transactions_sent_successfully);
             statusText.setTextColor(getResources().getColor(R.color.colorSuccess));
         } else {
             statusIcon.setImageResource(R.drawable.ic_error_red);

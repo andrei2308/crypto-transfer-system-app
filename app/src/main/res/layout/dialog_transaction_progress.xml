@@ -62,7 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="0%"
+        android:text="@string/_0"
         android:textSize="12sp"
         android:textColor="@color/textSecondary"
         app:layout_constraintTop_toBottomOf="@id/progressBar"
@@ -95,7 +95,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
-
-    <!-- Remove the button container since we're auto-dismissing -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
