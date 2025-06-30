@@ -28,7 +28,6 @@ import com.example.crypto_payment_system.ui.transaction.TransactionResultFragmen
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
 import com.example.crypto_payment_system.utils.progress.TransactionProgressDialog;
-import com.example.crypto_payment_system.utils.validations.Validate;
 import com.example.crypto_payment_system.utils.web3.TransactionResult;
 import com.example.crypto_payment_system.view.viewmodels.MainViewModel;
 import com.google.android.material.textfield.TextInputEditText;
@@ -281,11 +280,6 @@ public class MintFragment extends Fragment {
 
         if (amountStr.isEmpty()) {
             mintAmountEditText.setError("Please enter the amount to mint");
-            return;
-        }
-
-        if (!Validate.hasAmount(amountStr, USDT, viewModel)) {
-            mintAmountEditText.setError(getString(R.string.insufficient_balance));
             return;
         }
 
