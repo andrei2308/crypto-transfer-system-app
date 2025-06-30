@@ -247,6 +247,7 @@
     <string name="_0x7a1b_8f4d">0x7A1b...8F4d</string>
     <string name="ethereum_sepolia">Ethereum sepolia</string>
     <string name="make_a_card_payment">Make a card payment</string>
+    <string name="loading">Loading...</string>
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
         <item>EURSC (Euro stablecoin)</item>

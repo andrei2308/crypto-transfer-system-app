@@ -52,9 +52,7 @@ public class ExchangeRateFragment extends Fragment {
         tvFromCurrency = view.findViewById(R.id.tv_from_currency);
         tvToCurrency = view.findViewById(R.id.tv_to_currency);
         tvTimestamp = view.findViewById(R.id.tv_timestamp);
-        
-        view.findViewById(R.id.btn_refresh).setOnClickListener(v -> fetchExchangeRate());
-        
+
         return view;
     }
     
@@ -68,7 +66,7 @@ public class ExchangeRateFragment extends Fragment {
      * Fetch exchange rate data from the API
      */
     private void fetchExchangeRate() {
-        tvExchangeRate.setText("Loading...");
+        tvExchangeRate.setText(R.string.loading);
         
         exchangeRateRepository.getExchangeRate()
                 .thenAccept(this::updateUI)
