@@ -353,18 +353,28 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
 
         if (preferredCurrenciesStr != null && !preferredCurrenciesStr.isEmpty()) {
             String[] currencies = preferredCurrenciesStr.split(",");
+
+            List<String> validCurrencies = new ArrayList<>();
             for (String currency : currencies) {
                 String trimmedCurrency = currency.trim().toUpperCase();
                 if (EURSC.equals(trimmedCurrency) || USDT.equals(trimmedCurrency)) {
-                    preferredCurrencies.add(trimmedCurrency);
+                    validCurrencies.add(trimmedCurrency);
                 }
+            }
+
+            if (validCurrencies.contains(USDT)) {
+                preferredCurrencies.add(USDT);
+            }
+            if (validCurrencies.contains(EURSC)) {
+                preferredCurrencies.add(EURSC);
             }
         }
 
         if (preferredCurrencies.isEmpty()) {
-            preferredCurrencies.add(EURSC);
             preferredCurrencies.add(USDT);
+            preferredCurrencies.add(EURSC);
         }
+
         return preferredCurrencies;
     }
 
