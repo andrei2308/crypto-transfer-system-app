@@ -764,6 +764,10 @@ public class MainViewModel extends AndroidViewModel {
         return walletManager.getActiveAccountLiveData();
     }
 
+    public void setActiveAccount(WalletAccount account) {
+        walletManager.setActiveAccount(account);
+    }
+
     public void setSelectedCurrency(String currency) {
         selectedCurrency.setValue(currency);
         updateFilteredTransactions(currency);

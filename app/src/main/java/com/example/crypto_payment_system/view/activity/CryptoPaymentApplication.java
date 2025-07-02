@@ -425,14 +425,18 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
 
                         updateAddLiquidityVisibility(newAddress);
 
+                        viewModel.setActiveAccount(selectedAccount);
+
                         boolean isConnected = viewModel.getConnectionStatus().getValue() != null &&
                                 !viewModel.getConnectionStatus().getValue().startsWith("Error");
 
+                        if (walletAddressText != null) {
+                            walletAddressText.setText(newAddress);
+                        }
+
                         if (!isConnected) {
-                            if (walletAddressText != null) {
-                                walletAddressText.setText(newAddress);
-                            }
                             previouslySelectedAddress[0] = newAddress;
+                            Log.d(TAG, "Account selected while disconnected: " + selectedAccount.getName());
                             return;
                         }
 
@@ -442,17 +446,29 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
                                     progressBar.setVisibility(View.VISIBLE);
                                 }
 
-                                if (walletAddressText != null) {
-                                    walletAddressText.setText(newAddress);
-                                }
-
                                 viewModel.switchAccount(newAddress);
 
-                                Toast.makeText(CryptoPaymentApplication.this, getString(R.string.switching_to_account) + selectedAccount.getName(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CryptoPaymentApplication.this,
+                                        getString(R.string.switching_to_account) + selectedAccount.getName(),
+                                        Toast.LENGTH_SHORT).show();
+
                                 previouslySelectedAddress[0] = newAddress;
 
                             } catch (JSONException e) {
-                                Toast.makeText(CryptoPaymentApplication.this, getString(R.string.error_switching_accounts) + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e(TAG, "Error switching accounts", e);
+                                Toast.makeText(CryptoPaymentApplication.this,
+                                        getString(R.string.error_switching_accounts) + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+
+                                if (previouslySelectedAddress[0] != null) {
+                                    for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
+                                        WalletAccount account = accountArrayAdapter.getItem(i);
+                                        if (account != null && account.getAddress().equals(previouslySelectedAddress[0])) {
+                                            viewModel.setActiveAccount(account);
+                                            break;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -464,22 +480,52 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
                 }
             });
 
+            final boolean[] isUpdatingFromViewModel = {false};
+
             viewModel.getAccounts().observe(this, accounts -> {
+                if (isUpdatingFromViewModel[0]) return; // Prevent loops
+
                 accountArrayAdapter.clear();
                 accountArrayAdapter.addAll(accounts);
                 accountArrayAdapter.notifyDataSetChanged();
 
                 WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
                 if (activeAccount != null) {
+                    isUpdatingFromViewModel[0] = true;
+
                     for (int i = 0; i < accountArrayAdapter.getCount(); i++) {
                         WalletAccount account = accountArrayAdapter.getItem(i);
                         if (account != null && account.getAddress().equals(activeAccount.getAddress())) {
-                            accountsSpinner.setSelection(i);
+                            accountsSpinner.setSelection(i, false);
                             previouslySelectedAddress[0] = activeAccount.getAddress();
 
-                            // Update Add Liquidity visibility for the active account
                             updateAddLiquidityVisibility(activeAccount.getAddress());
                             break;
+                        }
+                    }
+
+                    isUpdatingFromViewModel[0] = false;
+                }
+            });
+
+            viewModel.getConnectionStatus().observe(this, connectionStatus -> {
+                boolean isConnected = connectionStatus != null && !connectionStatus.startsWith("Error");
+
+                if (isConnected) {
+                    WalletAccount activeAccount = viewModel.getActiveAccount().getValue();
+                    if (activeAccount != null) {
+                        String activeAddress = activeAccount.getAddress();
+
+                        if (!activeAddress.equals(previouslySelectedAddress[0]) && previouslySelectedAddress[0] != null) {
+                            try {
+                                Log.d(TAG, "Syncing blockchain with selected account on connection");
+                                viewModel.switchAccount(previouslySelectedAddress[0]);
+                            } catch (JSONException e) {
+                                Log.e(TAG, "Error syncing account on connection", e);
+                                Toast.makeText(CryptoPaymentApplication.this,
+                                        "Error syncing selected account: " + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 }
