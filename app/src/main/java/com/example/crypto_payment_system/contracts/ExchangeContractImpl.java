@@ -145,11 +145,9 @@ public class ExchangeContractImpl implements ExchangeContract {
     }
 
     /**
-     * Helper method to send a transaction to the exchange contract
+     * Improved transaction sending with better nonce management and gas estimation
      */
-    private String sendTransaction(Credentials credentials, Function function)
-            throws Exception {
-
+    private String sendTransaction(Credentials credentials, Function function) throws Exception {
         Web3j web3j = getWeb3j();
         String contractAddress = getContractAddress();
 
@@ -165,11 +163,20 @@ public class ExchangeContractImpl implements ExchangeContract {
 
         BigInteger nonce = web3j.ethGetTransactionCount(
                 credentials.getAddress(),
-                DefaultBlockParameterName.LATEST
+                DefaultBlockParameterName.PENDING
         ).sendAsync().get().getTransactionCount();
 
         BigInteger gasPrice = web3j.ethGasPrice().sendAsync().get().getGasPrice();
-        BigInteger gasLimit = BigInteger.valueOf(Constants.DEFAULT_GAS_LIMIT);
+        gasPrice = gasPrice.multiply(BigInteger.valueOf(110)).divide(BigInteger.valueOf(100));
+
+        BigInteger gasLimit = estimateGasLimit(credentials.getAddress(), contractAddress, encodedFunction);
+
+        System.out.println("Transaction details:");
+        System.out.println("  From: " + credentials.getAddress());
+        System.out.println("  To: " + contractAddress);
+        System.out.println("  Nonce: " + nonce);
+        System.out.println("  Gas Price: " + gasPrice);
+        System.out.println("  Gas Limit: " + gasLimit);
 
         RawTransaction rawTransaction = RawTransaction.createTransaction(
                 nonce,
@@ -185,10 +192,51 @@ public class ExchangeContractImpl implements ExchangeContract {
         EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexValue).sendAsync().get();
 
         if (ethSendTransaction.hasError()) {
-            throw new Exception("Error sending transaction: " + ethSendTransaction.getError().getMessage());
+            String errorMessage = ethSendTransaction.getError().getMessage();
+            System.err.println("Transaction error: " + errorMessage);
+            throw new Exception("Error sending transaction: " + errorMessage);
         }
 
-        return ethSendTransaction.getTransactionHash();
+        String txHash = ethSendTransaction.getTransactionHash();
+
+        if (txHash == null || txHash.isEmpty()) {
+            throw new Exception("Transaction hash is null or empty - transaction may not have been submitted");
+        }
+
+        System.out.println("Transaction submitted with hash: " + txHash);
+
+        return txHash;
+    }
+
+    /**
+     * Estimate gas limit with buffer
+     */
+    private BigInteger estimateGasLimit(String fromAddress, String contractAddress, String encodedFunction) {
+        try {
+            Web3j web3j = getWeb3j();
+
+            BigInteger estimatedGas = web3j.ethEstimateGas(
+                    Transaction.createFunctionCallTransaction(
+                            fromAddress,
+                            null,
+                            BigInteger.ZERO,
+                            BigInteger.ZERO,
+                            contractAddress,
+                            encodedFunction
+                    )
+            ).sendAsync().get().getAmountUsed();
+
+            BigInteger gasWithBuffer = estimatedGas
+                    .multiply(BigInteger.valueOf(100 + 20))
+                    .divide(BigInteger.valueOf(100));
+
+            System.out.println("Estimated gas: " + estimatedGas + ", with buffer: " + gasWithBuffer);
+            return gasWithBuffer;
+
+        } catch (Exception e) {
+            System.err.println("Gas estimation failed, using default: " + e.getMessage());
+            return BigInteger.valueOf(Constants.DEFAULT_GAS_LIMIT);
+        }
     }
 
     /**
@@ -224,13 +272,10 @@ public class ExchangeContractImpl implements ExchangeContract {
                 DefaultBlockParameterName.LATEST
         ).sendAsync().get();
 
-        // Modify your error handling to get more details
         if (ethCall.hasError()) {
             String errorMessage = ethCall.getError().getMessage();
-            // Many contracts return error details in the response value when reverting
             String errorData = ethCall.getValue();
 
-            // Log both for debugging
             System.out.println("Error calling contract. Message: " + errorMessage);
             System.out.println("Error data: " + errorData);
 

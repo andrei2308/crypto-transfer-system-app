@@ -432,7 +432,7 @@ public class MainViewModel extends AndroidViewModel {
 
                     if (result.isSuccess()) {
                         tokenRepository.getAllBalances(getActiveCredentials())
-                                .thenAccept(balances -> tokenBalances.postValue(balances));
+                                .thenAccept(tokenBalances::postValue);
                     }
                 });
     }
@@ -474,7 +474,7 @@ public class MainViewModel extends AndroidViewModel {
 
                         if (result.isSuccess()) {
                             tokenRepository.getAllBalances(getActiveCredentials())
-                                    .thenAccept(balances -> tokenBalances.postValue(balances));
+                                    .thenAccept(tokenBalances::postValue);
                         }
                     });
         } catch (NumberFormatException e) {
@@ -602,7 +602,7 @@ public class MainViewModel extends AndroidViewModel {
         Runnable checkComplete = () -> {
             if (pendingQueries.decrementAndGet() == 0) {
                 List<Transaction> allTransactions = new ArrayList<>(transactionMap.values());
-                Collections.sort(allTransactions, (t1, t2) ->
+                allTransactions.sort((t1, t2) ->
                         Long.compare(t2.getTimestamp(), t1.getTimestamp()));
 
                 transactions.postValue(allTransactions);
