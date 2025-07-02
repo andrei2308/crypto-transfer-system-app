@@ -81,7 +81,7 @@ public class ManageAccountFragment extends Fragment {
         walletAddressText.setText(user.getWalletAddress());
 
         checkBoxEUR.setEnabled(true);
-        checkBoxUSD.setEnabled(true);
+        checkBoxUSD.setEnabled(false);
         saveButton.setEnabled(true);
 
         List<String> preferredCurrencies = new ArrayList<>(

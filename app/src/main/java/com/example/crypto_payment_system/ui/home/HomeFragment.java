@@ -301,14 +301,23 @@ public class HomeFragment extends Fragment implements TransactionAdapter.Transac
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                String selectedCurrency = position == 0 ? EURSC : USDT;
+
+                User currentUser = viewModel.getCurrentUser().getValue();
+                if (currentUser == null) {
+                    return;
+                }
+                List<String> preferredCurrencies = getPreferredCurrencies(currentUser);
+
+                String selectedCurrency = EURSC; // fallback
+                if (position >= 0 && position < preferredCurrencies.size()) {
+                    selectedCurrency = preferredCurrencies.get(position);
+                }
+
                 viewModel.setSelectedCurrency(selectedCurrency);
 
                 if (transactionAdapter != null) {
                     transactionAdapter.setCurrentSelectedCurrency(selectedCurrency);
-
                     binding.transactionsRecyclerView.scrollToPosition(0);
-
                 }
             }
         });

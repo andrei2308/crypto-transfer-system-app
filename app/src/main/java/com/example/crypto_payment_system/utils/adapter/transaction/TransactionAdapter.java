@@ -46,6 +46,10 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
         this.prefferedCurrencies = prefferedCurrencies;
     }
 
+    public int getNumberOfPreferredCurrencies() {
+        return prefferedCurrencies.size();
+    }
+
     @NonNull
     @Override
     public TransactionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
