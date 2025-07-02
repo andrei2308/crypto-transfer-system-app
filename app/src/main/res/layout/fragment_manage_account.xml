@@ -113,6 +113,8 @@
             android:textColor="@color/textPrimary"
             app:buttonTint="@color/colorPrimary"
             android:paddingStart="8dp"
+            android:checked="true"
+            android:enabled="false"
             android:paddingEnd="8dp" />
 
         <TextView

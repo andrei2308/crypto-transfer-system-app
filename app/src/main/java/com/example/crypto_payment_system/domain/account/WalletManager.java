@@ -146,7 +146,7 @@ public class WalletManager {
     /**
      * Save accounts to SharedPreferences
      */
-    private void saveAccounts() throws JSONException {
+    private void saveAccounts() {
         try {
             JSONArray jsonArray = new JSONArray();
             for (WalletAccount account : accounts) {
@@ -165,8 +165,8 @@ public class WalletManager {
             }
 
             editor.apply();
-        } catch (JSONException e) {
-            throw new JSONException("Could not parse json");
+        } catch (Exception e) {
+            throw new RuntimeException("Could not parse json");
         }
     }
 
@@ -289,7 +289,7 @@ public class WalletManager {
     /**
      * Set active account
      */
-    public void setActiveAccount(WalletAccount account) throws JSONException {
+    public void setActiveAccount(WalletAccount account) {
         activeAccount = account;
         activeAccountLiveData.postValue(activeAccount);
         saveAccounts();
