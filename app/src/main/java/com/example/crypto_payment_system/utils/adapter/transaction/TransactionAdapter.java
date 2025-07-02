@@ -20,6 +20,7 @@ import com.example.crypto_payment_system.R;
 import com.example.crypto_payment_system.domain.transaction.Transaction;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -183,7 +184,9 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
                         .divide(new BigDecimal("1000000"));
                 exchangeRate = new BigDecimal(exchangeRateStr)
                         .divide(new BigDecimal("100000000"));
-                amount = amount.multiply(exchangeRate);
+                amount = amount.multiply(exchangeRate)
+                        .setScale(3, RoundingMode.HALF_UP)
+                        .stripTrailingZeros();
             } catch (Exception e) {
                 amount = BigDecimal.ZERO;
             }
