@@ -715,13 +715,13 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
             }
 
             if (!isValidPrivateKey(privateKey)) {
-                Toast.makeText(this, "Invalid private key", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.invalid_private_key, Toast.LENGTH_SHORT).show();
                 return;
             }
 
             addButton.setEnabled(false);
             networkCheckProgress.setVisibility(View.VISIBLE);
-            networkStatusText.setText("Verifying account on network...");
+            networkStatusText.setText(R.string.verifying_account_on_network);
             networkStatusText.setVisibility(View.VISIBLE);
 
             verifyAccountOnNetwork(privateKey, new NetworkVerificationCallback() {
@@ -734,11 +734,12 @@ public class CryptoPaymentApplication extends AppCompatActivity implements Navig
                     });
                 }
 
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onError(String error) {
                     runOnUiThread(() -> {
                         networkCheckProgress.setVisibility(View.GONE);
-                        networkStatusText.setText("Network verification failed: " + error);
+                        networkStatusText.setText(getString(R.string.network_verification_failed) + error);
                         networkStatusText.setTextColor(getColor(android.R.color.holo_red_dark));
                         addButton.setEnabled(true);
                         Toast.makeText(CryptoPaymentApplication.this, "Cannot verify account on network. Please check your private key.", Toast.LENGTH_LONG).show();

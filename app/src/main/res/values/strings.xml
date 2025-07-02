@@ -248,6 +248,11 @@
     <string name="ethereum_sepolia">Ethereum sepolia</string>
     <string name="make_a_card_payment">Make a card payment</string>
     <string name="loading">Loading...</string>
+    <string name="verifying_account_on_network">Verifying account on network...</string>
+    <string name="network_verification_failed">"Network verification failed: "</string>
+    <string name="invalid_private_key">Invalid private key</string>
+    <string name="forbidden_functionality">Forbidden functionality</string>
+    <string name="you_are_not_allowed_to_make_an_exchange_because_you_have_less_than_2_selected_currencies_as_preferred">You are not allowed to make an exchange because you have less than 2 selected currencies as preferred.</string>
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
         <item>EURSC (Euro stablecoin)</item>

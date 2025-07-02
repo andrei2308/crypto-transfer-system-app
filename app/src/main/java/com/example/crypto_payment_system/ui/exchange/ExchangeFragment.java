@@ -4,6 +4,7 @@ import static com.example.crypto_payment_system.config.Constants.EURSC;
 import static com.example.crypto_payment_system.config.Constants.USDT;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -31,6 +33,7 @@ import com.example.crypto_payment_system.config.biometric.classes.TransactionAut
 import com.example.crypto_payment_system.domain.currency.Currency;
 import com.example.crypto_payment_system.domain.token.TokenBalance;
 import com.example.crypto_payment_system.repositories.api.ExchangeRateRepository;
+import com.example.crypto_payment_system.ui.home.HomeFragment;
 import com.example.crypto_payment_system.ui.transaction.TransactionResultFragment;
 import com.example.crypto_payment_system.utils.adapter.currency.CurrencyAdapter;
 import com.example.crypto_payment_system.utils.currency.CurrencyManager;
@@ -248,7 +251,7 @@ public class ExchangeFragment extends Fragment {
         fromCurrencySpinner.setAdapter(fromCurrencyAdapter);
         toCurrencySpinner.setAdapter(toCurrencyAdapter);
 
-        if (currencies.size() > 0) {
+        if (!currencies.isEmpty()) {
             fromCurrencySpinner.setSelection(0);
 
             if (currencies.size() > 1) {
@@ -354,6 +357,20 @@ public class ExchangeFragment extends Fragment {
         fromAmountEditText.setEnabled(false);
         exchangeRateValue.setText("--");
         estimatedAmountValue.setText("--");
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(R.string.forbidden_functionality);
+        builder.setMessage(R.string.you_are_not_allowed_to_make_an_exchange_because_you_have_less_than_2_selected_currencies_as_preferred);
+        builder.setPositiveButton(R.string.ok, (dialog, which) -> {
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+
+            fragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_main, HomeFragment.newInstance())
+                    .commit();
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void enableExchangeFunctionality() {
