@@ -253,6 +253,7 @@
     <string name="invalid_private_key">Invalid private key</string>
     <string name="forbidden_functionality">Forbidden functionality</string>
     <string name="you_are_not_allowed_to_make_an_exchange_because_you_have_less_than_2_selected_currencies_as_preferred">You are not allowed to make an exchange because you have less than 2 selected currencies as preferred.</string>
+    <string name="invalid_ethereum_address">Invalid ethereum address</string>
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
         <item>EURSC (Euro stablecoin)</item>

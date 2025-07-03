@@ -323,6 +323,11 @@ public class SendMoneyFragment extends Fragment {
             return;
         }
 
+        if (!Validate.isValidEthereumAddress(address)) {
+            addressTeit.setError(getString(R.string.invalid_ethereum_address));
+            return;
+        }
+
         if (!Validate.hasAmount(amountStr, Objects.requireNonNull(currencyAdapter.getSelectedCurrency()).getCode(), viewModel)) {
             amountTeit.setError(getString(R.string.insufficient_balance));
             return;

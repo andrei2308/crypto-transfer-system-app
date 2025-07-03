@@ -561,6 +561,11 @@ public class FiatTransferFragment extends Fragment {
             return false;
         }
 
+        if (!Validate.isValidEthereumAddress(recipientAddress)) {
+            recipientAddressTeit.setError(getString(R.string.invalid_ethereum_address));
+            return false;
+        }
+
         if (!Validate.hasAmount(amountStr, USDT, viewModel)) {
             amountTeit.setError(getString(R.string.insufficient_balance));
             return false;

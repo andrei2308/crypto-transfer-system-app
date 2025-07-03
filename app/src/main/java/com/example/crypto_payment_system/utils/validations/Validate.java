@@ -31,4 +31,18 @@ public class Validate {
             return false;
         }
     }
+
+    /**
+     * Validates an Ethereum address by checking only the length
+     *
+     * @param address The address to validate
+     * @return true if address has correct length (42 characters), false otherwise
+     */
+    public static boolean isValidEthereumAddress(String address) {
+        if (address == null) {
+            return false;
+        }
+
+        return address.length() == 42;
+    }
 }
