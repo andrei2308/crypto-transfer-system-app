@@ -68,7 +68,7 @@ public class TokenBalance {
      */
     private String formatTokenBalance(BigInteger rawBalance) {
         BigDecimal balanceWithDecimals = new BigDecimal(rawBalance).divide(TOKEN_DECIMAL_FACTOR, 6, RoundingMode.HALF_DOWN);
-        return balanceWithDecimals.stripTrailingZeros().toPlainString();
+        return balanceWithDecimals.setScale(3, RoundingMode.HALF_DOWN).stripTrailingZeros().toPlainString();
     }
 
     /**
