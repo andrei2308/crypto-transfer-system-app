@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -118,10 +120,20 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
             copyToClipboard("Wallet Address", transaction.getWalletAddress());
         });
 
-        // View on blockchain explorer (example: Etherscan)
         binding.viewOnExplorerButton.setOnClickListener(v -> {
-//            openUrl("https://sepolia.etherscan.io/tx/" + transaction.getTransactionHash());
+            openUrl("https://sepolia.etherscan.io/tx/" + transaction.getTransactionHash());
         });
+    }
+
+    private void openUrl(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+
+        if (intent.resolveActivity(requireContext().getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(requireContext(), "No browser available to open URL", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void copyToClipboard(String label, String text) {
