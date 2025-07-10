@@ -72,6 +72,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
 
     static class TransactionViewHolder extends RecyclerView.ViewHolder {
         private final TextView statusIndicator;
+        private final TextView dateMonthText;
         private final TextView dateIndicatorText;
         private final TextView merchantNameTextView;
         private final TextView transactionTypeTextView;
@@ -89,6 +90,7 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
             merchantNameTextView = itemView.findViewById(R.id.merchantNameTextView);
             transactionTypeTextView = itemView.findViewById(R.id.transactionTypeTextView);
             amountTextView = itemView.findViewById(R.id.amountTextView);
+            dateMonthText = itemView.findViewById(R.id.dateMonthText);
             this.currentUserAddress = currentUserAddress;
             this.prefferedCurrencies = prefferedCurrencies;
         }
@@ -99,7 +101,10 @@ public class TransactionAdapter extends ListAdapter<Transaction, TransactionAdap
 
         public void bind(final Transaction transaction) {
             Date date = new Date(transaction.getTimestamp());
+
             dateIndicatorText.setText(DateFormat.format("dd", date).toString());
+
+            dateMonthText.setText(DateFormat.format("MMM", date).toString().toUpperCase());
             
             merchantNameTextView.setText(shortenHash(transaction.getTransactionHash()));
 
