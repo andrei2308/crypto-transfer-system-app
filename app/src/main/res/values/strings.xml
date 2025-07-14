@@ -254,6 +254,8 @@
     <string name="forbidden_functionality">Forbidden functionality</string>
     <string name="you_are_not_allowed_to_make_an_exchange_because_you_have_less_than_2_selected_currencies_as_preferred">You are not allowed to make an exchange because you have less than 2 selected currencies as preferred.</string>
     <string name="invalid_ethereum_address">Invalid ethereum address</string>
+    <string name="cannot_send_to_self">Can not send to self !\n\n</string>
+    <string name="recipient_wallet_address">Recipient wallet address</string>
     <!-- Currency arrays for settings -->
     <string-array name="display_currency_entries">
         <item>EURSC (Euro stablecoin)</item>

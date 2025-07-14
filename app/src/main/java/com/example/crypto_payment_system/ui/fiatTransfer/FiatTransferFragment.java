@@ -571,6 +571,11 @@ public class FiatTransferFragment extends Fragment {
             return false;
         }
 
+        if (recipientAddress.equals(viewModel.getCurrentUser().getValue().getWalletAddress())) {
+            recipientAddressTeit.setError(getString(R.string.cannot_send_to_self));
+            return false;
+        }
+
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {

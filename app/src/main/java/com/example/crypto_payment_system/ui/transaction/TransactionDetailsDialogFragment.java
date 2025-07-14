@@ -102,7 +102,7 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
 
         binding.transactionHashValue.setText(transaction.getTransactionHash());
 
-        binding.tokenAddressValue.setText(transaction.getTokenAddress());
+        binding.tokenAddressValue.setText(transaction.getWalletAddressTo());
 
         binding.walletAddressValue.setText(transaction.getWalletAddress());
     }
@@ -113,11 +113,11 @@ public class TransactionDetailsDialogFragment extends DialogFragment {
         });
 
         binding.copyTokenAddressButton.setOnClickListener(v -> {
-            copyToClipboard("Token Address", transaction.getTokenAddress());
+            copyToClipboard("Recipient wallet address", transaction.getWalletAddressTo());
         });
 
         binding.copyWalletAddressButton.setOnClickListener(v -> {
-            copyToClipboard("Wallet Address", transaction.getWalletAddress());
+            copyToClipboard("Sender wallet address", transaction.getWalletAddress());
         });
 
         binding.viewOnExplorerButton.setOnClickListener(v -> {

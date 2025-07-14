@@ -333,6 +333,11 @@ public class SendMoneyFragment extends Fragment {
             return;
         }
 
+        if (address.equals(viewModel.getCurrentUser().getValue().getWalletAddress())) {
+            addressTeit.setError(getString(R.string.cannot_send_to_self));
+            return;
+        }
+
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
